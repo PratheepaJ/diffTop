@@ -1,0 +1,22 @@
+---
+title: "Review on statistical methods in molecular microbiology data analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{JABESPaperSupplementary}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+We provide a set of R commands for the paper on ``A Statistical Perspective on the Challenges in Molecular Microbial Biology"
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, eval=FALSE}
+library(JABESPaperSupplementary)
+```
