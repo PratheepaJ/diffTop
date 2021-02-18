@@ -1,0 +1,115 @@
+---
+title: "Section 3: EXAMPLE OF 16S rRNA GENE SEQUENCING DATA"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+We used published data to identify statistical challenges in analyzing molecular microbial data. 
+
+Using the [Google data set search](https://datasetsearch.research.google.com/search?query=16S%20rRNA%20ASV%20Fitzpatrick&docid=BifcGBcKEjlSM5VjAAAAAA%3D%3D), we identified a dataset of 16S rRNA gene sequencing of the root endosphere specimens from Fitzpatrick et al. (2018). 
+
+In this section we create a `phyloseq` object from the [data downloaded from the website.](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
+
+
+Then, we remove low coverage host plant type samples, removes Archaea, Eukaryota or unknown, remove unkown Phylum, remove mitochondira and Chloroplast
+
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+  fig.width = 7, 
+  fig.height = 6, 
+  message = FALSE)
+```
+
+
+```{r}
+library(phyloseq)
+library(tidyverse)
+```
+
+# Create phyloseq object
+
+We downloaded data from this [site](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
+
+We have the following components.
+
+1. PNA_root_microbiome_seqtab.rds - count matrix.
+
+2. PNA_root_microbiome_SILVA_taxa.rds - taxonomy table.
+
+3. PNA_metadata.csv - sample data.
+
+4. PNA_16S_root_microbiome.tre - phylogenetic tree.
+
+Now, we create a `phyloseq` object.
+
+Because the large size of data, we only show the R commands to create a `phyloseq` object. Then, we do processing of data and use that phyloseq for the downstream analysis. In `diffTop` package, we have the phylsoeq object with 6929 ASVs in specimens and controls. 
+
+Read all four files.
+
+```{r eval=FALSE}
+seq_data <- readRDS("../data/PNA_root_microbiome_seqtab.rds")
+SILVA_taxa <- readRDS("../data/PNA_root_microbiome_SILVA_taxa.rds")
+sam_data <- read.csv("../data/PNA_metadata.csv")
+tree <- read_tree("../data/PNA_16S_root_microbiome.tre")
+```
+
+We have specimens in the rows of count matrix. We make sure the row names of sample data and the row names of the count matrix are same.
+
+```{r eval=FALSE}
+rownames(sam_data) <- rownames(seq_data)# this is not the right thing to do, but the authors put the sample order in seq_data and the sam_data as same.
+```
+
+We create phyloseq object and set specimens are in the columns of count matrix. We also name the identified taxonomy levels. 
+
+```{r eval=FALSE}
+ps  <- phyloseq(otu_table(seq_data, 
+                          taxa_are_rows = FALSE),
+                sample_data(sam_data),
+                tax_table(SILVA_taxa), 
+                phy_tree(tree))
+
+if(dim(otu_table(ps))[1]!=ntaxa(ps)){
+  otu_table(ps) <- t(otu_table(ps))
+}
+ps
+
+colnames(tax_table(ps)) <- c("Domain", "Phylum", "Class", "Order", "Family", "Genus")
+
+
+```
+
+After creating a phyloseq object we removed all four files.
+
+```{r eval=FALSE}
+rm(seq_data, SILVA_taxa, tree, sam_data)
+```
+
+# Preprocessing
+- Remove low coverage host plant type samples.
+- Removes Archaea, Eukaryota or unknown.
+- Remove unkown Phylum.
+- Remove mitochondira and Chloroplast.
+
+Remove low coverage host plant type samples with less than 3 replicates, but we keep plant type RX. Here species refer to plant type.
+
+```{r eval=FALSE}
+less_num_replicates <- names(table(sample_data(ps)$species))[which(table(sample_data(ps)$species) <= 3)]
+sample_data(ps)$species <- as.character(sample_data(ps)$species)
+sample_data(ps)$species[which(is.na(sample_data(ps)$species))] <- "control" 
+
+sample_data(ps)$species <- factor(sample_data(ps)$species)
+# from the above list we didn't want to drop plant type "RX"
+ps <- subset_samples(ps, species != "131" & species != "139" & species != "14" & species != "146" & species != "8" & species != "93" & species != "94" & species != "149" & species != "154" & species != "161" & species != "164" & species != "56" & species != "79" & species != "99")
+ps
+```
+
+Removes Archaea, Eukaryota or unknown
+
+We removed ASVs that lacked a kingdom assignment or were assigned to Archaea or Eukaryota (3597 ASVs).
+
+```{r eval=FALSE}
+ps <- subset_taxa(ps, Domain == "Bacteria") 
+ps
+```

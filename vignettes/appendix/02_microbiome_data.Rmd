@@ -1,0 +1,18 @@
+---
+title: "Section 2: MICROBIOME DATA"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+In both marker-gene sequencing and shotgun metagenomics, we identify the data consist four components. 
+
+1. contingency table of read counts.
+
+2. matrix of specimen information.
+
+3. matrix of taxa identifiers at several selected taxonomy levels.
+
+4. phylogenetic tree.
+
+Given a data set with all four components, we create a phyloseq object and use it for the analyses. Please refer to [phyloseq website](https://joey711.github.io/phyloseq/) to learn about the phyloseq class. 

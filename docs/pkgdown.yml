@@ -1,0 +1,17 @@
+pandoc: 2.7.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  appendix/01_introduction: 01_introduction.html
+  appendix/02_microbiome_data: 02_microbiome_data.html
+  appendix/03_example_16S_data: 03_example_16S_data.html
+  appendix/04_models: 04_models.html
+  appendix/05_transformation: 05_transformation.html
+  appendix/06_visualization: 06_visualization.html
+  appendix/07_multivariate_and_network_analysis: 07_multivariate_and_network_analysis.html
+  appendix/08_differential_abundance_analysis: 08_differential_abundance_analysis.html
+  appendix/09_latent_Dirichlet_allocation: 09_latent_Dirichlet_allocation.html
+  appendix/10_uncertainity_quan_ordination: 10_uncertainity_quan_ordination.html
+  appendix/index: index.html
+last_built: 2021-02-18T06:00Z
+

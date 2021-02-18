@@ -1,0 +1,53 @@
+---
+title: "Section 4: MODELS"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+
+Do goodness of fit test for each asv using Monte Carlo method
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+  fig.width = 12, 
+  fig.height = 12,
+  message = FALSE, 
+  warning = FALSE)
+```
+
+
+```{r eval=FALSE}
+pkgs <- c("BiocStyle",
+          "tidyverse",
+         "phyloseq", 
+         "reshape2", 
+         "genefilter",
+         "MASS")
+
+if (!requireNamespace("BiocManager")){
+  install.packages("BiocManager")
+}
+
+BiocManager::install(setdiff(pkgs, installed.packages()), update = TRUE)
+```
+
+
+Load libraries
+
+```{r}
+library(tidyverse)
+library(reshape2)
+library(phyloseq)
+library(genefilter) #KOverA
+library(MASS)
+
+```
+
+## 4.1 Goodness of fit for taxon counts
+
+
+## 4.2 Additive and Multiplicative Errors
+
+
+## 4.3 Library size scaling factor

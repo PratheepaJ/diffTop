@@ -1,0 +1,15 @@
+---
+title: "Section 8: DIFFERENTIAL ABUNDANCE ANALYSIS"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+
+## 8.1 Permutation tests using distance matrices
+
+
+## 8.2 Differential abundance through generalized linear modeling and transformatios
+
+
+## 8.3 Communities instead of individual taxa

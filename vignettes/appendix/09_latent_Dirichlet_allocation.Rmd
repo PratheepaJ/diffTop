@@ -1,0 +1,8 @@
+---
+title: "Section 9: LATENT DIRICHLET ALLOCATION"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+

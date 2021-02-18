@@ -1,0 +1,41 @@
+---
+title: "Section 1: INTRODUCTION"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+<!-- --- -->
+<!-- title: "Section 1: Introduction" -->
+<!-- output: rmarkdown::html_vignette -->
+<!-- --- -->
+
+<!-- vignette: > -->
+<!--   %\VignetteIndexEntry{Reproducible Research Appendix} -->
+<!--   %\VignetteEngine{knitr::rmarkdown} -->
+<!--   %\VignetteEncoding{UTF-8} -->
+
+This document serves as an appendix to the reproducible research for the paper on ``A Statistical Perspective on the Challenges in Molecular Microbial Biology" in The Journal of Agricultural, Biological and Environmental Statistics.
+
+The following articles provide description of four components of microbiome data, description of an example dataset we used in the Jeganathan et al. (2021), demonstrate a few statistical tools that can overcome some of the difficulties in analyzing molecular microbial data, and introduce differential topic analysis that can facilitate inferences on latent microbial communities.
+
+To do reproducible analysis of the research in Jeganathan et al. (2021), we suggest to install ``diffTop`` package. 
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r eval=FALSE}
+remotes::install_github("PratheepaJ/diffTop")
+```
+
+Next we load the package ``diffTop``
+
+```{r eval=FALSE}
+library(diffTop)
+```
+
+Now we will walk you through the sections in Jeganathan et al. (2021) to reproduce the analysis. 

@@ -1,0 +1,8 @@
+---
+title: "Section 6: VISUALIZATIONS FOR HETEROGENEOUS DATA"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+

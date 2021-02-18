@@ -1,0 +1,62 @@
+---
+title: "Section 5: TRANSFORMATIONSA"
+author: "Pratheepa Jeganathan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: BiocStyle::html_document
+---
+
+
+In this section we create a phyloseq from the data [site](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
+
+
+Then, we remove low coverage host plant type samples, removes Archaea, Eukaryota or unknown, remove unkown Phylum, remove mitochondira and Chloroplast
+
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+  fig.width = 7, 
+  fig.height = 6, 
+  message = FALSE)
+```
+
+```{r eval=FALSE}
+pkgs = c("phyloseq", 
+         "dplyr", 
+         "magrittr", 
+         "Rcpp", 
+         "RColorBrewer",
+         "reshape2", 
+         "tidyr", 
+         "genefilter", 
+         "DESeq2", 
+         "ape", 
+         "gtools", 
+         "abind")
+
+if (!requireNamespace("BiocManager")){
+  install.packages("BiocManager")
+}
+
+BiocManager::install(setdiff(pkgs, installed.packages()), update = TRUE)
+```
+
+
+Load libraries
+
+```{r}
+library(phyloseq)
+library(tidyverse)
+library(RColorBrewer)
+library(reshape2)
+library(genefilter) #KOverA
+library(DESeq2)
+```
+
+# Create phyloseq object
+
+We downloaded data from this [site](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
+
+We read count matrix (PNA_root_microbiome_seqtab.rds), taxanomy assignment (PNA_root_microbiome_SILVA_taxa.rds), sample information (PNA_metadata.csv), and phylogenetic tree (PNA_16S_root_microbiome.tre).
+
+Then, we create a phyloseq object.
+
