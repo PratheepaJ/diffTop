@@ -1,5 +1,5 @@
 ---
-title: "Section 5: TRANSFORMATIONSA"
+title: "Section 5: TRANSFORMATIONS"
 author: "Pratheepa Jeganathan"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: BiocStyle::html_document

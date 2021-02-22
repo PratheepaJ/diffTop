@@ -12,7 +12,7 @@ Using the [Google data set search](https://datasetsearch.research.google.com/sea
 In this section we create a `phyloseq` object from the [data downloaded from the website.](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
 
 
-Then, we remove low coverage host plant type samples, removes Archaea, Eukaryota or unknown, remove unkown Phylum, remove mitochondira and Chloroplast
+Then, we remove low coverage host plant type samples, removes Archaea, Eukaryota or unknown, remove unkown Phylum, remove mitochondira and Chloroplast.
 
 
 ```{r include=FALSE}
@@ -44,7 +44,7 @@ We have the following components.
 
 Now, we create a `phyloseq` object.
 
-Because the large size of data, we only show the R commands to create a `phyloseq` object. Then, we do processing of data and use that phyloseq for the downstream analysis. In `diffTop` package, we have the phylsoeq object with 6929 ASVs in specimens and controls. 
+Because the data set is large, we only show the R commands to create a `phyloseq` object. Then, we do processing of data and use that phyloseq for the downstream analysis. In `diffTop` package, we have the phylsoeq object with 6929 ASVs in specimens and controls. 
 
 Read all four files.
 
@@ -55,7 +55,7 @@ sam_data <- read.csv("../data/PNA_metadata.csv")
 tree <- read_tree("../data/PNA_16S_root_microbiome.tre")
 ```
 
-We have specimens in the rows of count matrix. We make sure the row names of sample data and the row names of the count matrix are same.
+We have specimens in the rows of count matrix. We make sure the row names of sample data and the row names of the count matrix are the same.
 
 ```{r eval=FALSE}
 rownames(sam_data) <- rownames(seq_data)# this is not the right thing to do, but the authors put the sample order in seq_data and the sam_data as same.
@@ -105,7 +105,7 @@ ps <- subset_samples(ps, species != "131" & species != "139" & species != "14" &
 ps
 ```
 
-Removes Archaea, Eukaryota or unknown
+Removes Archaea, Eukaryota or unknown.
 
 We removed ASVs that lacked a kingdom assignment or were assigned to Archaea or Eukaryota (3597 ASVs).
 
@@ -113,3 +113,114 @@ We removed ASVs that lacked a kingdom assignment or were assigned to Archaea or 
 ps <- subset_taxa(ps, Domain == "Bacteria") 
 ps
 ```
+
+
+Remove unkown Phylum.
+
+We removed ASVs that lacked a phylum assignment (3521 ASVs).
+
+```{r eval=FALSE}
+ps <- subset_taxa(ps, !is.na(Phylum))
+ps
+```
+
+Remove mitochondira and Chloroplast
+
+We removed ASVs classified as mitochondria.
+
+Mitochondria is a contamination. We can identify mitochondria using it's family name (removing 1417 ASVs).
+```{r eval=FALSE}
+ps <- subset_taxa(ps, !Family %in% 'Mitochondria') 
+ps 
+
+#calculate # of usable reads after removing above but before removing chloroplast
+sample_data(ps)$Reads <- sample_sums(ps)
+```
+
+
+We removed ASVs classified as Chloroplast
+
+Chloroplast is a contamination. We can identify chloroplast using it's class name (removing 481 ASVs).
+```{r eval=FALSE}
+ps <- subset_taxa(ps, !Class %in% "Chloroplast") 
+ps 
+
+#calculate # of usable reads after removing chloroplast
+sample_data(ps)$ReadsNC <- sample_sums(ps)
+
+```
+
+
+Add plant type names, Asteraceae or non-Asteraceae to the phylose sample data. 
+
+```{r eval=FALSE}
+df <- data.frame(species = c("144","105","106","66","30","20","112","72","71","162","95","92","54","RX","100","101","134","87","33","137","45","108","109","17","22","142","143","40","ST","15","113","7"),
+                 species_names = c("Sporobolus crytptandrus", "Phalaris arundinacea", "Phleum pratense", "Festuca arundinacea", "Bromus inermis", "Asparagus officinalis", "Potentilla recta", "Geum canadense","Geum aleppicum", "Vicia tetrasperma", "Medicago sativa", "Lotus corniculatus", "Desmodium canadense", "Rhexia virginica", "Oenothera biennis", "Oenothera perennis", "Sisymbrium officinale", "Lepidium densiflorum", "Capsella bursa-pstoris", "Solanum dulcamara", "Convolvulus arvensis", "Plantago major", "Plantago rugelii", "Asclepias incarnata", "Symphyotrichum ericoides", "Sonchus arvensis", "Sonchus oleraceus", "Cichorium intybus", "Centaurea solstitialis", "Arctium minus", "Persicaria maculosa", "Amaranthus albus"), 
+                 Type = c(rep("non-aster", 24), rep("aster", 6), rep("non-aster", 2)))
+
+## add the above info to sample data
+sam <-  sample_data(ps) %>% data.frame()
+sam$unique_names <- rownames(sam)
+sam_new <- left_join(sam, df, by = "species")
+rownames(sam_new) <- sam_new$unique_names
+sam_new <- sam_new[rownames(sam), ]
+ps <- merge_phyloseq(otu_table(ps), 
+                    sample_data(sam_new), tax_table(ps),
+                    phy_tree(ps))
+ps
+```
+
+
+We kept only plant types that have endosphere or rhizosphere specimens.
+
+We removed samples with less than 800 reads (including contaminant reads of mitochondira and chloroplast). We saved the reads in the sample information before removing contaminants (mitochondira and chloroplast).
+
+We removed samples from sequencing run == 5 based on the filtering in Fitzpatrick et al. (2018).
+
+```{r eval=FALSE}
+# keep only plant types with Endosphere and Rhizosphere 
+psER <- subset_samples(ps, species == "15" | species == "22" | species == "142" | species == "40" | species == "143" | species == "ST" |  species == "33" | species == "71" | species == "106"|species == "control")
+
+psER
+
+psER <- subset_samples(psER, Reads >= 800) 
+psER # removes 7 plant samples
+
+psER <- subset_samples(psER, run < 5 | run > 5) # remove samples from Run 5
+psER
+```
+
+
+We Kept Endosphere samples (root, leaves or any part of plant).
+
+We removed samples with less than 800 reads (non contaminant reads).
+
+We removed C. solstitalis leave samples.
+
+We removed ASV with no reads.
+
+We removed ASVs with less than 25 reads in at most two samples.
+
+```{r eval=FALSE}
+# remove rhizosphere samples 
+psE <- subset_samples(psER, community == "E" | species == "control")
+psE
+
+psE <- subset_samples(psE, ReadsNC >= 800)
+psE
+
+# remove C. solstitalis leave samples
+leaves <- c("ST-HU01-8-L-M","ST-HU01-8-L-O")
+psE <- subset_samples(psE, !sample_names(psE) %in% leaves)
+psE
+
+psE <- prune_taxa(taxa_sums(psE) > 0, psE)
+psE 
+```
+
+```{r}
+devtools::load_all(".")
+psE
+```
+
+
