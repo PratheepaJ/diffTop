@@ -112,30 +112,209 @@
 
     
     
-<p>Do goodness of fit test for each asv using Monte Carlo method</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"BiocStyle"</span>,
-          <span class="st">"tidyverse"</span>,
-         <span class="st">"phyloseq"</span>, 
-         <span class="st">"reshape2"</span>, 
-         <span class="st">"genefilter"</span>,
-         <span class="st">"MASS"</span><span class="op">)</span>
-
-<span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html">setdiff</a></span><span class="op">(</span><span class="va">pkgs</span>, <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Load libraries</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape">reshape2</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217">phyloseq</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stats.ox.ac.uk/pub/MASS4/">MASS</a></span><span class="op">)</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span></code></pre></div>
 <div id="goodness-of-fit-for-taxon-counts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#goodness-of-fit-for-taxon-counts" class="anchor"></a>4.1 Goodness of fit for taxon counts</h2>
+<p>We show that a negative binomial distribution (or equivalently gamma-Poisson) fits our example data set for the ASV counts well. We test the null hypothesis, H0, that the ASV counts have a negative binomial distribution using a chi-square test statistic.</p>
+<p>The testing procedure is as follows:</p>
+<ol style="list-style-type: decimal">
+<li><p>Estimate parameters of negative binomial from the data.</p></li>
+<li><p>We draw 1000 simulations from the negative binomial with the parameters estimated from the data.</p></li>
+<li><p>We compute the test statistic on osberved data and simualted data.</p></li>
+<li><p>We compute P-values for all ASVs.</p></li>
+<li><p>We plot the distribution of P-values.</p></li>
+<li><p>We adjusted P-values for multiple testing.</p></li>
+</ol>
+<p>Note: we used phyloseq after removing DNA contaminants using BARBI (next subsection).</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">psE_BARBI</span></code></pre></div>
+<pre><code>## phyloseq-class experiment-level object
+## otu_table()   OTU Table:         [ 5808 taxa and 86 samples ]
+## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
+## tax_table()   Taxonomy Table:    [ 5808 taxa by 6 taxonomic ranks ]
+## phy_tree()    Phylogenetic Tree: [ 5808 tips and 5807 internal nodes ]</code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># set threshold values (require at least 5 samples with 25 reads)</span>
+<span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">5</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
+<span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/filter_taxa.html">filter_taxa</a></span><span class="op">(</span><span class="va">psE_BARBI</span>, <span class="va">threshold</span>, <span class="cn">TRUE</span><span class="op">)</span> 
+<span class="va">psE_BARBI</span></code></pre></div>
+<pre><code>## phyloseq-class experiment-level object
+## otu_table()   OTU Table:         [ 648 taxa and 86 samples ]
+## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
+## tax_table()   Taxonomy Table:    [ 648 taxa by 6 taxonomic ranks ]
+## phy_tree()    Phylogenetic Tree: [ 648 tips and 647 internal nodes ]</code></pre>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span>
+<span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/prune_taxa-methods.html">prune_taxa</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_sums.html">taxa_sums</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="va">ps</span><span class="op">)</span>
+<span class="va">ps</span></code></pre></div>
+<pre><code>## phyloseq-class experiment-level object
+## otu_table()   OTU Table:         [ 648 taxa and 86 samples ]
+## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
+## tax_table()   Taxonomy Table:    [ 648 taxa by 6 taxonomic ranks ]
+## phy_tree()    Phylogenetic Tree: [ 648 tips and 647 internal nodes ]</code></pre>
+<div id="estimate-parameters-of-negative-binomial-distribution" class="section level3">
+<h3 class="hasAnchor">
+<a href="#estimate-parameters-of-negative-binomial-distribution" class="anchor"></a>Estimate parameters of negative binomial distribution</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span><span class="co"># samples * asv</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+
+<span class="va">estnb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span>, ncol<span class="op">=</span><span class="fl">2</span>, nrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span><span class="op">)</span>
+
+<span class="co">#for each asv, fit the nb and estimate prob and theta</span>
+<span class="kw">for</span><span class="op">(</span><span class="va">x</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+    <span class="va">fit.nb</span> <span class="op">&lt;-</span> <span class="fu">fitdistr</span><span class="op">(</span><span class="va">dd</span><span class="op">[</span>,<span class="va">x</span><span class="op">]</span>, densfun <span class="op">=</span> <span class="st">"negative binomial"</span><span class="op">)</span> 
+    <span class="va">estnb</span><span class="op">[</span><span class="va">x</span>,<span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">fit.nb</span><span class="op">$</span><span class="va">estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> ,<span class="va">fit.nb</span><span class="op">$</span><span class="va">estimate</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">)</span>
+<span class="op">}</span>
+
+<span class="va">prob</span> <span class="op">&lt;-</span> <span class="va">estnb</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">/</span><span class="op">(</span><span class="va">estnb</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="va">estnb</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span>
+<span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">estnb</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>
+<span class="va">estnb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">estnb</span>, <span class="va">prob</span>, <span class="va">theta</span><span class="op">)</span>
+<span class="va">estnb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">estnb</span><span class="op">)</span> 
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">estnb</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"size"</span>, <span class="st">"mu"</span>, <span class="st">"prob"</span>,<span class="st">"theta"</span><span class="op">)</span>
+<span class="va">estnb</span> <span class="op">&lt;-</span> <span class="va">estnb</span> <span class="op">%&gt;%</span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="goodness-of-fit-for-each-asv---monte-carlo-method" class="section level3">
+<h3 class="hasAnchor">
+<a href="#goodness-of-fit-for-each-asv---monte-carlo-method" class="anchor"></a>Goodness of fit for each asv - Monte Carlo method</h3>
+<p>Simulate 1000 of replicates for each ASV. For each replicate, compute chi-square test statistic. Compare the observed chi-square value with these 1000 test statistic values.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span><span class="co"># samples * asv matrix</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+
+<span class="co"># For each ASV, compute expected count given NB(mu, size)</span>
+<span class="co"># this will be used for observed count and 1000 MC simulations </span>
+<span class="va">expectedCount</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span>, 
+                          <span class="va">mu</span>, 
+                          <span class="va">size</span>, 
+                          <span class="va">breaks</span><span class="op">)</span><span class="op">{</span>
+  <span class="co"># make bins and compute expected counts for each bin assuming NB</span>
+  <span class="va">n</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/NegBinomial.html">pnbinom</a></span><span class="op">(</span><span class="va">breaks</span>, 
+                   mu <span class="op">=</span> <span class="va">mu</span>, 
+                   size <span class="op">=</span> <span class="va">size</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
+</div>
+<div id="compute-chi-square-test-statistic" class="section level3">
+<h3 class="hasAnchor">
+<a href="#compute-chi-square-test-statistic" class="anchor"></a>Compute chi-square test statistic</h3>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">chiSquareSim</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, 
+                         <span class="va">mu</span>, 
+                         <span class="va">size</span>, 
+                         <span class="va">breaks</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">breaks</span> <span class="op">&lt;-</span> <span class="va">breaks</span>
+  <span class="va">observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cut.html">cut</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">breaks</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
+  
+  <span class="va">expected</span> <span class="op">&lt;-</span> <span class="fu">expectedCount</span><span class="op">(</span><span class="va">n</span>, 
+                              mu <span class="op">=</span> <span class="va">mu</span>, 
+                              size <span class="op">=</span> <span class="va">size</span>, 
+                              breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span>
+  <span class="co"># test statistic</span>
+  <span class="va">chi_square</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">observed</span> <span class="op">-</span> <span class="va">expected</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="va">expected</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">breaks</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>
+    
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>chi_square <span class="op">=</span> <span class="va">chi_square</span><span class="op">)</span><span class="op">)</span>
+  
+<span class="op">}</span></code></pre></div>
+</div>
+<div id="use-monte-carlo-method-to-do-goodness-of-fit-test" class="section level3">
+<h3 class="hasAnchor">
+<a href="#use-monte-carlo-method-to-do-goodness-of-fit-test" class="anchor"></a>Use Monte Carlo method to do goodness of fit test</h3>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">comPvalueForEachASV</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">b</span><span class="op">)</span><span class="op">{</span>
+  <span class="co"># x is the observed ASV count</span>
+  <span class="co"># b is the number of bins to compute chi-square test statistic. This is used to create breaks.</span>
+  
+  <span class="co">#for each asv, fit nb and estimate mu and size </span>
+  <span class="va">fit.nb</span> <span class="op">&lt;-</span> <span class="fu">fitdistr</span><span class="op">(</span><span class="va">x</span>, 
+                     densfun <span class="op">=</span> <span class="st">"negative binomial"</span><span class="op">)</span> 
+  <span class="va">size</span> <span class="op">&lt;-</span> <span class="va">fit.nb</span><span class="op">$</span><span class="va">estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> 
+  <span class="va">mu</span> <span class="op">&lt;-</span> <span class="va">fit.nb</span><span class="op">$</span><span class="va">estimate</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>
+  
+  <span class="co"># for each asv, simulate 1000 data from NB(with estimated parameters)</span>
+  <span class="va">sim_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/NegBinomial.html">rnbinom</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">*</span><span class="fl">1000</span>, 
+                          size <span class="op">=</span> <span class="va">size</span>, 
+                          mu <span class="op">=</span> <span class="va">mu</span><span class="op">)</span>, 
+                  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
+    
+  
+  <span class="co"># create same number of bins = b using the range of sim_x and x</span>
+  <span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">sim_x</span>,<span class="va">x</span><span class="op">)</span> <span class="op">-</span> <span class="fl">.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">sim_x</span>, <span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">sim_x</span>, <span class="va">x</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="va">b</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span>
+    
+  <span class="co"># For each replicate of the ASV, compute chi-square statistic</span>
+  <span class="va">sim_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">sim_x</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">{</span>
+      <span class="fu">chiSquareSim</span><span class="op">(</span><span class="va">y</span>, 
+                   mu <span class="op">=</span> <span class="va">mu</span>, 
+                   size <span class="op">=</span> <span class="va">size</span>, 
+                   breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span><span class="op">$</span><span class="va">chi_square</span>
+    <span class="op">}</span><span class="op">)</span>
+      
+  <span class="co"># compute observed chi-square statistic value</span>
+  <span class="va">chi_square0</span> <span class="op">&lt;-</span> <span class="fu">chiSquareSim</span><span class="op">(</span><span class="va">x</span>, 
+                              mu <span class="op">=</span> <span class="va">mu</span>, 
+                              size <span class="op">=</span> <span class="va">size</span>, 
+                              breaks <span class="op">=</span> <span class="va">breaks</span><span class="op">)</span><span class="op">$</span><span class="va">chi_square</span>
+    
+  <span class="va">p_value_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">sim_results</span> <span class="op">&gt;=</span> <span class="va">chi_square0</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">p_value_sim</span>, <span class="va">chi_square0</span>, <span class="va">sim_results</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">b</span> <span class="op">&lt;-</span> <span class="fl">30</span>
+<span class="va">p_value_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">chi_square0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">mc_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">mc_test</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">comPvalueForEachASV</span><span class="op">(</span>x <span class="op">=</span> <span class="va">dd</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, b <span class="op">=</span> <span class="va">b</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
+</div>
+<div id="plot-p-values-of-the-goodness-of-fit-test" class="section level3">
+<h3 class="hasAnchor">
+<a href="#plot-p-values-of-the-goodness-of-fit-test" class="anchor"></a>Plot P-values of the goodness of fit test</h3>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># we can load mc_test which incldues the goodness of fit test </span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span>
+
+<span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span><span class="co"># samples * asv matrix</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+
+<span class="va">p_value_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">chi_square0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">sim_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+
+<span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">dd</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">p_value_asv</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mc_test</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">chi_square0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mc_test</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">sim_results</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mc_test</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>
+<span class="op">}</span>
+
+
+<span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>p_value_asv <span class="op">=</span> <span class="va">p_value_asv</span><span class="op">)</span>, 
+       <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">p_value_asv</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_histogram</span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">"P-value"</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<p><img src="04_models_files/figure-html/unnamed-chunk-10-1.png" width="1152"></p>
+</div>
+<div id="compute-adjusted-p-values-" class="section level3">
+<h3 class="hasAnchor">
+<a href="#compute-adjusted-p-values-" class="anchor"></a>Compute adjusted P-values.</h3>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</a></span><span class="op">(</span><span class="va">p_value_asv</span>, method <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">.05</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
+</div>
 </div>
 <div id="additive-and-multiplicative-errors" class="section level2">
 <h2 class="hasAnchor">
