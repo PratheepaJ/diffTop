@@ -205,7 +205,7 @@ for(i in 1:ncol(dd)){
 
 ### Plot P-values of the goodness of fit test
 
-```{r}
+```{r fig.width=4, fig.height=4}
 # we can load mc_test which incldues the goodness of fit test 
 devtools::load_all()
 
@@ -242,5 +242,5 @@ sum(p.adjust(p_value_asv, method = "BH") <= .05)
 
 ## 4.2 Additive and Multiplicative Errors
 
-
+DNA contamination is identified as additive error. Fo
 ## 4.3 Library size scaling factor
