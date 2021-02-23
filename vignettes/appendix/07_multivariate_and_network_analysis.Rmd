@@ -21,6 +21,7 @@ library(tidyverse)
 library(genefilter) #KOverA
 library(ggrepel) # geom_text_repel
 library(randomcoloR)# distinctColorPalette(n)
+library(adaptiveGPCA)
 devtools::load_all()
 ```
 
@@ -274,8 +275,99 @@ dpcoa_taxa +
 
 ```
 
+## 7.2 Integrating the phylogenetic tree into the analyses
+
+## Adaptive gPCA
+
+```{r}
+pp <- processPhyloseq(
+  ps
+  )
+out.agpca <- adaptivegpca(
+  pp$X, 
+  pp$Q, 
+  k = 2
+  )
+
+agPCA_samples <- ggplot(
+  data.frame(
+    out.agpca$U, 
+    sample_data(ps)
+    )
+  ) +
+    geom_point(
+      aes(x = Axis1,
+          y = Axis2, 
+          color = species_names,
+          shape = pna),
+      size = 3
+      ) +
+  labs(
+    x = "Axis 1", 
+    y = "Axis 2",
+    col = "Plant type"
+    ) + 
+  scale_colour_manual(
+    values = plant_colors
+    ) +
+  facet_grid(~ Type)
+
+agPCA_samples
+```
+
+```{r}
+agPCA_asv <- ggplot(
+  data.frame(
+    out.agpca$QV, 
+    tax_table(ps)
+    )
+  ) +
+    geom_point(
+      aes(
+        x = Axis1, 
+        y = Axis2, 
+        color = Class
+        ), 
+      size = 3
+      ) +
+    xlab(
+      "Axis 1"
+      ) + 
+  ylab(
+    "Axis 2"
+    )
+
+main_class <- c("Bacilli", 
+                "Actinobacteria", 
+                "Cytophagia", 
+                "Gammaproteobacteria", 
+                "Betaproteobacteria", 
+                "Deltaproteobacteria", 
+                "Alphaproteobacteria", 
+                "Opitutae")
+
+df_taxa <- dplyr::filter(
+  agPCA_asv$data, 
+  Class %in% main_class
+  )
+
+agPCA_asv$data <- df_taxa
+
+agPCA_asv <- agPCA_asv +
+  scale_color_manual(
+    values = distinctColorPalette(
+      length(
+        unique(
+          tax_table(ps_ans)[, "Class"])
+        )
+      )
+    )
+agPCA_asv
+
+```
+
 
 ```{r include=FALSE}
-rm(df_paired, df_taxa, dpcoa_sam, dpcoa_taxa, mds_bc, mds_wuni, out.bc.log, out.dpcoa.log, out.wuf.log, ps, ps_log)
+rm(df_paired, df_taxa, dpcoa_sam, dpcoa_taxa, mds_bc, mds_wuni, out.bc.log, out.dpcoa.log, out.wuf.log, ps, ps_log, agPCA_asv, agPCA_samples, out.agpca, pp, aster, evals, main_class, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names)
 ```
 
