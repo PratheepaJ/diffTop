@@ -8,8 +8,8 @@ output: BiocStyle::html_document
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-  fig.width = 12, 
-  fig.height = 12, 
+  fig.width = 7, 
+  fig.height = 4, 
   fig.align = 'center',
   message = FALSE, 
   warning = FALSE)
@@ -22,6 +22,8 @@ library(genefilter) #KOverA
 library(ggrepel) # geom_text_repel
 library(randomcoloR)# distinctColorPalette(n)
 library(adaptiveGPCA)
+library(igraph)
+library(phyloseqGraphTest)
 devtools::load_all()
 ```
 
@@ -277,7 +279,7 @@ dpcoa_taxa +
 
 ## 7.2 Integrating the phylogenetic tree into the analyses
 
-## Adaptive gPCA
+### Adaptive gPCA
 
 ```{r}
 pp <- processPhyloseq(
@@ -366,8 +368,164 @@ agPCA_asv
 
 ```
 
+_Centaurea solstitialis_ specimens are outliers among Asteraceae plants on the left of Axis 1. Axis 2 explains the microbial variability in plant types.
+
+## 7.3 Correspondence analysis
+
+```{r}
+ps_ca <- ps
+out.ca <- ordinate(
+  ps_ca, 
+  method = "CCA"
+  )
+
+evals <- out.ca$CA$eig
+evals_prop <- evals/sum(evals)
+
+ca_plot <- plot_ordination(
+  ps_ca,
+  out.ca,
+  type = "sample",
+  color = "species_names",
+  shape = "pna") +
+  labs(
+    col = "Plant type",
+    shape = "pna"
+    ) + 
+  scale_color_manual(
+    values = plant_colors
+    ) + 
+  facet_grid(~Type) +
+  geom_point(size=2) +
+  geom_jitter()+
+  coord_fixed(0.4) + 
+  theme_update(
+    text = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    panel.spacing = unit(2, "lines")
+)
+
+
+ca_plot
+
+```
+
+```{r}
+ca_plot_taxa <- plot_ordination(
+  ps_ca,
+  out.ca,
+  type = "species",
+  color = "Class"
+  ) 
+
+main_class <- c("Bacilli", 
+                "Actinobacteria", 
+                "Cytophagia", 
+                "Gammaproteobacteria",
+                "Betaproteobacteria",
+                "Deltaproteobacteria",
+                "Alphaproteobacteria", 
+                "Opitutae", 
+                "Sphingobacteriia")
+
+df_taxa <- dplyr::filter(
+  ca_plot_taxa$data, 
+  Class %in% main_class
+  )
+
+df_taxa$Class <- factor(df_taxa$Class)
+
+ca_plot_taxa$data <- df_taxa
+
+ca_plot_taxa <- ca_plot_taxa +
+  coord_fixed(0.4) +
+  labs(col = "Class") + 
+  geom_point(size=3) +
+  geom_jitter() +
+  scale_color_manual(
+    values = distinctColorPalette(
+      length(
+        unique(
+          main_class
+          )
+        )
+      )
+    )
+
+ca_plot_taxa
+
+```
+
+
+## 7.4 Network analysis
+
+### Network analysis on paired specimens
+
+```{r}
+ps <- subset_samples(
+  ps, 
+  unique_names %in% paired_specimens
+  )
+ps <- prune_taxa(
+  taxa_sums(ps) > 0, 
+  ps
+  )
+ps
+```
+
+```{r}
+net <- make_network(
+  ps, 
+  max.dist = 0.8
+  )
+
+sampledata <- sample_data(ps) %>%
+  data.frame()
+
+V(net)$unique_names <- sampledata[names(V(net)), "unique_names"]
+V(net)$pna <- sampledata[names(V(net)), "pna"]
+V(net)$species_names <- sampledata[names(V(net)), "species_names"]
+
+p_net <- plot_network(
+  net, 
+  ps, 
+  color = "species_names",
+  shape = "pna"
+  ) + 
+  labs(
+    col = "Species names"
+    ) + 
+  scale_colour_manual(
+    values = plant_colors
+    )
+p_net
+
+```
+
+
+### Graph-based two-sample tests
+
+
+We first perform a test using an Minimum spanning tree (MST) with Jaccard dissimilarity. We want to know whether the universal or Asteraceae-modified pPNAs come from the same distribution in paired-specimens. 
+
+Since there is a grouping in the data by specimen, we can’t simply permute all the labels, we need to maintain this nested structure – this is what the grouping argument does. Here we permute the pna labels but keep the plant type structure intact.
+
+```{r}
+set.seed(15)
+gt <- graph_perm_test(
+  ps, 
+  sampletype = "pna", 
+  grouping = "unique_names",
+  distance = "jaccard", 
+  type = "mst")
+gt$pval
+```
+
+This test has a larger p-value, and we do not reject the null hypothesis that the paired-specimens come from the same distribution. 
+
+This result mirrors the observations from the PCA after the truncated-rank transformation, adaptive gPCA, MDS, and DPCoA that paired-specimens have similar microbial variability.
 
 ```{r include=FALSE}
-rm(df_paired, df_taxa, dpcoa_sam, dpcoa_taxa, mds_bc, mds_wuni, out.bc.log, out.dpcoa.log, out.wuf.log, ps, ps_log, agPCA_asv, agPCA_samples, out.agpca, pp, aster, evals, main_class, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names)
+rm(df_paired, df_taxa, dpcoa_sam, dpcoa_taxa, mds_bc, mds_wuni, out.bc.log, out.dpcoa.log, out.wuf.log, ps, ps_log, agPCA_asv, agPCA_samples, out.agpca, pp, aster, evals, main_class, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names, ca_plot, out.ca, ps_ca, evals_prop, ca_plot_taxa, gt, net, p_net, sampledata)
 ```
 
