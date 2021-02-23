@@ -6,11 +6,6 @@ output: BiocStyle::html_document
 ---
 
 
-In this section we create a phyloseq from the data [site](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
-
-
-Then, we remove low coverage host plant type samples, removes Archaea, Eukaryota or unknown, remove unkown Phylum, remove mitochondira and Chloroplast
-
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
@@ -19,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE,
   message = FALSE)
 ```
 
-```{r eval=FALSE}
+```{r eval=FALSE, include=FALSE}
 pkgs = c("phyloseq", 
          "dplyr", 
          "magrittr", 
@@ -37,26 +32,195 @@ if (!requireNamespace("BiocManager")){
   install.packages("BiocManager")
 }
 
-BiocManager::install(setdiff(pkgs, installed.packages()), update = TRUE)
+BiocManager::install(
+  setdiff(pkgs, installed.packages()), 
+  update = TRUE
+  )
 ```
 
 
-Load libraries
-
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(phyloseq)
 library(tidyverse)
-library(RColorBrewer)
-library(reshape2)
+# library(RColorBrewer)
+# library(reshape2)
 library(genefilter) #KOverA
 library(DESeq2)
+library(vsn)
+devtools::load_all()
 ```
 
-# Create phyloseq object
+```{r}
+theme_set(theme_minimal())
+theme_update(
+  text = element_text(size = 10),
+  legend.text = element_text(size = 10)
+)
+```
 
-We downloaded data from this [site](https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1)
+## 5.1 Variance stabilization 
 
-We read count matrix (PNA_root_microbiome_seqtab.rds), taxanomy assignment (PNA_root_microbiome_SILVA_taxa.rds), sample information (PNA_metadata.csv), and phylogenetic tree (PNA_16S_root_microbiome.tre).
+This workflow is for visualization of 16S rRNA sequencing data. We use 16S after removing contaminants _psE_BARBI_. Then, we remove ASVs that have at least 25 reads in five specimens. This data set has 1418 ASVs and 86 samples. 
 
-Then, we create a phyloseq object.
+### Data
+
+```{r}
+rm(psE)
+threshold <- kOverA(2, A = 25) 
+psE_BARBI <- phyloseq::filter_taxa(psE_BARBI, threshold, TRUE) 
+psE_BARBI
+
+# If we consider all plant types
+ps <- psE_BARBI
+rm(psE_BARBI)
+ps <- prune_taxa(taxa_sums(ps) > 0, ps)
+ps
+
+```
+
+### Edit specimen names
+
+We edit specimen names and identify Asteraceae and non-Asteraceae plants.
+
+```{r}
+sam_names <- str_replace(sample_names(ps), "E106", "E-106")
+sam_names <- str_replace(sam_names, "_F_filt.fastq.gz", "")
+sam_names <- str_replace(sam_names, "Connor-", "E")
+sample_names(ps) <- sam_names
+sample_data(ps)$X <- sam_names
+sample_data(ps)$unique_names <- sam_names
+aster <- c("142","143","15","ST","22","40")
+non_aster <- c("33", "71", "106")
+
+paired_aster <- c("E-142-1", "E142-1", "E-142-5", "E142-5", "E-142-10", "E142-10", "E-143-2", "E143-2", "E-143-7", "E143-7", "E-15-1", "E15-1", "ST-CAZ-4-R-O", "ST-CAZ-4-R-M", "ST-SAL-22-R-O", "ST-SAL-22-R-M", "ST-TRI-10-R-O", "ST-TRI-10-R-M")
+paired_non_aster <- c("E33-7", "E-33-7", "E33-8", "E-33-8", "E33-9", "E-33-9", "E71-10", "E-71-10","E71-2","E-71-2" ,"E71-3", "E-71-3", "E106-1", "E-106-1", "E106-3", "E-106-3", "E106-4", "E-106-4")
+paired_specimens <- c(paired_aster, paired_non_aster)
+```
+
+### Anscombe's transformation
+
+The following transformation may take long time so we saved it as `ps_ans`. We can access it from _diffTop_ package.
+
+```{r eval=FALSE}
+ps_ans <- phyloseqTransformation(ps  = ps, c = 0.4)
+usethis::use_data(ps_ans)
+```
+
+### DESeq2 transformation
+
+There are three different transformations in _DESEq2_ package.
+
+We refer to the help page of `varianceStabilizingTransformation()` for `fitType="mean"`, `fitType="parametric"`,  `fitType="local"`.
+
+```{r}
+phyloseqTransformationVST <- function(ps, 
+                                      fitType = "mean"){
+      dds <- phyloseq_to_deseq2(ps, design = ~ 1)
+      dds <-  estimateSizeFactors(dds, type = "poscounts")
+      vsd <- varianceStabilizingTransformation(dds, 
+                                               blind = FALSE, 
+                                               fitType = fitType)
+      abund_temp <- assay(vsd)
+      
+      ps <- phyloseq(otu_table(abund_temp, taxa_are_rows = TRUE),
+                     sample_data(ps), 
+                     tax_table(ps), 
+                     phy_tree(ps))
+      return(ps)
+} 
+
+ps_ans_deseq2 <- phyloseqTransformationVST(ps, fitType = "mean")
+ps_parametric_deseq2 <- phyloseqTransformationVST(ps, fitType = "parametric")
+ps_local_deseq2 <- phyloseqTransformationVST(ps, fitType = "local")
+```
+
+
+### MSD (mean-standard deviation) plots after each transformation 
+
+We use `meanSdPlot()` in _vsn_ package.
+
+```{r fig.width=4, fig.height=4}
+msd_ps_ans <- meanSdPlot(
+  otu_table(ps_ans) %>% 
+    as.matrix(), 
+  plot = FALSE)
+
+msd_ps_ans$gg +
+  ggtitle("Anscombe's Transformation") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+
+msd_ps_ans_deseq2 <- meanSdPlot(
+  otu_table(ps_ans_deseq2) %>%
+    as.matrix(),
+  plot = FALSE)
+
+msd_ps_ans_deseq2$gg +
+  ggtitle("Anscombe Transformation in DESeq2") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+
+msd_ps_parametric_deseq2 <- meanSdPlot(
+  otu_table(ps_parametric_deseq2) %>%
+    as.matrix(),
+  plot = FALSE)
+
+msd_ps_parametric_deseq2$gg +
+  ggtitle("Parametric Transformation in DESeq2") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+
+msd_ps_local_deseq2 <- meanSdPlot(
+  otu_table(ps_local_deseq2) %>% 
+    as.matrix(),
+  plot = FALSE)
+
+msd_ps_local_deseq2$gg +
+  ggtitle("Local Transformation in DESeq2") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+rm(
+  ps_ans_deseq2, 
+   ps_parametric_deseq2, 
+   ps_local_deseq2,
+  msd_ps_ans,
+  msd_ps_ans_deseq2,
+  msd_ps_parametric_deseq2,
+  msd_ps_local_deseq2
+  )
+```
+
+## 5.2 Rank-based methods
+
+### Rank-based transformation
+
+The association between abundances and threshholded ranks, for a few randomly selected samples.
+
+The numbers of the y-axis are those supplied to PCA.
+
+```{r}
+abund <- otu_table(ps_ans) 
+abund_ranks <- apply(abund, 2, rank) 
+abund_ranks <- abund_ranks - 900
+abund_ranks[abund_ranks < 1] <- 1
+
+abund_df <- reshape2::melt(abund, value.name = "abund") %>%
+  left_join(reshape2::melt(abund_ranks, value.name = "rank"))
+
+
+colnames(abund_df) <- c("seq", "sample", "abund",  "rank")
+
+sample_ix <- sample(1:nrow(abund_df), 5)
+
+abund_df_subset <- abund_df %>%
+          filter(sample %in% abund_df$sample[sample_ix])
+
+ggplot(abund_df_subset) +
+  geom_point(aes(x = abund, y = rank, col = sample),
+             position = position_jitter(width = 0.2), 
+             size = 2) +
+  labs(x = "Abundance", 
+       y = "Thresholded rank") +
+  scale_color_brewer(palette = "Set2")  
+```
 

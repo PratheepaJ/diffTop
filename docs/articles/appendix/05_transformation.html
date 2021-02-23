@@ -112,41 +112,194 @@
 
     
     
-<p>In this section we create a phyloseq from the data <a href="https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1">site</a></p>
-<p>Then, we remove low coverage host plant type samples, removes Archaea, Eukaryota or unknown, remove unkown Phylum, remove mitochondira and Chloroplast</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pkgs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"phyloseq"</span>, 
-         <span class="st">"dplyr"</span>, 
-         <span class="st">"magrittr"</span>, 
-         <span class="st">"Rcpp"</span>, 
-         <span class="st">"RColorBrewer"</span>,
-         <span class="st">"reshape2"</span>, 
-         <span class="st">"tidyr"</span>, 
-         <span class="st">"genefilter"</span>, 
-         <span class="st">"DESeq2"</span>, 
-         <span class="st">"ape"</span>, 
-         <span class="st">"gtools"</span>, 
-         <span class="st">"abind"</span><span class="op">)</span>
-
-<span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html">setdiff</a></span><span class="op">(</span><span class="va">pkgs</span>, <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<p>Load libraries</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217">phyloseq</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape">reshape2</a></span><span class="op">)</span>
+<span class="co"># library(RColorBrewer)</span>
+<span class="co"># library(reshape2)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/DESeq2">DESeq2</a></span><span class="op">)</span></code></pre></div>
-<div id="create-phyloseq-object" class="section level1">
-<h1 class="hasAnchor">
-<a href="#create-phyloseq-object" class="anchor"></a>Create phyloseq object</h1>
-<p>We downloaded data from this <a href="https://figshare.com/articles/Chloroplast_sequence_variation_and_the_efficacy_of_peptide_nucleic_acids_for_blocking_host_amplification_in_plant_microbiome_studies/5948419/1">site</a></p>
-<p>We read count matrix (PNA_root_microbiome_seqtab.rds), taxanomy assignment (PNA_root_microbiome_SILVA_taxa.rds), sample information (PNA_metadata.csv), and phylogenetic tree (PNA_16S_root_microbiome.tre).</p>
-<p>Then, we create a phyloseq object.</p>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/DESeq2">DESeq2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.r-project.org">vsn</a></span><span class="op">)</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="fu">theme_update</span><span class="op">(</span>
+  text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,
+  legend.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
+<span class="op">)</span></code></pre></div>
+<div id="variance-stabilization" class="section level2">
+<h2 class="hasAnchor">
+<a href="#variance-stabilization" class="anchor"></a>5.1 Variance stabilization</h2>
+<p>This workflow is for visualization of 16S rRNA sequencing data. We use 16S after removing contaminants <em>psE_BARBI</em>. Then, we remove ASVs that have at least 25 reads in five specimens. This data set has 1418 ASVs and 86 samples.</p>
+<div id="data" class="section level3">
+<h3 class="hasAnchor">
+<a href="#data" class="anchor"></a>Data</h3>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning in rm(psE): object 'psE' not found</code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
+<span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu">phyloseq</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/filter_taxa.html">filter_taxa</a></span><span class="op">(</span><span class="va">psE_BARBI</span>, <span class="va">threshold</span>, <span class="cn">TRUE</span><span class="op">)</span> 
+<span class="va">psE_BARBI</span></code></pre></div>
+<pre><code>## phyloseq-class experiment-level object
+## otu_table()   OTU Table:         [ 1418 taxa and 86 samples ]
+## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
+## tax_table()   Taxonomy Table:    [ 1418 taxa by 6 taxonomic ranks ]
+## phy_tree()    Phylogenetic Tree: [ 1418 tips and 1417 internal nodes ]</code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># If we consider all plant types</span>
+<span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span>
+<span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE_BARBI</span><span class="op">)</span>
+<span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/prune_taxa-methods.html">prune_taxa</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_sums.html">taxa_sums</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="va">ps</span><span class="op">)</span>
+<span class="va">ps</span></code></pre></div>
+<pre><code>## phyloseq-class experiment-level object
+## otu_table()   OTU Table:         [ 1418 taxa and 86 samples ]
+## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
+## tax_table()   Taxonomy Table:    [ 1418 taxa by 6 taxonomic ranks ]
+## phy_tree()    Phylogenetic Tree: [ 1418 tips and 1417 internal nodes ]</code></pre>
+</div>
+<div id="edit-specimen-names" class="section level3">
+<h3 class="hasAnchor">
+<a href="#edit-specimen-names" class="anchor"></a>Edit specimen names</h3>
+<p>We edit specimen names and identify Asteraceae and non-Asteraceae plants.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sam_names</span> <span class="op">&lt;-</span> <span class="fu">str_replace</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_names-methods.html">sample_names</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, <span class="st">"E106"</span>, <span class="st">"E-106"</span><span class="op">)</span>
+<span class="va">sam_names</span> <span class="op">&lt;-</span> <span class="fu">str_replace</span><span class="op">(</span><span class="va">sam_names</span>, <span class="st">"_F_filt.fastq.gz"</span>, <span class="st">""</span><span class="op">)</span>
+<span class="va">sam_names</span> <span class="op">&lt;-</span> <span class="fu">str_replace</span><span class="op">(</span><span class="va">sam_names</span>, <span class="st">"Connor-"</span>, <span class="st">"E"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_names-methods.html">sample_names</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">sam_names</span>
+<span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">$</span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">sam_names</span>
+<span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">$</span><span class="va">unique_names</span> <span class="op">&lt;-</span> <span class="va">sam_names</span>
+<span class="va">aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"142"</span>,<span class="st">"143"</span>,<span class="st">"15"</span>,<span class="st">"ST"</span>,<span class="st">"22"</span>,<span class="st">"40"</span><span class="op">)</span>
+<span class="va">non_aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"33"</span>, <span class="st">"71"</span>, <span class="st">"106"</span><span class="op">)</span>
+
+<span class="va">paired_aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"E-142-1"</span>, <span class="st">"E142-1"</span>, <span class="st">"E-142-5"</span>, <span class="st">"E142-5"</span>, <span class="st">"E-142-10"</span>, <span class="st">"E142-10"</span>, <span class="st">"E-143-2"</span>, <span class="st">"E143-2"</span>, <span class="st">"E-143-7"</span>, <span class="st">"E143-7"</span>, <span class="st">"E-15-1"</span>, <span class="st">"E15-1"</span>, <span class="st">"ST-CAZ-4-R-O"</span>, <span class="st">"ST-CAZ-4-R-M"</span>, <span class="st">"ST-SAL-22-R-O"</span>, <span class="st">"ST-SAL-22-R-M"</span>, <span class="st">"ST-TRI-10-R-O"</span>, <span class="st">"ST-TRI-10-R-M"</span><span class="op">)</span>
+<span class="va">paired_non_aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"E33-7"</span>, <span class="st">"E-33-7"</span>, <span class="st">"E33-8"</span>, <span class="st">"E-33-8"</span>, <span class="st">"E33-9"</span>, <span class="st">"E-33-9"</span>, <span class="st">"E71-10"</span>, <span class="st">"E-71-10"</span>,<span class="st">"E71-2"</span>,<span class="st">"E-71-2"</span> ,<span class="st">"E71-3"</span>, <span class="st">"E-71-3"</span>, <span class="st">"E106-1"</span>, <span class="st">"E-106-1"</span>, <span class="st">"E106-3"</span>, <span class="st">"E-106-3"</span>, <span class="st">"E106-4"</span>, <span class="st">"E-106-4"</span><span class="op">)</span>
+<span class="va">paired_specimens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">paired_aster</span>, <span class="va">paired_non_aster</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="anscombes-transformation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#anscombes-transformation" class="anchor"></a>Anscombe’s transformation</h3>
+<p>The following transformation may take long time so we saved it as <code>ps_ans</code>. We can access it from <em>diffTop</em> package.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ps_ans</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/phyloseqTransformation.html">phyloseqTransformation</a></span><span class="op">(</span>ps  <span class="op">=</span> <span class="va">ps</span>, c <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>
+<span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="deseq2-transformation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#deseq2-transformation" class="anchor"></a>DESeq2 transformation</h3>
+<p>There are three different transformations in <em>DESEq2</em> package.</p>
+<p>We refer to the help page of <code><a href="https://rdrr.io/pkg/DESeq2/man/varianceStabilizingTransformation.html">varianceStabilizingTransformation()</a></code> for <code>fitType="mean"</code>, <code>fitType="parametric"</code>, <code>fitType="local"</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">phyloseqTransformationVST</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ps</span>, 
+                                      <span class="va">fitType</span> <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span><span class="op">{</span>
+      <span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq_to_deseq2.html">phyloseq_to_deseq2</a></span><span class="op">(</span><span class="va">ps</span>, design <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span><span class="op">)</span>
+      <span class="va">dds</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/estimateSizeFactors.html">estimateSizeFactors</a></span><span class="op">(</span><span class="va">dds</span>, type <span class="op">=</span> <span class="st">"poscounts"</span><span class="op">)</span>
+      <span class="va">vsd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/varianceStabilizingTransformation.html">varianceStabilizingTransformation</a></span><span class="op">(</span><span class="va">dds</span>, 
+                                               blind <span class="op">=</span> <span class="cn">FALSE</span>, 
+                                               fitType <span class="op">=</span> <span class="va">fitType</span><span class="op">)</span>
+      <span class="va">abund_temp</span> <span class="op">&lt;-</span> <span class="fu">assay</span><span class="op">(</span><span class="va">vsd</span><span class="op">)</span>
+      
+      <span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq.html">phyloseq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">abund_temp</span>, taxa_are_rows <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+                     <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, 
+                     <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, 
+                     <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phy_tree-methods.html">phy_tree</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>
+      <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>
+<span class="op">}</span> 
+
+<span class="va">ps_ans_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span><span class="va">ps</span>, fitType <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>
+<span class="va">ps_parametric_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span><span class="va">ps</span>, fitType <span class="op">=</span> <span class="st">"parametric"</span><span class="op">)</span>
+<span class="va">ps_local_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span><span class="va">ps</span>, fitType <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="msd-mean-standard-deviation-plots-after-each-transformation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#msd-mean-standard-deviation-plots-after-each-transformation" class="anchor"></a>MSD (mean-standard deviation) plots after each transformation</h3>
+<p>We use <code><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot()</a></code> in <em>vsn</em> package.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">msd_ps_ans</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>, 
+  plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+
+<span class="va">msd_ps_ans</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
+  <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Anscombe's Transformation"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-1.png" width="384"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">msd_ps_ans_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>,
+  plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+
+<span class="va">msd_ps_ans_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
+  <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Anscombe Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-2.png" width="384"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">msd_ps_parametric_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_parametric_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>,
+  plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+
+<span class="va">msd_ps_parametric_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
+  <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Parametric Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-3.png" width="384"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">msd_ps_local_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_local_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>,
+  plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+
+<span class="va">msd_ps_local_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
+  <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Local Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-4.png" width="384"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span>
+  <span class="va">ps_ans_deseq2</span>, 
+   <span class="va">ps_parametric_deseq2</span>, 
+   <span class="va">ps_local_deseq2</span>,
+  <span class="va">msd_ps_ans</span>,
+  <span class="va">msd_ps_ans_deseq2</span>,
+  <span class="va">msd_ps_parametric_deseq2</span>,
+  <span class="va">msd_ps_local_deseq2</span>
+  <span class="op">)</span></code></pre></div>
+</div>
+</div>
+<div id="rank-based-methods" class="section level2">
+<h2 class="hasAnchor">
+<a href="#rank-based-methods" class="anchor"></a>5.2 Rank-based methods</h2>
+<div id="rank-based-transformation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#rank-based-transformation" class="anchor"></a>Rank-based transformation</h3>
+<p>The association between abundances and threshholded ranks, for a few randomly selected samples.</p>
+<p>The numbers of the y-axis are those supplied to PCA.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">abund</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span> 
+<span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">abund</span>, <span class="fl">2</span>, <span class="va">rank</span><span class="op">)</span> 
+<span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="va">abund_ranks</span> <span class="op">-</span> <span class="fl">900</span>
+<span class="va">abund_ranks</span><span class="op">[</span><span class="va">abund_ranks</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+
+<span class="va">abund_df</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">abund</span>, value.name <span class="op">=</span> <span class="st">"abund"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">left_join</span><span class="op">(</span><span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">abund_ranks</span>, value.name <span class="op">=</span> <span class="st">"rank"</span><span class="op">)</span><span class="op">)</span>
+
+
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">abund_df</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"seq"</span>, <span class="st">"sample"</span>, <span class="st">"abund"</span>,  <span class="st">"rank"</span><span class="op">)</span>
+
+<span class="va">sample_ix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">abund_df</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span>
+
+<span class="va">abund_df_subset</span> <span class="op">&lt;-</span> <span class="va">abund_df</span> <span class="op">%&gt;%</span>
+          <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">sample</span> <span class="op">%in%</span> <span class="va">abund_df</span><span class="op">$</span><span class="va">sample</span><span class="op">[</span><span class="va">sample_ix</span><span class="op">]</span><span class="op">)</span>
+
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">abund_df_subset</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_point</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">abund</span>, y <span class="op">=</span> <span class="va">rank</span>, col <span class="op">=</span> <span class="va">sample</span><span class="op">)</span>,
+             position <span class="op">=</span> <span class="fu">position_jitter</span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>, 
+             size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Abundance"</span>, 
+       y <span class="op">=</span> <span class="st">"Thresholded rank"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">scale_color_brewer</span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set2"</span><span class="op">)</span>  </code></pre></div>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+</div>
 </div>
   </div>
 

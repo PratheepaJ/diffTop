@@ -501,6 +501,7 @@ ggplot(data = tibble(p_value_asv = p_value_asv),
 
 ```{r}
 sum(p.adjust(p_value_asv, method = "BH") <= .05)
+rm(blks, con_int_neg_ctrl, con_int_specimen, dd, ps_specimen, psallzeroInNC, psBlockResult, psByBlock, psE, psNCbyBlock, psPlByBlock, sim_results, blocks, chi_square0, Contaminants1, i, num_blks, p_value_asv, prevTaxaP, SampleType)
 ```
 
 
