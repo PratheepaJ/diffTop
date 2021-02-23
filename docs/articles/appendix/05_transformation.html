@@ -115,11 +115,13 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217">phyloseq</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
-<span class="co"># library(RColorBrewer)</span>
-<span class="co"># library(reshape2)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/DESeq2">DESeq2</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.r-project.org">vsn</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a></span><span class="op">)</span> <span class="co"># dudi.pca</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/slowkow/ggrepel">ggrepel</a></span><span class="op">)</span> <span class="co"># geom_text_repel</span>
+<span class="co">#remotes::install_github("PratheepaJ/BARBI")</span>
+<span class="co">#library(BARBI)</span>
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
@@ -135,10 +137,8 @@
 <h3 class="hasAnchor">
 <a href="#data" class="anchor"></a>Data</h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in rm(psE): object 'psE' not found</code></pre>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span>
+<span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
 <span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu">phyloseq</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/filter_taxa.html">filter_taxa</a></span><span class="op">(</span><span class="va">psE_BARBI</span>, <span class="va">threshold</span>, <span class="cn">TRUE</span><span class="op">)</span> 
 <span class="va">psE_BARBI</span></code></pre></div>
 <pre><code>## phyloseq-class experiment-level object
@@ -146,7 +146,7 @@
 ## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
 ## tax_table()   Taxonomy Table:    [ 1418 taxa by 6 taxonomic ranks ]
 ## phy_tree()    Phylogenetic Tree: [ 1418 tips and 1417 internal nodes ]</code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># If we consider all plant types</span>
 <span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span>
 <span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE_BARBI</span><span class="op">)</span>
@@ -162,7 +162,7 @@
 <h3 class="hasAnchor">
 <a href="#edit-specimen-names" class="anchor"></a>Edit specimen names</h3>
 <p>We edit specimen names and identify Asteraceae and non-Asteraceae plants.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sam_names</span> <span class="op">&lt;-</span> <span class="fu">str_replace</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_names-methods.html">sample_names</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, <span class="st">"E106"</span>, <span class="st">"E-106"</span><span class="op">)</span>
 <span class="va">sam_names</span> <span class="op">&lt;-</span> <span class="fu">str_replace</span><span class="op">(</span><span class="va">sam_names</span>, <span class="st">"_F_filt.fastq.gz"</span>, <span class="st">""</span><span class="op">)</span>
 <span class="va">sam_names</span> <span class="op">&lt;-</span> <span class="fu">str_replace</span><span class="op">(</span><span class="va">sam_names</span>, <span class="st">"Connor-"</span>, <span class="st">"E"</span><span class="op">)</span>
@@ -180,7 +180,7 @@
 <h3 class="hasAnchor">
 <a href="#anscombes-transformation" class="anchor"></a>Anscombe’s transformation</h3>
 <p>The following transformation may take long time so we saved it as <code>ps_ans</code>. We can access it from <em>diffTop</em> package.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ps_ans</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/phyloseqTransformation.html">phyloseqTransformation</a></span><span class="op">(</span>ps  <span class="op">=</span> <span class="va">ps</span>, c <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>
 <span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span></code></pre></div>
 </div>
@@ -189,7 +189,7 @@
 <a href="#deseq2-transformation" class="anchor"></a>DESeq2 transformation</h3>
 <p>There are three different transformations in <em>DESEq2</em> package.</p>
 <p>We refer to the help page of <code><a href="https://rdrr.io/pkg/DESeq2/man/varianceStabilizingTransformation.html">varianceStabilizingTransformation()</a></code> for <code>fitType="mean"</code>, <code>fitType="parametric"</code>, <code>fitType="local"</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">phyloseqTransformationVST</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ps</span>, 
                                       <span class="va">fitType</span> <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span><span class="op">{</span>
       <span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq_to_deseq2.html">phyloseq_to_deseq2</a></span><span class="op">(</span><span class="va">ps</span>, design <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span><span class="op">)</span>
@@ -214,7 +214,7 @@
 <h3 class="hasAnchor">
 <a href="#msd-mean-standard-deviation-plots-after-each-transformation" class="anchor"></a>MSD (mean-standard deviation) plots after each transformation</h3>
 <p>We use <code><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot()</a></code> in <em>vsn</em> package.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_ans</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span> <span class="op">%&gt;%</span> 
     <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>, 
@@ -223,8 +223,8 @@
 <span class="va">msd_ps_ans</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Anscombe's Transformation"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-1.png" width="384"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-1.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_ans_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span>
     <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>,
@@ -233,8 +233,8 @@
 <span class="va">msd_ps_ans_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Anscombe Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-2.png" width="384"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-2.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_parametric_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_parametric_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span>
     <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>,
@@ -243,8 +243,8 @@
 <span class="va">msd_ps_parametric_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Parametric Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-3.png" width="384"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-3.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_local_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_local_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span> 
     <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="op">)</span>,
@@ -253,8 +253,8 @@
 <span class="va">msd_ps_local_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Local Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-4.png" width="384"></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-4.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span>
   <span class="va">ps_ans_deseq2</span>, 
    <span class="va">ps_parametric_deseq2</span>, 
@@ -274,7 +274,7 @@
 <a href="#rank-based-transformation" class="anchor"></a>Rank-based transformation</h3>
 <p>The association between abundances and threshholded ranks, for a few randomly selected samples.</p>
 <p>The numbers of the y-axis are those supplied to PCA.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">abund</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span> 
 <span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">abund</span>, <span class="fl">2</span>, <span class="va">rank</span><span class="op">)</span> 
 <span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="va">abund_ranks</span> <span class="op">-</span> <span class="fl">900</span>
@@ -298,7 +298,92 @@
   <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Abundance"</span>, 
        y <span class="op">=</span> <span class="st">"Thresholded rank"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">scale_color_brewer</span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set2"</span><span class="op">)</span>  </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-1.png" width="1152" style="display: block; margin: auto;"></p>
+</div>
+<div id="threshold-ranks-pca" class="section level3">
+<h3 class="hasAnchor">
+<a href="#threshold-ranks-pca" class="anchor"></a>Threshold ranks PCA</h3>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># We will use 9 colors for 9 different plants</span>
+<span class="va">plant_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"#999999"</span>, <span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>, <span class="st">"#009E73"</span>, <span class="st">"#F0E442"</span>, <span class="st">"#0072B2"</span>, <span class="st">"#D55E00"</span>, <span class="st">"#CC79A7"</span>, <span class="st">"purple"</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="va">abund_ranks</span><span class="op">)</span>
+
+<span class="va">ranks_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ade4/man/dudi.pca.html">dudi.pca</a></span><span class="op">(</span>
+  <span class="va">abund_ranks</span>, 
+  scannf <span class="op">=</span> <span class="cn">FALSE</span>, 
+  nf <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
+
+<span class="va">row_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  li <span class="op">=</span> <span class="va">ranks_pca</span><span class="op">$</span><span class="va">li</span>,
+  unique_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">abund_ranks</span><span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="va">col_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  co <span class="op">=</span> <span class="va">ranks_pca</span><span class="op">$</span><span class="va">co</span>,
+  seq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">abund_ranks</span><span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="va">tax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+
+<span class="va">tax</span><span class="op">$</span><span class="va">seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">tax</span><span class="op">)</span>
+
+<span class="va">tax</span><span class="op">$</span><span class="va">otu_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="op">)</span>
+
+<span class="va">sam_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>check.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+
+<span class="va">row_scores</span> <span class="op">&lt;-</span> <span class="va">row_scores</span> <span class="op">%&gt;%</span>
+  <span class="fu">left_join</span><span class="op">(</span>
+    <span class="va">sam_df</span>, 
+    by <span class="op">=</span> <span class="st">"unique_names"</span>
+    <span class="op">)</span>
+
+<span class="va">col_scores</span> <span class="op">&lt;-</span> <span class="va">col_scores</span> <span class="op">%&gt;%</span>
+  <span class="fu">left_join</span><span class="op">(</span>
+    <span class="va">tax</span>, 
+    by <span class="op">=</span> <span class="st">"seq"</span>
+    <span class="op">)</span>
+
+<span class="va">df_taxa</span> <span class="op">&lt;-</span> <span class="va">col_scores</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">(</span><span class="va">co.Comp1</span> <span class="op">&gt;</span>    <span class="fl">0.8736221</span> <span class="op">|</span> <span class="va">co.Comp1</span> <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.6</span><span class="op">)</span> <span class="op">|</span><span class="op">(</span><span class="va">co.Comp2</span> <span class="op">&gt;</span> <span class="fl">0.7</span> <span class="op">|</span> <span class="va">co.Comp2</span> <span class="op">&lt;</span>  <span class="op">-</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">Class</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span>
+
+
+<span class="va">evals_prop</span> <span class="op">&lt;-</span> <span class="va">ranks_pca</span><span class="op">$</span><span class="va">eig</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ranks_pca</span><span class="op">$</span><span class="va">eig</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span>
+
+<span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_point</span><span class="op">(</span>
+    data <span class="op">=</span> <span class="va">row_scores</span>, 
+    <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">li.Axis1</span>, 
+        y <span class="op">=</span> <span class="va">li.Axis2</span>, 
+        col <span class="op">=</span> <span class="va">species_names</span>, 
+        shape <span class="op">=</span> <span class="va">pna</span><span class="op">)</span>, 
+    size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">scale_colour_manual</span><span class="op">(</span>
+    values <span class="op">=</span> <span class="va">plant_colors</span>
+    <span class="op">)</span> <span class="op">+</span>
+  <span class="fu">facet_grid</span><span class="op">(</span><span class="op">~</span> <span class="va">Type</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"Axis1 [%s%% variance]"</span>, 
+                   <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">evals_prop</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, 
+       y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"Axis2 [%s%% variance]"</span>, 
+                   <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">evals_prop</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,
+       col <span class="op">=</span> <span class="st">"Plant type"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">coord_fixed</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">ranks_pca</span><span class="op">$</span><span class="va">eig</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">/</span> <span class="va">ranks_pca</span><span class="op">$</span><span class="va">eig</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_segment</span><span class="op">(</span>
+    data <span class="op">=</span> <span class="va">df_taxa</span>,
+    <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0</span>, y <span class="op">=</span> <span class="fl">0</span>, 
+        xend <span class="op">=</span> <span class="op">(</span><span class="va">co.Comp1</span><span class="op">*</span><span class="fl">10</span><span class="op">)</span>, 
+        yend <span class="op">=</span> <span class="op">(</span><span class="va">co.Comp2</span><span class="op">*</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>, 
+    arrow <span class="op">=</span> <span class="fu">arrow</span><span class="op">(</span><span class="op">)</span>,
+    inherit.aes<span class="op">=</span><span class="cn">FALSE</span>
+    <span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://rdrr.io/pkg/ggrepel/man/geom_text_repel.html">geom_text_repel</a></span><span class="op">(</span>
+    data <span class="op">=</span> <span class="va">df_taxa</span>, 
+    <span class="fu">aes</span><span class="op">(</span>x  <span class="op">=</span> <span class="va">co.Comp1</span> <span class="op">*</span><span class="fl">10</span>, y <span class="op">=</span> <span class="va">co.Comp2</span> <span class="op">*</span><span class="fl">10</span>, label <span class="op">=</span> <span class="va">Class</span><span class="op">)</span>
+    <span class="op">)</span> </code></pre></div>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-11-1.png" width="1152" style="display: block; margin: auto;"></p>
 </div>
 </div>
   </div>

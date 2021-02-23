@@ -9,46 +9,26 @@ output: BiocStyle::html_document
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
-  fig.width = 7, 
-  fig.height = 6, 
-  message = FALSE)
+  fig.width = 12, 
+  fig.height = 12, 
+  fig.align = 'center',
+  message = FALSE, 
+  warning = FALSE)
 ```
 
-```{r eval=FALSE, include=FALSE}
-pkgs = c("phyloseq", 
-         "dplyr", 
-         "magrittr", 
-         "Rcpp", 
-         "RColorBrewer",
-         "reshape2", 
-         "tidyr", 
-         "genefilter", 
-         "DESeq2", 
-         "ape", 
-         "gtools", 
-         "abind")
-
-if (!requireNamespace("BiocManager")){
-  install.packages("BiocManager")
-}
-
-BiocManager::install(
-  setdiff(pkgs, installed.packages()), 
-  update = TRUE
-  )
-```
-
-
-```{r message=FALSE, warning=FALSE}
+```{r}
 library(phyloseq)
 library(tidyverse)
-# library(RColorBrewer)
-# library(reshape2)
 library(genefilter) #KOverA
 library(DESeq2)
 library(vsn)
+library(ade4) # dudi.pca
+library(ggrepel) # geom_text_repel
+#remotes::install_github("PratheepaJ/BARBI")
+#library(BARBI)
 devtools::load_all()
 ```
+
 
 ```{r}
 theme_set(theme_minimal())
@@ -139,7 +119,7 @@ ps_local_deseq2 <- phyloseqTransformationVST(ps, fitType = "local")
 
 We use `meanSdPlot()` in _vsn_ package.
 
-```{r fig.width=4, fig.height=4}
+```{r}
 msd_ps_ans <- meanSdPlot(
   otu_table(ps_ans) %>% 
     as.matrix(), 
@@ -222,5 +202,98 @@ ggplot(abund_df_subset) +
   labs(x = "Abundance", 
        y = "Thresholded rank") +
   scale_color_brewer(palette = "Set2")  
+```
+
+### Threshold ranks PCA
+
+```{r}
+# We will use 9 colors for 9 different plants
+plant_colors <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "purple")
+```
+
+
+```{r}
+abund_ranks <- t(abund_ranks)
+
+ranks_pca <- dudi.pca(
+  abund_ranks, 
+  scannf = FALSE, 
+  nf = 3)
+
+row_scores <- data.frame(
+  li = ranks_pca$li,
+  unique_names = rownames(abund_ranks)
+  )
+
+col_scores <- data.frame(
+  co = ranks_pca$co,
+  seq = colnames(abund_ranks)
+  )
+
+tax <- tax_table(ps) %>% 
+  data.frame(stringsAsFactors = FALSE)
+
+tax$seq <- rownames(tax)
+
+tax$otu_id <- otu_table(ps) %>%
+  nrow() %>% seq_len()
+
+sam_df <- sample_data(ps) %>% 
+  data.frame(check.names = FALSE)
+
+row_scores <- row_scores %>%
+  left_join(
+    sam_df, 
+    by = "unique_names"
+    )
+
+col_scores <- col_scores %>%
+  left_join(
+    tax, 
+    by = "seq"
+    )
+
+df_taxa <- col_scores %>% 
+  filter((co.Comp1 > 	0.8736221 | co.Comp1 < -0.6) |(co.Comp2 > 0.7 | co.Comp2 < 	-0.5) & (!is.na(Class)) )
+
+
+evals_prop <- ranks_pca$eig/sum(ranks_pca$eig)*100
+
+ggplot() +
+  geom_point(
+    data = row_scores, 
+    aes(x = li.Axis1, 
+        y = li.Axis2, 
+        col = species_names, 
+        shape = pna), 
+    size = 3) +
+  scale_colour_manual(
+    values = plant_colors
+    ) +
+  facet_grid(~ Type) +
+  labs(x = sprintf("Axis1 [%s%% variance]", 
+                   round(evals_prop[1], 1)), 
+       y = sprintf("Axis2 [%s%% variance]", 
+                   round(evals_prop[2], 1)),
+       col = "Plant type") +
+  coord_fixed(sqrt(ranks_pca$eig[2] / ranks_pca$eig[1])) +
+  geom_segment(
+    data = df_taxa,
+    aes(x = 0, y = 0, 
+        xend = (co.Comp1*10), 
+        yend = (co.Comp2*10)), 
+    arrow = arrow(),
+    inherit.aes=FALSE
+    ) + 
+  geom_text_repel(
+    data = df_taxa, 
+    aes(x  = co.Comp1 *10, y = co.Comp2 *10, label = Class)
+    ) 
+
+```
+
+
+```{r include=FALSE}
+rm(abund_df, abund_df_subset, abund_ranks, col_scores, df_taxa, ranks_pca, row_scores, sam_df, tax, abund, aster, evals_prop, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names, sample_ix)
 ```
 

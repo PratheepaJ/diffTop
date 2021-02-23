@@ -6,3 +6,20 @@ output: BiocStyle::html_document
 ---
 
 
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+  fig.width = 12, 
+  fig.height = 12, 
+  fig.align = 'center',
+  message = FALSE, 
+  warning = FALSE)
+```
+
+```{r}
+library(phyloseq)
+library(tidyverse)
+#remotes::install_github("PratheepaJ/BARBI")
+#library(BARBI)
+devtools::load_all()
+```
+

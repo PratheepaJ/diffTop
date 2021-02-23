@@ -17,29 +17,11 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 
 
-```{r eval=FALSE, include=FALSE}
-pkgs <- c("BiocStyle",
-          "tidyverse",
-         "phyloseq", 
-         "reshape2", 
-         "genefilter",
-         "MASS")
 
-if (!requireNamespace("BiocManager")){
-  install.packages("BiocManager")
-}
-
-BiocManager::install(setdiff(pkgs, installed.packages()), update = TRUE)
-```
-
-
-Load libraries
-
-```{r message=FALSE, warning=FALSE}
+```{r}
 library(tidyverse)
 library(phyloseq)
 library(genefilter) #KOverA
-
 #remotes::install_github("PratheepaJ/BARBI")
 #library(BARBI)
 devtools::load_all()
@@ -501,9 +483,12 @@ ggplot(data = tibble(p_value_asv = p_value_asv),
 
 ```{r}
 sum(p.adjust(p_value_asv, method = "BH") <= .05)
-rm(blks, con_int_neg_ctrl, con_int_specimen, dd, ps_specimen, psallzeroInNC, psBlockResult, psByBlock, psE, psNCbyBlock, psPlByBlock, sim_results, blocks, chi_square0, Contaminants1, i, num_blks, p_value_asv, prevTaxaP, SampleType)
+
 ```
 
+```{r include=FALSE}
+rm(blks, con_int_neg_ctrl, con_int_specimen, dd, ps_specimen, psallzeroInNC, psBlockResult, psByBlock, psE, psNCbyBlock, psPlByBlock, sim_results, blocks, chi_square0, Contaminants1, i, num_blks, p_value_asv, prevTaxaP, SampleType)
+```
 
 
 ## 4.3 Library size scaling factor
