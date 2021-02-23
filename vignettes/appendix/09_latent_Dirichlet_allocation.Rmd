@@ -286,6 +286,16 @@ ggsave(paste0("topic_dis_all_",K, ".png")), p, width = 30, height = 16)
 knitr::include_graphics(paste0("topic_dis_all_",K,".png"))
 ```
 
+
+### ASV distribution
+
+
+### Diagnostic and model assessement plots
+
+
+## Differential topic analysis
+
+
 ```{r include=FALSE}
 rm(params, ps, stan.data, x, aster, iter, K, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names)
 ```
