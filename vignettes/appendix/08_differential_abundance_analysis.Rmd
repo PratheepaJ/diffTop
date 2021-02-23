@@ -1,15 +1,238 @@
 ---
 title: "Section 8: DIFFERENTIAL ABUNDANCE ANALYSIS"
-author: "Pratheepa Jeganathan"
+author: "Pratheepa Jeganathan and Susan Holmes"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: BiocStyle::html_document
 ---
 
+An important goal in microbiome research is often to find taxonomic differences across environments or groups.
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+  fig.width = 7, 
+  fig.height = 4, 
+  fig.align = 'center',
+  message = FALSE, 
+  warning = FALSE)
+```
+
+```{r}
+library(phyloseq)
+library(tidyverse)
+library(genefilter) #KOverA
+library(vegan)
+
+devtools::load_all()
+```
+
+```{r}
+theme_set(theme_minimal())
+theme_update(
+  text = element_text(size = 10),
+  legend.text = element_text(size = 10)
+)
+```
+
+## Data
+
+```{r}
+
+threshold <- kOverA(2, A = 25) 
+psE_BARBI <- phyloseq::filter_taxa(
+  psE_BARBI, 
+  threshold, TRUE) 
+
+psE_BARBI
+
+ps <- psE_BARBI
+rm(psE_BARBI)
+ps <- prune_taxa(taxa_sums(ps) > 0, ps)
+ps
+
+```
 
 ## 8.1 Permutation tests using distance matrices
+
+### Power calculation with and without strain switching
+
+One difficulty with current 16S rRNA data are that the distance based tests are very sensitive to the choice of distance and the presence of strain switching can substantially decrease the power of the test.
+
+We show that for the exemplary data this is in fact the case as strains ASV 153 is switched with ASVs 12, 354 and 345. To illustrate the decrease in power in PERMANOVA through a simulation, we generated negative binomial count data with parameters similar to
+these ASVs and show that when a species switches ASV, ie is present as one ASV in one set of samples and a close, distinct strain appears in the other set of samples, the power to detect a difference using a Bray Curtis distance and permanova is considerably diminished. 
+
+### A function to generate the data with NB marginals
+
+- With strain switching (split=TRUE) for k ASVs or
+
+- Without strain switching (split=FALSE).
+
+```{r}
+generatematasv <- function(
+  n=100, 
+  k=1, 
+  split=TRUE,
+  p=20, 
+  n1=floor(n/2), 
+  n2=n-n1, 
+  group1=1:n1, 
+  diff=4, 
+  mu0=100, 
+  size0=0.2
+  ){
+    ## Different means version, in vars 1:k
+    ## split is TRUE when there is strain  switching
+    ## The number of ASVs is 2p
+    ## k identifies how many ASVs are changed across groups  
+    ## n1 is the size of group 1
+    ## n2 is the size of group 2
+    ## diff is the multiplicative effect size difference  
+    matasv<-matrix(0, ncol=2*p, nrow=n)
+    asv12<-rep(0,n)
+    if (k>0){
+        for (j in 1:k){
+          asv12[group1]<-rnbinom(n1, size=size0, mu=diff*mu0)  
+          asv12[-group1]<-rnbinom(n2, size=size0, mu=mu0)  
+          # no switching
+          if (!split){
+            #One otus that has a difference  
+            matasv[,1+2*(j-1)]<- asv12
+            #One otu with no difference
+            matasv[,2*j]<-rnbinom(n,size=size0,mu=mu0)
+          }
+          if(split){ 
+            #If there is strain switching
+            # one NB is split across two columns
+            # Alternate where the strains occr
+            # in the vector of indices ind
+            ind<-seq(1,n,by=2)
+            matasv[ind,1+2*(j-1)]<-asv12[ind]
+            matasv[-ind,2*j]<-asv12[-ind]
+            }
+        }
+        
+        for (j in (k+1):p){
+          ##the rest are unchanged between groups
+          matasv[,1+2*(j-1)]<-rnbinom(n,size=size0,mu=mu0)
+          matasv[,2*j]<-rnbinom(n,size=size0,mu=mu0)
+        }
+    }  
+    return(matasv)
+}
+```
+
+
+### PERMANOVA in adonis package
+
+A standard `permanova` test can be run using the `adonis` command from the `vegan` package.
+
+```{r test}
+n0<-50
+n1<-25;n2<-25
+matasv<-generatematasv(n=n0)
+dim(matasv)
+##matasv is generated as a 
+##multivariate with negative binomial marginals
+
+afact<-factor(
+  c(rep("A",n1), 
+    rep("B",n2))
+  )
+
+distasv<-vegdist(matasv, method="bray")
+ptest1<-adonis(distasv~afact)
+ptest1
+#To extract the pvalue:
+ptest1$aov.tab$`Pr(>F)`[1]
+```
+
+
+
+### Power computation with a difference in non switched (standard) and switched OTUs 
+
+```{r}
+n0<-100
+poweranalysis<-function(
+  B=1000,
+  diff0=4,
+  k0=1,
+  nbASVs=40,
+  n=n0,
+  split0 = FALSE,
+  mu0=500,
+  size0=0.2){
+
+    pvals<-rep(0,B)
+    afact<-factor(
+      c(rep("A",n/2),
+        rep("B",n/2))
+      )
+    for (b in 1:B){
+        matasv<-generatematasv(
+          n=n0, 
+          k=k0, 
+          p=round(nbASVs/2),
+          diff=diff0,
+          split = split0,
+          mu0=mu0,
+          size0=size0
+          )
+        distasv<-vegdist(
+          matasv,
+          method="bray"
+          )
+        
+        ptest1<-adonis(distasv~afact)
+        pvals[b]<-ptest1$aov.tab$`Pr(>F)`[1]
+    }
+    power005<-sum(pvals<0.05)
+    power001<-sum(pvals<0.01)
+    return(c(power005,power001))
+}
+
+
+```
+
+
+```{r eval=FALSE}
+# Here we use large mu0 and the size (similar to ASV 153)  
+powerswitch<-poweranalysis(
+  B=1000,
+  diff0=5, 
+  k0=1, 
+  nbASVs=20,
+  n=n0, 
+  split0=TRUE,
+  mu0=500,
+  size=0.2
+  )
+
+powerstand<-poweranalysis(
+  B=1000,
+  diff0=5, 
+  k0=1, 
+  nbASVs=20, 
+  n=n0, 
+  split0=FALSE,
+  mu0=500,
+  size=0.2)
+
+usethis::use_data(powerswitch)
+usethis::use_data(powerstand)
+```
+
+
+In the case of strain switching standard PERMANOVA will see it's power substantially decreased from `r round(powerstand[1]/1000,2)` to `r round(powerswitch[1]/1000,2)`.
 
 
 ## 8.2 Differential abundance through generalized linear modeling and transformatios
 
+Simple two-sample testing is marred by several technological difficulties. There are batch effects, technical biases, and heteroscedasticity in the prevalence estimates due to differences in the library sizes across specimens as well as strain switching (where ASV strains are replaced as we change locations or subjects).
 
 ## 8.3 Communities instead of individual taxa
+
+Topic models provide useful aggregates that can be used for differential abundance analysis based on topics rather than individual strains.
+
+```{r include=FALSE}
+rm(matasv, ps, ptest1, afact, distasv, no, n1, n2, powerstand, powerswitch)
+```
+
