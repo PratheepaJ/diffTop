@@ -17,13 +17,12 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 
 
-
 ```{r}
 library(tidyverse)
 library(phyloseq)
 library(genefilter) #KOverA
 #remotes::install_github("PratheepaJ/BARBI")
-#library(BARBI)
+#library(BARBI) let's call functions from BARBI explicitly 
 devtools::load_all()
 ```
 

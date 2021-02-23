@@ -24,8 +24,6 @@ library(DESeq2)
 library(vsn)
 library(ade4) # dudi.pca
 library(ggrepel) # geom_text_repel
-#remotes::install_github("PratheepaJ/BARBI")
-#library(BARBI)
 devtools::load_all()
 ```
 
@@ -38,11 +36,7 @@ theme_update(
 )
 ```
 
-## 5.1 Variance stabilization 
-
-This workflow is for visualization of 16S rRNA sequencing data. We use 16S after removing contaminants _psE_BARBI_. Then, we remove ASVs that have at least 25 reads in five specimens. This data set has 1418 ASVs and 86 samples. 
-
-### Data
+## Data
 
 ```{r}
 rm(psE)
@@ -50,7 +44,6 @@ threshold <- kOverA(2, A = 25)
 psE_BARBI <- phyloseq::filter_taxa(psE_BARBI, threshold, TRUE) 
 psE_BARBI
 
-# If we consider all plant types
 ps <- psE_BARBI
 rm(psE_BARBI)
 ps <- prune_taxa(taxa_sums(ps) > 0, ps)
@@ -76,6 +69,12 @@ paired_aster <- c("E-142-1", "E142-1", "E-142-5", "E142-5", "E-142-10", "E142-10
 paired_non_aster <- c("E33-7", "E-33-7", "E33-8", "E-33-8", "E33-9", "E-33-9", "E71-10", "E-71-10","E71-2","E-71-2" ,"E71-3", "E-71-3", "E106-1", "E-106-1", "E106-3", "E-106-3", "E106-4", "E-106-4")
 paired_specimens <- c(paired_aster, paired_non_aster)
 ```
+
+## 5.1 Variance stabilization 
+
+This workflow is for visualization of 16S rRNA sequencing data. We use 16S after removing contaminants _psE_BARBI_. Then, we remove ASVs that have at least 25 reads in five specimens. This data set has 1418 ASVs and 86 samples. 
+
+
 
 ### Anscombe's transformation
 

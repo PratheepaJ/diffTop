@@ -120,8 +120,6 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.r-project.org">vsn</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a></span><span class="op">)</span> <span class="co"># dudi.pca</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://github.com/slowkow/ggrepel">ggrepel</a></span><span class="op">)</span> <span class="co"># geom_text_repel</span>
-<span class="co">#remotes::install_github("PratheepaJ/BARBI")</span>
-<span class="co">#library(BARBI)</span>
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
@@ -129,13 +127,9 @@
   text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,
   legend.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
-<div id="variance-stabilization" class="section level2">
+<div id="data" class="section level2">
 <h2 class="hasAnchor">
-<a href="#variance-stabilization" class="anchor"></a>5.1 Variance stabilization</h2>
-<p>This workflow is for visualization of 16S rRNA sequencing data. We use 16S after removing contaminants <em>psE_BARBI</em>. Then, we remove ASVs that have at least 25 reads in five specimens. This data set has 1418 ASVs and 86 samples.</p>
-<div id="data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#data" class="anchor"></a>Data</h3>
+<a href="#data" class="anchor"></a>Data</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span>
 <span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
@@ -147,8 +141,7 @@
 ## tax_table()   Taxonomy Table:    [ 1418 taxa by 6 taxonomic ranks ]
 ## phy_tree()    Phylogenetic Tree: [ 1418 tips and 1417 internal nodes ]</code></pre>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># If we consider all plant types</span>
-<span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span>
+<code class="sourceCode R"><span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span>
 <span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">psE_BARBI</span><span class="op">)</span>
 <span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/prune_taxa-methods.html">prune_taxa</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_sums.html">taxa_sums</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="va">ps</span><span class="op">)</span>
 <span class="va">ps</span></code></pre></div>
@@ -157,7 +150,6 @@
 ## sample_data() Sample Data:       [ 86 samples by 16 sample variables ]
 ## tax_table()   Taxonomy Table:    [ 1418 taxa by 6 taxonomic ranks ]
 ## phy_tree()    Phylogenetic Tree: [ 1418 tips and 1417 internal nodes ]</code></pre>
-</div>
 <div id="edit-specimen-names" class="section level3">
 <h3 class="hasAnchor">
 <a href="#edit-specimen-names" class="anchor"></a>Edit specimen names</h3>
@@ -176,6 +168,11 @@
 <span class="va">paired_non_aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"E33-7"</span>, <span class="st">"E-33-7"</span>, <span class="st">"E33-8"</span>, <span class="st">"E-33-8"</span>, <span class="st">"E33-9"</span>, <span class="st">"E-33-9"</span>, <span class="st">"E71-10"</span>, <span class="st">"E-71-10"</span>,<span class="st">"E71-2"</span>,<span class="st">"E-71-2"</span> ,<span class="st">"E71-3"</span>, <span class="st">"E-71-3"</span>, <span class="st">"E106-1"</span>, <span class="st">"E-106-1"</span>, <span class="st">"E106-3"</span>, <span class="st">"E-106-3"</span>, <span class="st">"E106-4"</span>, <span class="st">"E-106-4"</span><span class="op">)</span>
 <span class="va">paired_specimens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">paired_aster</span>, <span class="va">paired_non_aster</span><span class="op">)</span></code></pre></div>
 </div>
+</div>
+<div id="variance-stabilization" class="section level2">
+<h2 class="hasAnchor">
+<a href="#variance-stabilization" class="anchor"></a>5.1 Variance stabilization</h2>
+<p>This workflow is for visualization of 16S rRNA sequencing data. We use 16S after removing contaminants <em>psE_BARBI</em>. Then, we remove ASVs that have at least 25 reads in five specimens. This data set has 1418 ASVs and 86 samples.</p>
 <div id="anscombes-transformation" class="section level3">
 <h3 class="hasAnchor">
 <a href="#anscombes-transformation" class="anchor"></a>Anscombe’s transformation</h3>
