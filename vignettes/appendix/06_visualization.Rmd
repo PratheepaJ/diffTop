@@ -148,6 +148,10 @@ plot_abundance <- function(
             plot.title = element_text(hjust = 0.5))
 }
 
+```
+
+
+```{r eval=FALSE}
 plot_abundance(
   subset_samples(
     ps_proteobacteria, 
@@ -155,6 +159,9 @@ plot_abundance(
   title = "Asteraceae") + 
   ylab("Abundance")
 
+```
+
+```{r fig.cap="Supplementary Figure 6: Distribution of relative abundance of four different Classes of Proteobacteria in Asteraceae plants. O and M denote universal and Asteraceae-modified pPNA types, respectively."}
 plot_abundance(
   subset_samples(
     ps_ra_proteobacteria, 
@@ -162,6 +169,11 @@ plot_abundance(
   title = "Asteraceae") + 
   ylab("Relative abundance")
 
+
+```
+
+
+```{r eval=FALSE}
 plot_abundance(
   subset_samples(
     ps_proteobacteria, 
@@ -169,6 +181,12 @@ plot_abundance(
   title = "non-Asteraceae"
   ) 
 
+
+
+```
+
+
+```{r fig.cap="Supplementary Figure 7: Distribution of relative abundance of four different Classes of Proteobacteria in non- Asteraceae plants. O and M denote universal and Asteraceae-modified pPNA types, respectively."}
 plot_abundance(
   subset_samples(
     ps_ra_proteobacteria, 
@@ -176,17 +194,14 @@ plot_abundance(
   title = "non-Asteraceae") + 
   ylab("Relative abundance")
 
-
 ```
-
-
 
 
 ## Heatmaps
 
 We plot the heatmap of Anscombe's transformed values.
 
-```{r}
+```{r fig.cap="Figure 3: Thirty most abundant ASVs were selected in all specimens. Taxa are labeled by Class on rows, and specimens are on the columns of the heatmap. Some specimens from Centaurea solstitialis plant have the most abundant ASVs of the Class Actinobacteria, Alphaproteobacteria, Sphingobacteria, and Gammaproteobacteria."}
 # do use asinh transformation
 ps_top <- ps_ans 
     

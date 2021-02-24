@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Section 4: MODELS</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">23 February, 2021</h4>
+            <h4 class="date">24 February, 2021</h4>
       
       
       <div class="hidden name"><code>04_models.Rmd</code></div>
@@ -138,7 +138,10 @@
 <h3 class="hasAnchor">
 <a href="#adding-blocksbatches" class="anchor"></a>Adding blocks/batches</h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">blocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"Set1"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/nsamples-methods.html">nsamples</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">blocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span>
+  <span class="st">"Set1"</span>, 
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/nsamples-methods.html">nsamples</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span>
+  <span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">block</span> <span class="op">&lt;-</span> <span class="va">blocks</span></code></pre></div>
 </div>
@@ -146,19 +149,32 @@
 <h3 class="hasAnchor">
 <a href="#remove-taxa-only-in-negative-control-specimens" class="anchor"></a>Remove taxa only in negative control specimens</h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">SampleType</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">is.neg</span>, <span class="st">"Control"</span>, <span class="st">"Cases"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">SampleType</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">is.neg</span>, 
+  <span class="st">"Control"</span>, 
+  <span class="st">"Cases"</span>
+  <span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">SampleType</span> <span class="op">&lt;-</span> <span class="va">SampleType</span>
 
-<span class="va">ps_specimen</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/subset_samples-methods.html">subset_samples</a></span><span class="op">(</span><span class="va">psE</span>, 
-                               <span class="va">SampleType</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Cases"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">ps_specimen</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/subset_samples-methods.html">subset_samples</a></span><span class="op">(</span>
+  <span class="va">psE</span>, 
+  <span class="va">SampleType</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Cases"</span><span class="op">)</span>
+  <span class="op">)</span>
+
 <span class="va">prevTaxaP</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_specimen</span><span class="op">)</span>, 
   <span class="fl">1</span>,
   <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">)</span><span class="op">}</span>
   <span class="op">)</span>
 
-<span class="va">Contaminants1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">prevTaxaP</span><span class="op">)</span><span class="op">[</span><span class="va">prevTaxaP</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span>
-<span class="va">psE</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/prune_taxa-methods.html">prune_taxa</a></span><span class="op">(</span><span class="va">prevTaxaP</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="va">psE</span><span class="op">)</span>
+<span class="va">Contaminants1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span>
+  <span class="va">prevTaxaP</span>
+  <span class="op">)</span><span class="op">[</span><span class="va">prevTaxaP</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span>
+
+<span class="va">psE</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/prune_taxa-methods.html">prune_taxa</a></span><span class="op">(</span>
+  <span class="va">prevTaxaP</span> <span class="op">&gt;</span> <span class="fl">0</span>, 
+  <span class="va">psE</span>
+  <span class="op">)</span>
 <span class="va">psE</span></code></pre></div>
 <pre><code>## phyloseq-class experiment-level object
 ## otu_table()   OTU Table:         [ 6695 taxa and 111 samples ]
@@ -166,7 +182,10 @@
 ## tax_table()   Taxonomy Table:    [ 6695 taxa by 6 taxonomic ranks ]
 ## phy_tree()    Phylogenetic Tree: [ 6695 tips and 6694 internal nodes ]</code></pre>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">SampleType</span>,<span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">block</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">SampleType</span>,
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">$</span><span class="va">block</span>
+  <span class="op">)</span></code></pre></div>
 <pre><code>##          
 ##           Set1
 ##   Cases     86
@@ -235,27 +254,40 @@
 
 <span class="va">con_int_specimen_mar_post_true_intensities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">con_int_specimen</span>, <span class="va">mar_post_true_intensities</span><span class="op">)</span>
 
-<span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span><span class="op">(</span><span class="va">con_int_specimen_mar_post_true_intensities</span><span class="op">)</span><span class="co"># this is a too large data set so we didn't include to build the website.</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">con_int_specimen_mar_post_true_intensities</span>, <span class="st">"con_int_specimen_mar_post_true_intensities.rds"</span><span class="op">)</span><span class="co"># this is a too large data set so we didn't include to build the website.</span></code></pre></div>
 </div>
 <div id="save-phyloseq-after-removing-dna-contamination" class="section level3">
 <h3 class="hasAnchor">
 <a href="#save-phyloseq-after-removing-dna-contamination" class="anchor"></a>Save phyloseq after removing DNA contamination</h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ASV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>,<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="va">ASV.Genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>,
-                    <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">)</span>,
-                    <span class="st">"_"</span>,
-                    <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="va">ASV.Genus.Species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">ASV</span>,
-                            <span class="st">"_"</span>,
-                            <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">)</span>,
-                            <span class="st">"_"</span>,
-                            <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">ASV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>,
+         <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span>
+             <span class="op">)</span>
+         <span class="op">)</span>
+  <span class="op">)</span>
 
-<span class="va">df.ASV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>seq.variant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_names-methods.html">taxa_names</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span>, 
-                     ASV <span class="op">=</span> <span class="va">ASV</span>, 
-                     ASV.Genus <span class="op">=</span> <span class="va">ASV.Genus</span>,
-                     ASV.Genus.Species <span class="op">=</span> <span class="va">ASV.Genus.Species</span><span class="op">)</span>
+<span class="va">ASV.Genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
+  <span class="st">"ASV_"</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">)</span>,
+  <span class="st">"_"</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="va">ASV.Genus.Species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
+  <span class="va">ASV</span>,
+  <span class="st">"_"</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">)</span>,
+  <span class="st">"_"</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span><span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="va">df.ASV</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  seq.variant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_names-methods.html">taxa_names</a></span><span class="op">(</span><span class="va">psE</span><span class="op">)</span>, 
+  ASV <span class="op">=</span> <span class="va">ASV</span>, 
+  ASV.Genus <span class="op">=</span> <span class="va">ASV.Genus</span>,
+  ASV.Genus.Species <span class="op">=</span> <span class="va">ASV.Genus.Species</span>
+  <span class="op">)</span>
 
 <span class="va">itera</span> <span class="op">&lt;-</span> <span class="fl">1000</span>
 <span class="va">burnIn</span> <span class="op">&lt;-</span> <span class="fl">100</span>
@@ -287,57 +319,92 @@
 
       <span class="kw">for</span><span class="op">(</span><span class="va">taxa</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">taxa_post</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
         <span class="va">burnIn</span>  <span class="op">&lt;-</span> <span class="va">burnIn</span>
-        <span class="va">acceptance</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span>  <span class="op">&lt;-</span>  <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="va">taxa_post</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">burnIn</span><span class="op">)</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span>
+        <span class="va">acceptance</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span>  <span class="op">&lt;-</span>  <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span>
+          <span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span>
+            <span class="va">taxa_post</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">burnIn</span><span class="op">)</span>,<span class="op">]</span>
+            <span class="op">)</span>
+          <span class="op">)</span>
 
-        <span class="va">HPD.r</span> <span class="op">&lt;-</span> <span class="fu">hdi</span><span class="op">(</span><span class="va">taxa_post</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">burnIn</span><span class="op">)</span>,<span class="op">]</span>,
-                    credMass <span class="op">=</span> <span class="va">cov.pro</span><span class="op">)</span>
+        <span class="va">HPD.r</span> <span class="op">&lt;-</span> <span class="fu">hdi</span><span class="op">(</span>
+          <span class="va">taxa_post</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">burnIn</span><span class="op">)</span>,<span class="op">]</span>,
+          credMass <span class="op">=</span> <span class="va">cov.pro</span>
+          <span class="op">)</span>
+        
         <span class="va">lower.r</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">HPD.r</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
         <span class="va">upper.r</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">HPD.r</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-        <span class="va">lamda.c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html">rgamma</a></span><span class="op">(</span><span class="op">(</span><span class="va">itera</span><span class="op">-</span><span class="va">burnIn</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span>, 
-                    shape<span class="op">=</span> <span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>,
-                    rate <span class="op">=</span> <span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span><span class="op">)</span>
         
-        <span class="va">HDI.c</span> <span class="op">&lt;-</span> <span class="fu">hdi</span><span class="op">(</span><span class="va">lamda.c</span>, credMass <span class="op">=</span> <span class="va">cov.pro</span><span class="op">)</span>
-        <span class="va">lower.c</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">HDI.c</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-        <span class="va">upper.c</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">HDI.c</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
+        <span class="va">lamda.c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html">rgamma</a></span><span class="op">(</span>
+          <span class="op">(</span><span class="va">itera</span><span class="op">-</span><span class="va">burnIn</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span>, 
+          shape<span class="op">=</span> <span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>,
+          rate <span class="op">=</span> <span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>
+          <span class="op">)</span>
+        
+        <span class="va">HDI.c</span> <span class="op">&lt;-</span> <span class="fu">hdi</span><span class="op">(</span>
+          <span class="va">lamda.c</span>, 
+          credMass <span class="op">=</span> <span class="va">cov.pro</span>
+          <span class="op">)</span>
+        
+        <span class="va">lower.c</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span>
+          <span class="va">HDI.c</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, 
+          digits <span class="op">=</span> <span class="fl">0</span>
+          <span class="op">)</span>
+        
+        <span class="va">upper.c</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span>
+          <span class="va">HDI.c</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+          digits <span class="op">=</span> <span class="fl">0</span>
+          <span class="op">)</span>
         
         <span class="va">all.zero.nc</span><span class="op">[[</span><span class="va">taxa</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span>  <span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">taxa</span><span class="op">]</span>
       <span class="op">}</span>
 
-    <span class="va">tax_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_names-methods.html">taxa_names</a></span><span class="op">(</span><span class="va">psPlByBlock</span><span class="op">[[</span><span class="va">blk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-    <span class="va">tax_names</span> <span class="op">&lt;-</span> <span class="va">df.ASV</span><span class="op">$</span><span class="va">ASV.Genus</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">df.ASV</span><span class="op">$</span><span class="va">seq.variant</span><span class="op">)</span> <span class="op">%in%</span>  <span class="va">tax_names</span><span class="op">)</span><span class="op">]</span>
+    <span class="va">tax_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/taxa_names-methods.html">taxa_names</a></span><span class="op">(</span>
+      <span class="va">psPlByBlock</span><span class="op">[[</span><span class="va">blk</span><span class="op">]</span><span class="op">]</span>
+      <span class="op">)</span>
+    
+    <span class="va">tax_names</span> <span class="op">&lt;-</span> <span class="va">df.ASV</span><span class="op">$</span><span class="va">ASV.Genus</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">df.ASV</span><span class="op">$</span><span class="va">seq.variant</span><span class="op">)</span> <span class="op">%in%</span>  <span class="va">tax_names</span>
+      <span class="op">)</span><span class="op">]</span>
       
-    <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Species <span class="op">=</span> <span class="va">tax_names</span>,
-                    xj <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
-                    l.r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">lower.r</span><span class="op">)</span>,
-                    u.r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">upper.r</span><span class="op">)</span>,
-                    l.c <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">lower.c</span><span class="op">)</span>,
-                    u.c <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">upper.c</span><span class="op">)</span>,
-                    all.zero.nc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">all.zero.nc</span><span class="op">)</span><span class="op">)</span>
+    <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+      Species <span class="op">=</span> <span class="va">tax_names</span>,
+      xj <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">con_int_specimen_blk</span><span class="op">[[</span><span class="va">sam</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+      l.r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">lower.r</span><span class="op">)</span>,
+      u.r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">upper.r</span><span class="op">)</span>,
+      l.c <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">lower.c</span><span class="op">)</span>,
+      u.c <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">upper.c</span><span class="op">)</span>,
+      all.zero.nc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">all.zero.nc</span><span class="op">)</span>
+      <span class="op">)</span>
       
     
       <span class="co"># List all true taxa</span>
-      <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">arrange</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">df</span>,<span class="op">(</span><span class="va">l.r</span> <span class="op">&gt;</span> <span class="va">u.c</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">l.r</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,
-                   <span class="fu">desc</span><span class="op">(</span><span class="va">xj</span><span class="op">)</span><span class="op">)</span>
+      <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">arrange</span><span class="op">(</span>
+        <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span>
+          <span class="va">df</span>,
+          <span class="op">(</span><span class="va">l.r</span> <span class="op">&gt;</span> <span class="va">u.c</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">l.r</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>
+          <span class="op">)</span>,
+        <span class="fu">desc</span><span class="op">(</span><span class="va">xj</span><span class="op">)</span>
+        <span class="op">)</span>
 
       <span class="co"># If there is no true taxa</span>
       <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span><span class="op">{</span>
-          <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Species<span class="op">=</span><span class="st">"Negative"</span>,
-                           xj<span class="op">=</span><span class="st">"Negative"</span>,
-                           l.r<span class="op">=</span><span class="st">"Negative"</span>,
-                           u.r<span class="op">=</span><span class="st">"Negative"</span>,
-                           l.c <span class="op">=</span><span class="st">"Negative"</span>,
-                           u.c<span class="op">=</span><span class="st">"Negative"</span>,
-                           all.zero.nc <span class="op">=</span> <span class="st">"Negative"</span><span class="op">)</span>
+          <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+            Species<span class="op">=</span><span class="st">"Negative"</span>,
+            xj<span class="op">=</span><span class="st">"Negative"</span>,
+            l.r<span class="op">=</span><span class="st">"Negative"</span>,
+            u.r<span class="op">=</span><span class="st">"Negative"</span>,
+            l.c <span class="op">=</span><span class="st">"Negative"</span>,
+            u.c<span class="op">=</span><span class="st">"Negative"</span>,
+            all.zero.nc <span class="op">=</span> <span class="st">"Negative"</span>
+            <span class="op">)</span>
       <span class="op">}</span>
 
     
       
       <span class="co"># collect all true taxa in the specimen</span>
-      <span class="va">all_true_taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">all_true_taxa</span>,
-                        <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span>
-      
-     
+      <span class="va">all_true_taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+        <span class="va">all_true_taxa</span>,
+        <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span>
+        <span class="op">)</span>
 
       <span class="va">all_true_taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">all_true_taxa</span><span class="op">)</span>
   <span class="op">}</span>
@@ -349,9 +416,15 @@
 <h3 class="hasAnchor">
 <a href="#remove-dna-contamination" class="anchor"></a>Remove DNA contamination</h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">contaminant_asv_barbi</span> <span class="op">&lt;-</span> <span class="va">df.ASV</span><span class="op">$</span><span class="va">seq.variant</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="op">!</span><span class="op">(</span><span class="va">df.ASV</span><span class="op">$</span><span class="va">ASV.Genus</span> <span class="op">%in%</span> <span class="va">all_true_taxa_blk</span><span class="op">[[</span><span class="va">blk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">contaminant_asv_barbi</span> <span class="op">&lt;-</span> <span class="va">df.ASV</span><span class="op">$</span><span class="va">seq.variant</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span>
+  <span class="op">!</span><span class="op">(</span><span class="va">df.ASV</span><span class="op">$</span><span class="va">ASV.Genus</span> <span class="op">%in%</span> <span class="va">all_true_taxa_blk</span><span class="op">[[</span><span class="va">blk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+  <span class="op">)</span><span class="op">]</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span>
 
-<span class="va">not_contaminant_asv_barbi</span> <span class="op">&lt;-</span> <span class="va">df.ASV</span><span class="op">$</span><span class="va">seq.variant</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">df.ASV</span><span class="op">$</span><span class="va">ASV.Genus</span> <span class="op">%in%</span> <span class="va">all_true_taxa_blk</span><span class="op">[[</span><span class="va">blk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">]</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">not_contaminant_asv_barbi</span> <span class="op">&lt;-</span> <span class="va">df.ASV</span><span class="op">$</span><span class="va">seq.variant</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span>
+  <span class="va">df.ASV</span><span class="op">$</span><span class="va">ASV.Genus</span> <span class="op">%in%</span> <span class="va">all_true_taxa_blk</span><span class="op">[[</span><span class="va">blk</span><span class="op">]</span><span class="op">]</span>
+  <span class="op">)</span><span class="op">]</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/prune_taxa-methods.html">prune_taxa</a></span><span class="op">(</span>
   <span class="va">not_contaminant_asv_barbi</span>, 
@@ -579,7 +652,11 @@
   <span class="fu">geom_histogram</span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">xlab</span><span class="op">(</span><span class="st">"P-value"</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="goodness_of_fit_nb_taxa.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="goodness_of_fit_nb_taxa.png" alt="Supplementary Figure 1: P values for goodness of fit test of negative binomial distribution for each taxon." width="100%"><p class="caption">
+Supplementary Figure 1: P values for goodness of fit test of negative binomial distribution for each taxon.
+</p>
+</div>
 </div>
 <div id="compute-adjusted-p-values-" class="section level3">
 <h3 class="hasAnchor">

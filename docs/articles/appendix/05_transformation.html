@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Section 5: TRANSFORMATIONS</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">23 February, 2021</h4>
+            <h4 class="date">24 February, 2021</h4>
       
       
       <div class="hidden name"><code>05_transformation.Rmd</code></div>
@@ -187,25 +187,48 @@
 <p>There are three different transformations in <em>DESEq2</em> package.</p>
 <p>We refer to the help page of <code><a href="https://rdrr.io/pkg/DESeq2/man/varianceStabilizingTransformation.html">varianceStabilizingTransformation()</a></code> for <code>fitType="mean"</code>, <code>fitType="parametric"</code>, <code>fitType="local"</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">phyloseqTransformationVST</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ps</span>, 
-                                      <span class="va">fitType</span> <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span><span class="op">{</span>
-      <span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq_to_deseq2.html">phyloseq_to_deseq2</a></span><span class="op">(</span><span class="va">ps</span>, design <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span><span class="op">)</span>
-      <span class="va">dds</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/estimateSizeFactors.html">estimateSizeFactors</a></span><span class="op">(</span><span class="va">dds</span>, type <span class="op">=</span> <span class="st">"poscounts"</span><span class="op">)</span>
-      <span class="va">vsd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/varianceStabilizingTransformation.html">varianceStabilizingTransformation</a></span><span class="op">(</span><span class="va">dds</span>, 
-                                               blind <span class="op">=</span> <span class="cn">FALSE</span>, 
-                                               fitType <span class="op">=</span> <span class="va">fitType</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">phyloseqTransformationVST</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span>
+  <span class="va">ps</span>, 
+  <span class="va">fitType</span> <span class="op">=</span> <span class="st">"mean"</span>
+  <span class="op">)</span><span class="op">{</span>
+      <span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq_to_deseq2.html">phyloseq_to_deseq2</a></span><span class="op">(</span>
+        <span class="va">ps</span>, 
+        design <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>
+        <span class="op">)</span>
+      <span class="va">dds</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/estimateSizeFactors.html">estimateSizeFactors</a></span><span class="op">(</span>
+        <span class="va">dds</span>, 
+        type <span class="op">=</span> <span class="st">"poscounts"</span>
+        <span class="op">)</span>
+      
+      <span class="va">vsd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/varianceStabilizingTransformation.html">varianceStabilizingTransformation</a></span><span class="op">(</span>
+        <span class="va">dds</span>, 
+        blind <span class="op">=</span> <span class="cn">FALSE</span>, 
+        fitType <span class="op">=</span> <span class="va">fitType</span>
+        <span class="op">)</span>
+      
       <span class="va">abund_temp</span> <span class="op">&lt;-</span> <span class="fu">assay</span><span class="op">(</span><span class="va">vsd</span><span class="op">)</span>
       
-      <span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq.html">phyloseq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">abund_temp</span>, taxa_are_rows <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-                     <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, 
-                     <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, 
-                     <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phy_tree-methods.html">phy_tree</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>
+      <span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phyloseq.html">phyloseq</a></span><span class="op">(</span>
+        <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">abund_temp</span>, taxa_are_rows <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+        <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, 
+        <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>, 
+        <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/phy_tree-methods.html">phy_tree</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>
+        <span class="op">)</span>
       <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>
 <span class="op">}</span> 
 
-<span class="va">ps_ans_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span><span class="va">ps</span>, fitType <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>
-<span class="va">ps_parametric_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span><span class="va">ps</span>, fitType <span class="op">=</span> <span class="st">"parametric"</span><span class="op">)</span>
-<span class="va">ps_local_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span><span class="va">ps</span>, fitType <span class="op">=</span> <span class="st">"local"</span><span class="op">)</span></code></pre></div>
+<span class="va">ps_ans_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span>
+  <span class="va">ps</span>, 
+  fitType <span class="op">=</span> <span class="st">"mean"</span>
+  <span class="op">)</span>
+<span class="va">ps_parametric_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span>
+  <span class="va">ps</span>, 
+  fitType <span class="op">=</span> <span class="st">"parametric"</span>
+  <span class="op">)</span>
+<span class="va">ps_local_deseq2</span> <span class="op">&lt;-</span> <span class="fu">phyloseqTransformationVST</span><span class="op">(</span>
+  <span class="va">ps</span>, 
+  fitType <span class="op">=</span> <span class="st">"local"</span>
+  <span class="op">)</span></code></pre></div>
 </div>
 <div id="msd-mean-standard-deviation-plots-after-each-transformation" class="section level3">
 <h3 class="hasAnchor">
@@ -220,7 +243,11 @@
 <span class="va">msd_ps_ans</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Anscombe's Transformation"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-1.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="05_transformation_files/figure-html/unnamed-chunk-8-1.png" alt="Supplementary Figure 2: Anscombe’s transformation of abundance data." width="1152"><p class="caption">
+Supplementary Figure 2: Anscombe’s transformation of abundance data.
+</p>
+</div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_ans_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -230,7 +257,11 @@
 <span class="va">msd_ps_ans_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Anscombe Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-2.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="05_transformation_files/figure-html/unnamed-chunk-9-1.png" alt="Supplementary Figure 3: Anscombe’s transformation implemented in DESeq2 package." width="1152"><p class="caption">
+Supplementary Figure 3: Anscombe’s transformation implemented in DESeq2 package.
+</p>
+</div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_parametric_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_parametric_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -240,7 +271,11 @@
 <span class="va">msd_ps_parametric_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Parametric Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-3.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="05_transformation_files/figure-html/unnamed-chunk-10-1.png" alt="Supplementary Figure 4: Parametric transformation implemented in DESeq2 package." width="1152"><p class="caption">
+Supplementary Figure 4: Parametric transformation implemented in DESeq2 package.
+</p>
+</div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msd_ps_local_deseq2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vsn/man/meanSdPlot.html">meanSdPlot</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_local_deseq2</span><span class="op">)</span> <span class="op">%&gt;%</span> 
@@ -250,17 +285,11 @@
 <span class="va">msd_ps_local_deseq2</span><span class="op">$</span><span class="va">gg</span> <span class="op">+</span>
   <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Local Transformation in DESeq2"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-8-4.png" width="1152" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span>
-  <span class="va">ps_ans_deseq2</span>, 
-   <span class="va">ps_parametric_deseq2</span>, 
-   <span class="va">ps_local_deseq2</span>,
-  <span class="va">msd_ps_ans</span>,
-  <span class="va">msd_ps_ans_deseq2</span>,
-  <span class="va">msd_ps_parametric_deseq2</span>,
-  <span class="va">msd_ps_local_deseq2</span>
-  <span class="op">)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="05_transformation_files/figure-html/unnamed-chunk-11-1.png" alt="Supplementary Figure 5: Nonparametric transformation implemented in DESeq2 package." width="1152"><p class="caption">
+Supplementary Figure 5: Nonparametric transformation implemented in DESeq2 package.
+</p>
+</div>
 </div>
 </div>
 <div id="rank-based-methods" class="section level2">
@@ -271,14 +300,21 @@
 <a href="#rank-based-transformation" class="anchor"></a>Rank-based transformation</h3>
 <p>The association between abundances and threshholded ranks, for a few randomly selected samples.</p>
 <p>The numbers of the y-axis are those supplied to PCA.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">abund</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span> 
 <span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">abund</span>, <span class="fl">2</span>, <span class="va">rank</span><span class="op">)</span> 
 <span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="va">abund_ranks</span> <span class="op">-</span> <span class="fl">900</span>
 <span class="va">abund_ranks</span><span class="op">[</span><span class="va">abund_ranks</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 
-<span class="va">abund_df</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">abund</span>, value.name <span class="op">=</span> <span class="st">"abund"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">left_join</span><span class="op">(</span><span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">abund_ranks</span>, value.name <span class="op">=</span> <span class="st">"rank"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">abund_df</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span>
+  <span class="va">abund</span>, 
+  value.name <span class="op">=</span> <span class="st">"abund"</span>
+  <span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">left_join</span><span class="op">(</span>
+    <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span>
+      <span class="va">abund_ranks</span>, 
+      value.name <span class="op">=</span> <span class="st">"rank"</span><span class="op">)</span>
+    <span class="op">)</span>
 
 
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">abund_df</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"seq"</span>, <span class="st">"sample"</span>, <span class="st">"abund"</span>,  <span class="st">"rank"</span><span class="op">)</span>
@@ -295,15 +331,15 @@
   <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Abundance"</span>, 
        y <span class="op">=</span> <span class="st">"Thresholded rank"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">scale_color_brewer</span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set2"</span><span class="op">)</span>  </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-9-1.png" width="1152" style="display: block; margin: auto;"></p>
+<p><img src="05_transformation_files/figure-html/unnamed-chunk-13-1.png" width="1152" style="display: block; margin: auto;"></p>
 </div>
 <div id="threshold-ranks-pca" class="section level3">
 <h3 class="hasAnchor">
 <a href="#threshold-ranks-pca" class="anchor"></a>Threshold ranks PCA</h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># We will use 9 colors for 9 different plants</span>
 <span class="va">plant_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"#999999"</span>, <span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>, <span class="st">"#009E73"</span>, <span class="st">"#F0E442"</span>, <span class="st">"#0072B2"</span>, <span class="st">"#D55E00"</span>, <span class="st">"#CC79A7"</span>, <span class="st">"purple"</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">abund_ranks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="va">abund_ranks</span><span class="op">)</span>
 
 <span class="va">ranks_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ade4/man/dudi.pca.html">dudi.pca</a></span><span class="op">(</span>
@@ -380,7 +416,11 @@
     data <span class="op">=</span> <span class="va">df_taxa</span>, 
     <span class="fu">aes</span><span class="op">(</span>x  <span class="op">=</span> <span class="va">co.Comp1</span> <span class="op">*</span><span class="fl">10</span>, y <span class="op">=</span> <span class="va">co.Comp2</span> <span class="op">*</span><span class="fl">10</span>, label <span class="op">=</span> <span class="va">Class</span><span class="op">)</span>
     <span class="op">)</span> </code></pre></div>
-<p><img src="05_transformation_files/figure-html/unnamed-chunk-11-1.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="05_transformation_files/figure-html/unnamed-chunk-15-1.png" alt="Figure 2: The biplot from the PCA after the truncated-rank transformation. The shape denotes universal (O) and Asteraceae-modified (M) pPNA types, respectively. Facet denotes Asteraceae or non-Asteraceae plants. Actinobac- teria and Betaproteobacteria dominate in outliers Centaurea solstitialis in the positive direction of the first axis. The second axis explains the plant microbiome variability in non-Asteraceae specimens." width="1152"><p class="caption">
+Figure 2: The biplot from the PCA after the truncated-rank transformation. The shape denotes universal (O) and Asteraceae-modified (M) pPNA types, respectively. Facet denotes Asteraceae or non-Asteraceae plants. Actinobac- teria and Betaproteobacteria dominate in outliers Centaurea solstitialis in the positive direction of the first axis. The second axis explains the plant microbiome variability in non-Asteraceae specimens.
+</p>
+</div>
 </div>
 </div>
   </div>

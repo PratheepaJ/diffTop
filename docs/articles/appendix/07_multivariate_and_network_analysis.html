@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Section 7: MULTIVARIATE AND NETWORK ANALYSES</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">23 February, 2021</h4>
+            <h4 class="date">24 February, 2021</h4>
       
       
       <div class="hidden name"><code>07_multivariate_and_network_analysis.Rmd</code></div>
@@ -229,7 +229,11 @@
       <span class="op">)</span>, 
     color <span class="op">=</span> <span class="st">"black"</span>
     <span class="op">)</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-7-1.png" alt="Supplementary Figure 8: Multidimensional scaling (MDS) with weighted unifrac distance on all specimens." width="672"><p class="caption">
+Supplementary Figure 8: Multidimensional scaling (MDS) with weighted unifrac distance on all specimens.
+</p>
+</div>
 <p>We see that Centaurea solstitialis specimens are outlier that were sampled in a field across three countries, while other plants are grown from seeds. We label the paired specimens in all plants. The paired specimens are relatively close to each other, except (E-143-7, E143-7), (E-142-5, E142-5), (E-71-2, E71-2), and (E-71-3, E71-3) that are in positive and negative axes of the first two principal axes.</p>
 <p>Fitzpatrick et al. (2018) concluded that there is no effect in within and between specimen bacterial diversity when they used universal or Aster-modified pPNA types.</p>
 <p>The above Figure shows that specimens from the aster plants that are paired with universal or Aster-modified pPNA types make clusters.</p>
@@ -330,7 +334,11 @@
       <span class="op">)</span>, 
     color <span class="op">=</span> <span class="st">"black"</span>
     <span class="op">)</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-9-1.png" alt="Supplementary Figure 9: (A) A DPCoA plot that incorporates phylogenetic information." width="672"><p class="caption">
+Supplementary Figure 9: (A) A DPCoA plot that incorporates phylogenetic information.
+</p>
+</div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dpcoa_taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/plot_ordination.html">plot_ordination</a></span><span class="op">(</span>
   <span class="va">ps_ans</span>, 
@@ -363,7 +371,11 @@
         <span class="op">)</span>
       <span class="op">)</span>
     <span class="op">)</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-9-2.png" alt="Supplementary Figure 9: (A) A DPCoA plot that incorporates phylogenetic information." width="672"><p class="caption">
+Supplementary Figure 9: (A) A DPCoA plot that incorporates phylogenetic information.
+</p>
+</div>
 </div>
 </div>
 <div id="integrating-the-phylogenetic-tree-into-the-analyses" class="section level2">
@@ -406,7 +418,11 @@
   <span class="fu">facet_grid</span><span class="op">(</span><span class="op">~</span> <span class="va">Type</span><span class="op">)</span>
 
 <span class="va">agPCA_samples</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-10-1.png" alt="Figure 4: The results from adaptive gPCA reveal Centaurea solstitialis specimens are outliers among Asteraceae plants in the left of Axis 1. Axis 2 explains the microbial variability in plant types." width="672"><p class="caption">
+Figure 4: The results from adaptive gPCA reveal Centaurea solstitialis specimens are outliers among Asteraceae plants in the left of Axis 1. Axis 2 explains the microbial variability in plant types.
+</p>
+</div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">agPCA_asv</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
@@ -497,7 +513,11 @@
 
 
 <span class="va">ca_plot</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-12-1.png" alt="Figure 5: Correspondence analysis of all plant specimens. (A)" width="672"><p class="caption">
+Figure 5: Correspondence analysis of all plant specimens. (A)
+</p>
+</div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ca_plot_taxa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/plot_ordination.html">plot_ordination</a></span><span class="op">(</span>
   <span class="va">ps_ca</span>,
@@ -541,7 +561,11 @@
     <span class="op">)</span>
 
 <span class="va">ca_plot_taxa</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-13-1.png" alt="Figure 5: Correspondence analysis of all plant specimens. (B)" width="672"><p class="caption">
+Figure 5: Correspondence analysis of all plant specimens. (B)
+</p>
+</div>
 </div>
 <div id="network-analysis" class="section level2">
 <h2 class="hasAnchor">
@@ -590,7 +614,11 @@
     values <span class="op">=</span> <span class="va">plant_colors</span>
     <span class="op">)</span>
 <span class="va">p_net</span></code></pre></div>
-<p><img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="07_multivariate_and_network_analysis_files/figure-html/unnamed-chunk-15-1.png" alt="Supplementary Figure 10: A network created by thresholding the Jaccard dissimilarity matrix at 0.8." width="672"><p class="caption">
+Supplementary Figure 10: A network created by thresholding the Jaccard dissimilarity matrix at 0.8.
+</p>
+</div>
 </div>
 <div id="graph-based-two-sample-tests" class="section level3">
 <h3 class="hasAnchor">

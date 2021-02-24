@@ -92,25 +92,48 @@ There are three different transformations in _DESEq2_ package.
 We refer to the help page of `varianceStabilizingTransformation()` for `fitType="mean"`, `fitType="parametric"`,  `fitType="local"`.
 
 ```{r}
-phyloseqTransformationVST <- function(ps, 
-                                      fitType = "mean"){
-      dds <- phyloseq_to_deseq2(ps, design = ~ 1)
-      dds <-  estimateSizeFactors(dds, type = "poscounts")
-      vsd <- varianceStabilizingTransformation(dds, 
-                                               blind = FALSE, 
-                                               fitType = fitType)
+phyloseqTransformationVST <- function(
+  ps, 
+  fitType = "mean"
+  ){
+      dds <- phyloseq_to_deseq2(
+        ps, 
+        design = ~ 1
+        )
+      dds <-  estimateSizeFactors(
+        dds, 
+        type = "poscounts"
+        )
+      
+      vsd <- varianceStabilizingTransformation(
+        dds, 
+        blind = FALSE, 
+        fitType = fitType
+        )
+      
       abund_temp <- assay(vsd)
       
-      ps <- phyloseq(otu_table(abund_temp, taxa_are_rows = TRUE),
-                     sample_data(ps), 
-                     tax_table(ps), 
-                     phy_tree(ps))
+      ps <- phyloseq(
+        otu_table(abund_temp, taxa_are_rows = TRUE),
+        sample_data(ps), 
+        tax_table(ps), 
+        phy_tree(ps)
+        )
       return(ps)
 } 
 
-ps_ans_deseq2 <- phyloseqTransformationVST(ps, fitType = "mean")
-ps_parametric_deseq2 <- phyloseqTransformationVST(ps, fitType = "parametric")
-ps_local_deseq2 <- phyloseqTransformationVST(ps, fitType = "local")
+ps_ans_deseq2 <- phyloseqTransformationVST(
+  ps, 
+  fitType = "mean"
+  )
+ps_parametric_deseq2 <- phyloseqTransformationVST(
+  ps, 
+  fitType = "parametric"
+  )
+ps_local_deseq2 <- phyloseqTransformationVST(
+  ps, 
+  fitType = "local"
+  )
 ```
 
 
@@ -118,7 +141,7 @@ ps_local_deseq2 <- phyloseqTransformationVST(ps, fitType = "local")
 
 We use `meanSdPlot()` in _vsn_ package.
 
-```{r}
+```{r fig.cap="Supplementary Figure 2: Anscombe’s transformation of abundance data."}
 msd_ps_ans <- meanSdPlot(
   otu_table(ps_ans) %>% 
     as.matrix(), 
@@ -128,7 +151,10 @@ msd_ps_ans$gg +
   ggtitle("Anscombe's Transformation") +
   theme(plot.title = element_text(hjust = 0.5)) 
 
+```
 
+
+```{r fig.cap="Supplementary Figure 3: Anscombe’s transformation implemented in DESeq2 package."}
 msd_ps_ans_deseq2 <- meanSdPlot(
   otu_table(ps_ans_deseq2) %>%
     as.matrix(),
@@ -139,6 +165,10 @@ msd_ps_ans_deseq2$gg +
   theme(plot.title = element_text(hjust = 0.5)) 
 
 
+```
+
+
+```{r fig.cap="Supplementary Figure 4: Parametric transformation implemented in DESeq2 package."}
 msd_ps_parametric_deseq2 <- meanSdPlot(
   otu_table(ps_parametric_deseq2) %>%
     as.matrix(),
@@ -149,6 +179,9 @@ msd_ps_parametric_deseq2$gg +
   theme(plot.title = element_text(hjust = 0.5)) 
 
 
+```
+
+```{r fig.cap="Supplementary Figure 5: Nonparametric transformation implemented in DESeq2 package."}
 msd_ps_local_deseq2 <- meanSdPlot(
   otu_table(ps_local_deseq2) %>% 
     as.matrix(),
@@ -158,6 +191,10 @@ msd_ps_local_deseq2$gg +
   ggtitle("Local Transformation in DESeq2") +
   theme(plot.title = element_text(hjust = 0.5)) 
 
+```
+
+
+```{r include=FALSE}
 rm(
   ps_ans_deseq2, 
    ps_parametric_deseq2, 
@@ -168,6 +205,7 @@ rm(
   msd_ps_local_deseq2
   )
 ```
+
 
 ## 5.2 Rank-based methods
 
@@ -183,8 +221,15 @@ abund_ranks <- apply(abund, 2, rank)
 abund_ranks <- abund_ranks - 900
 abund_ranks[abund_ranks < 1] <- 1
 
-abund_df <- reshape2::melt(abund, value.name = "abund") %>%
-  left_join(reshape2::melt(abund_ranks, value.name = "rank"))
+abund_df <- reshape2::melt(
+  abund, 
+  value.name = "abund"
+  ) %>%
+  left_join(
+    reshape2::melt(
+      abund_ranks, 
+      value.name = "rank")
+    )
 
 
 colnames(abund_df) <- c("seq", "sample", "abund",  "rank")
@@ -211,7 +256,7 @@ plant_colors <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B
 ```
 
 
-```{r}
+```{r fig.cap="Figure 2: The biplot from the PCA after the truncated-rank transformation. The shape denotes universal (O) and Asteraceae-modified (M) pPNA types, respectively. Facet denotes Asteraceae or non-Asteraceae plants. Actinobac- teria and Betaproteobacteria dominate in outliers Centaurea solstitialis in the positive direction of the first axis. The second axis explains the plant microbiome variability in non-Asteraceae specimens."}
 abund_ranks <- t(abund_ranks)
 
 ranks_pca <- dudi.pca(

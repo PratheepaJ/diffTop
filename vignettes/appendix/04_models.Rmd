@@ -8,8 +8,6 @@ resource_files:
 ---
 
 
-
-
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
   fig.width = 12, 
@@ -36,7 +34,6 @@ DNA contamination is identified as additive error. For contamination removal, in
 ### Identify negative controls
 
 ```{r}
-
 sample_data(psE)$is.neg <- (
   sample_data(psE)$community == "PAO") | (sample_data(psE)$community == "Water") | (sample_data(psE)$community == "WATER") | (sample_data(psE)$community == "MOCK")
 
@@ -50,7 +47,10 @@ if(dim(otu_table(psE))[1]!=ntaxa(psE)){
 ### Adding blocks/batches
 
 ```{r}
-blocks <- rep("Set1", nsamples(psE))
+blocks <- rep(
+  "Set1", 
+  nsamples(psE)
+  )
 
 sample_data(psE)$block <- blocks
 ```
@@ -59,22 +59,38 @@ sample_data(psE)$block <- blocks
 ### Remove taxa only in negative control specimens
 
 ```{r}
-SampleType <- ifelse(sample_data(psE)$is.neg, "Control", "Cases")
+SampleType <- ifelse(
+  sample_data(psE)$is.neg, 
+  "Control", 
+  "Cases"
+  )
 sample_data(psE)$SampleType <- SampleType
 
-ps_specimen <-  subset_samples(psE, 
-                               SampleType %in% c("Cases"))
+ps_specimen <-  subset_samples(
+  psE, 
+  SampleType %in% c("Cases")
+  )
+
 prevTaxaP <- apply(
   otu_table(ps_specimen), 
   1,
   function(x){sum(x>0)}
   )
 
-Contaminants1 <- names(prevTaxaP)[prevTaxaP == 0]
-psE <- prune_taxa(prevTaxaP > 0, psE)
+Contaminants1 <- names(
+  prevTaxaP
+  )[prevTaxaP == 0]
+
+psE <- prune_taxa(
+  prevTaxaP > 0, 
+  psE
+  )
 psE
 
-table(sample_data(psE)$SampleType,sample_data(psE)$block)
+table(
+  sample_data(psE)$SampleType,
+  sample_data(psE)$block
+  )
 ```
 
 
@@ -94,8 +110,6 @@ psByBlock <- psBlockResult[[1]]
 psNCbyBlock <- psBlockResult[[2]]
 psallzeroInNC <- psBlockResult[[3]]
 psPlByBlock <- psBlockResult[[4]]
-
-
 ```
 
 ### Estimate the density parameters for the contaminant intensities in negative control samples
@@ -104,7 +118,6 @@ psPlByBlock <- psBlockResult[[4]]
 con_int_neg_ctrl <- BARBI::alphaBetaNegControl(
   psNCbyBlock = psNCbyBlock
   )
-
 ```
 
 ### Estimate the density parameters for the contaminant intensities in each specimen
@@ -144,27 +157,40 @@ proc.time()-t1
 
 con_int_specimen_mar_post_true_intensities <- list(con_int_specimen, mar_post_true_intensities)
 
-usethis::use_data(con_int_specimen_mar_post_true_intensities)# this is a too large data set so we didn't include to build the website.
+saveRDS(con_int_specimen_mar_post_true_intensities, "con_int_specimen_mar_post_true_intensities.rds")# this is a too large data set so we didn't include to build the website.
 ```
 
 ### Save phyloseq after removing DNA contamination
 
 ```{r eval=FALSE}
-ASV <- as.character(paste0("ASV_",seq(1, ntaxa(psE))))
-ASV.Genus <- paste0("ASV_",
-                    seq(1,ntaxa(psE)),
-                    "_",
-                    as.character(tax_table(psE)[,6]))
-ASV.Genus.Species <- paste0(ASV,
-                            "_",
-                            as.character(tax_table(psE)[,6]),
-                            "_",
-                            as.character(tax_table(psE)[,6]))
+ASV <- as.character(
+  paste0("ASV_",
+         seq(1, ntaxa(psE)
+             )
+         )
+  )
 
-df.ASV <- data.frame(seq.variant = taxa_names(psE), 
-                     ASV = ASV, 
-                     ASV.Genus = ASV.Genus,
-                     ASV.Genus.Species = ASV.Genus.Species)
+ASV.Genus <- paste0(
+  "ASV_",
+  seq(1,ntaxa(psE)),
+  "_",
+  as.character(tax_table(psE)[,6])
+  )
+
+ASV.Genus.Species <- paste0(
+  ASV,
+  "_",
+  as.character(tax_table(psE)[,6]),
+  "_",
+  as.character(tax_table(psE)[,6])
+  )
+
+df.ASV <- data.frame(
+  seq.variant = taxa_names(psE), 
+  ASV = ASV, 
+  ASV.Genus = ASV.Genus,
+  ASV.Genus.Species = ASV.Genus.Species
+  )
 
 itera <- 1000
 burnIn <- 100
@@ -196,57 +222,92 @@ for(blk in 1:num_blks){
 
       for(taxa in 1:length(taxa_post)){
         burnIn  <- burnIn
-        acceptance[[taxa]]  <-  1 - mean(duplicated(taxa_post[[taxa]][-(1:burnIn),]))
+        acceptance[[taxa]]  <-  1 - mean(
+          duplicated(
+            taxa_post[[taxa]][-(1:burnIn),]
+            )
+          )
 
-        HPD.r <- hdi(taxa_post[[taxa]][-(1:burnIn),],
-                    credMass = cov.pro)
+        HPD.r <- hdi(
+          taxa_post[[taxa]][-(1:burnIn),],
+          credMass = cov.pro
+          )
+        
         lower.r[[taxa]] <- round(HPD.r[1], digits = 0)
         upper.r[[taxa]] <- round(HPD.r[2], digits = 0)
-        lamda.c <- rgamma((itera-burnIn+1), 
-                    shape= con_int_specimen_blk[[sam]][[1]][taxa],
-                    rate = con_int_specimen_blk[[sam]][[2]][taxa])
         
-        HDI.c <- hdi(lamda.c, credMass = cov.pro)
-        lower.c[[taxa]] <- round(HDI.c[1], digits = 0)
-        upper.c[[taxa]] <- round(HDI.c[2], digits = 0)
+        lamda.c <- rgamma(
+          (itera-burnIn+1), 
+          shape= con_int_specimen_blk[[sam]][[1]][taxa],
+          rate = con_int_specimen_blk[[sam]][[2]][taxa]
+          )
+        
+        HDI.c <- hdi(
+          lamda.c, 
+          credMass = cov.pro
+          )
+        
+        lower.c[[taxa]] <- round(
+          HDI.c[1], 
+          digits = 0
+          )
+        
+        upper.c[[taxa]] <- round(
+          HDI.c[2], 
+          digits = 0
+          )
         
         all.zero.nc[[taxa]] <-  con_int_specimen_blk[[sam]][[5]][taxa]
       }
 
-    tax_names <- taxa_names(psPlByBlock[[blk]])
-    tax_names <- df.ASV$ASV.Genus[which(as.character(df.ASV$seq.variant) %in%  tax_names)]
+    tax_names <- taxa_names(
+      psPlByBlock[[blk]]
+      )
+    
+    tax_names <- df.ASV$ASV.Genus[which(
+      as.character(df.ASV$seq.variant) %in%  tax_names
+      )]
       
-    df <- data.frame(Species = tax_names,
-                    xj = as.numeric(con_int_specimen_blk[[sam]][[3]]),
-                    l.r = unlist(lower.r),
-                    u.r = unlist(upper.r),
-                    l.c = unlist(lower.c),
-                    u.c = unlist(upper.c),
-                    all.zero.nc = unlist(all.zero.nc))
+    df <- data.frame(
+      Species = tax_names,
+      xj = as.numeric(con_int_specimen_blk[[sam]][[3]]),
+      l.r = unlist(lower.r),
+      u.r = unlist(upper.r),
+      l.c = unlist(lower.c),
+      u.c = unlist(upper.c),
+      all.zero.nc = unlist(all.zero.nc)
+      )
       
     
       # List all true taxa
-      df <- arrange(filter(df,(l.r > u.c) & (l.r > 0)),
-                   desc(xj))
+      df <- arrange(
+        filter(
+          df,
+          (l.r > u.c) & (l.r > 0)
+          ),
+        desc(xj)
+        )
 
       # If there is no true taxa
       if(dim(df)[1]==0){
-          df <- data.frame(Species="Negative",
-                           xj="Negative",
-                           l.r="Negative",
-                           u.r="Negative",
-                           l.c ="Negative",
-                           u.c="Negative",
-                           all.zero.nc = "Negative")
+          df <- data.frame(
+            Species="Negative",
+            xj="Negative",
+            l.r="Negative",
+            u.r="Negative",
+            l.c ="Negative",
+            u.c="Negative",
+            all.zero.nc = "Negative"
+            )
       }
 
     
       
       # collect all true taxa in the specimen
-      all_true_taxa <- c(all_true_taxa,
-                        as.character(df$Species))
-      
-     
+      all_true_taxa <- c(
+        all_true_taxa,
+        as.character(df$Species)
+        )
 
       all_true_taxa <- unique(all_true_taxa)
   }
@@ -261,9 +322,15 @@ for(blk in 1:num_blks){
 ### Remove DNA contamination
 
 ```{r eval=FALSE}
-contaminant_asv_barbi <- df.ASV$seq.variant[which(!(df.ASV$ASV.Genus %in% all_true_taxa_blk[[blk]]))] %>% as.character()
+contaminant_asv_barbi <- df.ASV$seq.variant[which(
+  !(df.ASV$ASV.Genus %in% all_true_taxa_blk[[blk]])
+  )] %>% 
+  as.character()
 
-not_contaminant_asv_barbi <- df.ASV$seq.variant[which(df.ASV$ASV.Genus %in% all_true_taxa_blk[[blk]])] %>% as.character()
+not_contaminant_asv_barbi <- df.ASV$seq.variant[which(
+  df.ASV$ASV.Genus %in% all_true_taxa_blk[[blk]]
+  )] %>% 
+  as.character()
 
 psE_BARBI <- prune_taxa(
   not_contaminant_asv_barbi, 
@@ -468,7 +535,7 @@ for(i in 1:ncol(dd)){
 
 ### Plot P-values of the goodness of fit test
 
-```{r fig.width=4, fig.height=4, eval=FALSE}
+```{r eval=FALSE}
 # we can load mc_test which includes the goodness of fit test results 
 
 dd <- otu_table(psE_BARBI) %>% 
@@ -497,7 +564,7 @@ ggplot(data = tibble(p_value_asv = p_value_asv),
 ```
 
 
-```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 1: P values for goodness of fit test of negative binomial distribution for each taxon.", fig.align="center"}
+```{r echo=FALSE, out.width="100%", fig.cap = "Supplementary Figure 1: P values for goodness of fit test of negative binomial distribution for each taxon.", fig.align="center"}
 knitr::include_graphics("goodness_of_fit_nb_taxa.png")
 ```
 

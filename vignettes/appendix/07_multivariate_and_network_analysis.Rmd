@@ -83,7 +83,7 @@ plant_colors <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B
 
 ### Multidimensional scaling (MDS) with weighted unifrac
 
-```{r}
+```{r fig.cap="Supplementary Figure 8: Multidimensional scaling (MDS) with weighted unifrac distance on all specimens."}
 ps_log <- transform_sample_counts(
   ps, 
   function(x) log(1 + x)
@@ -199,7 +199,7 @@ A DPCoA plot incorporates phylogenetic information.
 
 The DPCoA specimens positions can be interpreted with respect to the ASVs coordinates in this display.
 
-```{r}
+```{r fig.cap="Supplementary Figure 9: (A) A DPCoA plot that incorporates phylogenetic information."}
 out.dpcoa.log <- ordinate(
   ps_ans, 
   method = "DPCoA"
@@ -281,7 +281,7 @@ dpcoa_taxa +
 
 ### Adaptive gPCA
 
-```{r}
+```{r fig.cap="Figure 4: The results from adaptive gPCA reveal Centaurea solstitialis specimens are outliers among Asteraceae plants in the left of Axis 1. Axis 2 explains the microbial variability in plant types."}
 pp <- processPhyloseq(
   ps
   )
@@ -372,7 +372,7 @@ _Centaurea solstitialis_ specimens are outliers among Asteraceae plants on the l
 
 ## 7.3 Correspondence analysis
 
-```{r}
+```{r fig.cap="Figure 5: Correspondence analysis of all plant specimens. (A)"}
 ps_ca <- ps
 out.ca <- ordinate(
   ps_ca, 
@@ -410,7 +410,7 @@ ca_plot
 
 ```
 
-```{r}
+```{r fig.cap="Figure 5: Correspondence analysis of all plant specimens. (B)"}
 ca_plot_taxa <- plot_ordination(
   ps_ca,
   out.ca,
@@ -473,7 +473,7 @@ ps <- prune_taxa(
 ps
 ```
 
-```{r}
+```{r fig.cap="Supplementary Figure 10: A network created by thresholding the Jaccard dissimilarity matrix at 0.8."}
 net <- make_network(
   ps, 
   max.dist = 0.8

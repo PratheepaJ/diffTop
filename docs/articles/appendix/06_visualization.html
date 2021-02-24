@@ -103,7 +103,7 @@
       <h1 data-toc-skip>Section 6: VISUALIZATIONS FOR HETEROGENEOUS DATA</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">23 February, 2021</h4>
+            <h4 class="date">24 February, 2021</h4>
       
       
       <div class="hidden name"><code>06_visualization.Rmd</code></div>
@@ -245,45 +245,51 @@
       <span class="fu">xlab</span><span class="op">(</span><span class="st">"pPNA type"</span><span class="op">)</span><span class="op">+</span>
       <span class="fu">theme</span><span class="op">(</span>legend.position<span class="op">=</span><span class="st">"none"</span>, 
             plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="fu">plot_abundance</span><span class="op">(</span>
+<span class="op">}</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">plot_abundance</span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/subset_samples-methods.html">subset_samples</a></span><span class="op">(</span>
     <span class="va">ps_proteobacteria</span>, 
     <span class="va">Type</span> <span class="op">==</span> <span class="st">"aster"</span><span class="op">)</span>, 
   title <span class="op">=</span> <span class="st">"Asteraceae"</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">ylab</span><span class="op">(</span><span class="st">"Abundance"</span><span class="op">)</span></code></pre></div>
-<p><img src="06_visualization_files/figure-html/unnamed-chunk-9-1.png" width="1152" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">plot_abundance</span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/subset_samples-methods.html">subset_samples</a></span><span class="op">(</span>
     <span class="va">ps_ra_proteobacteria</span>, 
     <span class="va">Type</span> <span class="op">==</span> <span class="st">"aster"</span><span class="op">)</span>,
   title <span class="op">=</span> <span class="st">"Asteraceae"</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">ylab</span><span class="op">(</span><span class="st">"Relative abundance"</span><span class="op">)</span></code></pre></div>
-<p><img src="06_visualization_files/figure-html/unnamed-chunk-9-2.png" width="1152" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="figure" style="text-align: center">
+<img src="06_visualization_files/figure-html/unnamed-chunk-11-1.png" alt="Supplementary Figure 6: Distribution of relative abundance of four different Classes of Proteobacteria in Asteraceae plants. O and M denote universal and Asteraceae-modified pPNA types, respectively." width="1152"><p class="caption">
+Supplementary Figure 6: Distribution of relative abundance of four different Classes of Proteobacteria in Asteraceae plants. O and M denote universal and Asteraceae-modified pPNA types, respectively.
+</p>
+</div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">plot_abundance</span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/subset_samples-methods.html">subset_samples</a></span><span class="op">(</span>
     <span class="va">ps_proteobacteria</span>, 
     <span class="va">Type</span> <span class="op">==</span> <span class="st">"non-aster"</span><span class="op">)</span>,
   title <span class="op">=</span> <span class="st">"non-Asteraceae"</span>
   <span class="op">)</span> </code></pre></div>
-<p><img src="06_visualization_files/figure-html/unnamed-chunk-9-3.png" width="1152" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">plot_abundance</span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/subset_samples-methods.html">subset_samples</a></span><span class="op">(</span>
     <span class="va">ps_ra_proteobacteria</span>, 
     <span class="va">Type</span> <span class="op">==</span> <span class="st">"non-aster"</span><span class="op">)</span>, 
   title <span class="op">=</span> <span class="st">"non-Asteraceae"</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">ylab</span><span class="op">(</span><span class="st">"Relative abundance"</span><span class="op">)</span></code></pre></div>
-<p><img src="06_visualization_files/figure-html/unnamed-chunk-9-4.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="06_visualization_files/figure-html/unnamed-chunk-13-1.png" alt="Supplementary Figure 7: Distribution of relative abundance of four different Classes of Proteobacteria in non- Asteraceae plants. O and M denote universal and Asteraceae-modified pPNA types, respectively." width="1152"><p class="caption">
+Supplementary Figure 7: Distribution of relative abundance of four different Classes of Proteobacteria in non- Asteraceae plants. O and M denote universal and Asteraceae-modified pPNA types, respectively.
+</p>
+</div>
 </div>
 <div id="heatmaps" class="section level2">
 <h2 class="hasAnchor">
 <a href="#heatmaps" class="anchor"></a>Heatmaps</h2>
 <p>We plot the heatmap of Anscombe’s transformed values.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># do use asinh transformation</span>
 <span class="va">ps_top</span> <span class="op">&lt;-</span> <span class="va">ps_ans</span> 
     
@@ -374,7 +380,11 @@
   fontsize_col <span class="op">=</span> <span class="fl">10</span>,
   annotation_colors <span class="op">=</span> <span class="va">ann_colors</span>
   <span class="op">)</span></code></pre></div>
-<p><img src="06_visualization_files/figure-html/unnamed-chunk-10-1.png" width="1152" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="06_visualization_files/figure-html/unnamed-chunk-14-1.png" alt="Figure 3: Thirty most abundant ASVs were selected in all specimens. Taxa are labeled by Class on rows, and specimens are on the columns of the heatmap. Some specimens from Centaurea solstitialis plant have the most abundant ASVs of the Class Actinobacteria, Alphaproteobacteria, Sphingobacteria, and Gammaproteobacteria." width="1152"><p class="caption">
+Figure 3: Thirty most abundant ASVs were selected in all specimens. Taxa are labeled by Class on rows, and specimens are on the columns of the heatmap. Some specimens from Centaurea solstitialis plant have the most abundant ASVs of the Class Actinobacteria, Alphaproteobacteria, Sphingobacteria, and Gammaproteobacteria.
+</p>
+</div>
 </div>
   </div>
 
