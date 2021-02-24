@@ -63,6 +63,9 @@
       <a href="../../articles/appendix/03_example_16S_data.html">Section 3: EXAMPLE OF 16S rRNA GENE SEQUENCING DATA</a>
     </li>
     <li>
+      <a href="../../articles/appendix/04_models.html">Section 4: MODELS</a>
+    </li>
+    <li>
       <a href="../../articles/appendix/05_transformation.html">Section 5: TRANSFORMATIONS</a>
     </li>
     <li>
@@ -894,8 +897,8 @@
 <ol style="list-style-type: decimal">
 <li><p>Compute the median Bayesian posterior of topic proportions in each specimen.</p></li>
 <li><p>Multiply the proportions by the library size and round to an integer. This will give an abundance of the topic in each specimen.</p></li>
+<li><p>Apply DESeq2 to identify differentially abundant topics across O and M pPNA types.</p></li>
 </ol>
-<p>3.Apply DESeq2 to identify differentially abundant topics across O and M pPNA types.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># posterior samples</span>
 <span class="va">theta_aligned_abun</span> <span class="op">&lt;-</span> <span class="va">theta_aligned</span>
