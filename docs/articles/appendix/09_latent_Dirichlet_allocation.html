@@ -372,7 +372,11 @@
 <span id="cb20-47"><a href="#cb20-47"></a>    )</span>
 <span id="cb20-48"><a href="#cb20-48"></a>p</span>
 <span id="cb20-49"><a href="#cb20-49"></a><span class="kw">ggsave</span>(<span class="kw">paste0</span>(<span class="st">"topic_dis_all_"</span>,K, <span class="st">".png"</span>)), p, width =<span class="st"> </span><span class="dv">30</span>, height =<span class="st"> </span><span class="dv">16</span><span class="er">)</span></span></code></pre></div>
-<p><img src="topic_dis_all_11.png" width="70%" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="topic_dis_all_11.png" alt="Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution." width="70%"><p class="caption">
+Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution.
+</p>
+</div>
 </div>
 <div id="asv-distribution" class="section level3">
 <h3 class="hasAnchor">
@@ -639,7 +643,11 @@
     <span class="op">)</span>
 
 <span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"circular_plot_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p</span>, width <span class="op">=</span> <span class="fl">28</span>, height <span class="op">=</span> <span class="fl">22</span><span class="op">)</span></code></pre></div>
-<p><img src="circular_plot_plant_all_K_11.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="circular_plot_plant_all_K_11.png" alt="Figure 7: ASV distribution over topics in all specimens" width="100%"><p class="caption">
+Figure 7: ASV distribution over topics in all specimens
+</p>
+</div>
 </div>
 <div id="diagnostic-and-model-assessment-plots" class="section level3">
 <h3 class="hasAnchor">
@@ -760,7 +768,11 @@
   width <span class="op">=</span> <span class="fl">12</span>, 
   height <span class="op">=</span> <span class="fl">6</span>
   <span class="op">)</span></code></pre></div>
-<p><img src="model_assesment_hist_all_obs_sim_K_11.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="model_assesment_hist_all_obs_sim_K_11.png" alt="Supplementary Figure 13: Predictive model check with simulated data, observed data, and a statistic G(Kij) = max{Kij}. Each facet shows the histogram of G(Kij) of each ASV in specimens from the posterior predictive distribution and the vertical line shows the value of G (Kij ) of each ASV in observed data." width="100%"><p class="caption">
+Supplementary Figure 13: Predictive model check with simulated data, observed data, and a statistic G(Kij) = max{Kij}. Each facet shows the histogram of G(Kij) of each ASV in specimens from the posterior predictive distribution and the vertical line shows the value of G (Kij ) of each ASV in observed data.
+</p>
+</div>
 <p>Compute <span class="math inline">\(\hat{R}\)</span> and ESS (effective sample size)</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">Rhat_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
@@ -886,8 +898,16 @@
   width <span class="op">=</span> <span class="fl">9</span>, 
   height <span class="op">=</span> <span class="fl">6</span>
   <span class="op">)</span></code></pre></div>
-<p><img src="ess_bulk_plant_all_K_11.png" width="100%" style="display: block; margin: auto;"></p>
-<p><img src="Rhat_plant_all_K_11.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="figure" style="text-align: center">
+<img src="ess_bulk_plant_all_K_11.png" alt="Supplementary Figure 14: Effective sample size (ESS) with eleven topics." width="100%"><p class="caption">
+Supplementary Figure 14: Effective sample size (ESS) with eleven topics.
+</p>
+</div>
+<div class="figure" style="text-align: center">
+<img src="Rhat_plant_all_K_11.png" alt="Supplementary Figure 15: Split Rhat with eleven topics." width="100%"><p class="caption">
+Supplementary Figure 15: Split Rhat with eleven topics.
+</p>
+</div>
 </div>
 </div>
 <div id="differential-topic-analysis" class="section level2">

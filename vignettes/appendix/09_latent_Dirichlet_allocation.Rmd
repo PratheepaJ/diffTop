@@ -292,7 +292,7 @@ p
 ggsave(paste0("topic_dis_all_",K, ".png")), p, width = 30, height = 16)
 ```
 
-```{r echo=FALSE, out.width="70%", fig.caption = "Figure 6", fig.align="center"}
+```{r echo=FALSE, out.width="70%", fig.cap = "Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution.", fig.align="center"}
 knitr::include_graphics(paste0("topic_dis_all_",K,".png"))
 ```
 
@@ -563,7 +563,7 @@ p <- p +
 ggsave(paste0("circular_plot_plant_all_K_", K, ".png"), p, width = 28, height = 22)
 ```
 
-```{r echo=FALSE, out.width="100%", fig.caption = "Figure 7: ASV distribution over topics in all specimens", fig.align="center"}
+```{r echo=FALSE, out.width="100%", fig.cap = "Figure 7: ASV distribution over topics in all specimens", fig.align="center"}
 knitr::include_graphics(paste0("circular_plot_plant_all_K_", K, ".png"))
 ```
 
@@ -689,7 +689,7 @@ ggsave(
 ```
 
 
-```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 13: Predictive model check with simulated data, observed data, and a statistic G(Kij) = max{Kij}. Each facet shows the histogram of G(Kij) of each ASV in specimens from the posterior predictive distribution and the vertical line shows the value of G (Kij ) of each ASV in observed data.", fig.align="center"}
+```{r echo=FALSE, out.width="100%", fig.cap = "Supplementary Figure 13: Predictive model check with simulated data, observed data, and a statistic G(Kij) = max{Kij}. Each facet shows the histogram of G(Kij) of each ASV in specimens from the posterior predictive distribution and the vertical line shows the value of G (Kij ) of each ASV in observed data.", fig.align="center"}
 knitr::include_graphics(paste0("model_assesment_hist_all_obs_sim_K_", K, ".png"))
 ```
 
@@ -824,11 +824,11 @@ ggsave(
 ```
 
 
-```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 14: Effective sample size (ESS) with eleven topics.", fig.align="center"}
+```{r echo=FALSE, out.width="100%", fig.cap = "Supplementary Figure 14: Effective sample size (ESS) with eleven topics.", fig.align="center"}
 knitr::include_graphics(paste0("ess_bulk_plant_all_K_", K, ".png"))
 ```
 
-```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 15: Split Rhat with eleven topics.", fig.align="center"}
+```{r echo=FALSE, out.width="100%", fig.cap = "Supplementary Figure 15: Split Rhat with eleven topics.", fig.align="center"}
 knitr::include_graphics(paste0("Rhat_plant_all_K_", K, ".png"))
 ```
 

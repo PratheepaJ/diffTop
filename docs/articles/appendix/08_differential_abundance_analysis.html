@@ -253,13 +253,13 @@
 ## Terms added sequentially (first to last)
 ## 
 ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)
-## afact      1    0.3203 0.32031 0.98044 0.02002   0.47
-## Residuals 48   15.6817 0.32670         0.97998       
-## Total     49   16.0020                 1.00000</code></pre>
+## afact      1    0.4102 0.41024  1.2602 0.02558  0.149
+## Residuals 48   15.6263 0.32555         0.97442       
+## Total     49   16.0366                 1.00000</code></pre>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#To extract the pvalue:</span>
 <span class="va">ptest1</span><span class="op">$</span><span class="va">aov.tab</span><span class="op">$</span><span class="va">`Pr(&gt;F)`</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] 0.47</code></pre>
+<pre><code>## [1] 0.149</code></pre>
 </div>
 <div id="power-computation-with-a-difference-in-non-switched-standard-and-switched-otus" class="section level3">
 <h3 class="hasAnchor">
