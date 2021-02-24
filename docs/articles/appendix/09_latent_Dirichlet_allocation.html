@@ -63,9 +63,6 @@
       <a href="../../articles/appendix/03_example_16S_data.html">Section 3: EXAMPLE OF 16S rRNA GENE SEQUENCING DATA</a>
     </li>
     <li>
-      <a href="../../articles/appendix/04_models.html">Section 4: MODELS</a>
-    </li>
-    <li>
       <a href="../../articles/appendix/05_transformation.html">Section 5: TRANSFORMATIONS</a>
     </li>
     <li>
@@ -137,6 +134,7 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.rcpp.org">Rcpp</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/rstan">rstan</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">randomcoloR</span><span class="op">)</span><span class="co"># distinctColorPalette(n)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/DESeq2">DESeq2</a></span><span class="op">)</span>
 
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -221,7 +219,7 @@
 <p><span class="math inline">\(\theta\)</span> and <span class="math inline">\(B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.\)</span></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
-  <span class="st">"../results/JABES_Endo_all_K_"</span>,
+  <span class="st">"JABES_Endo_all_K_"</span>,
   <span class="va">K</span>,
   <span class="st">"_ite_"</span>,
   <span class="va">iter</span>,
@@ -321,7 +319,6 @@
 <a href="#plot-the-topic-distribution-in-all-chains" class="anchor"></a>Plot the topic distribution in all chains</h3>
 <ul>
 <li>facet by pna and aster or non-aster plant type.</li>
-<li>In the filtered ps, we have only one aster plant type</li>
 </ul>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>theta_summary &lt;-<span class="st"> </span>theta_all <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb20-2"><a href="#cb20-2"></a><span class="st">  </span><span class="kw">group_by</span>(</span>
@@ -639,13 +636,130 @@
     <span class="op">)</span>
 
 <span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"circular_plot_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p</span>, width <span class="op">=</span> <span class="fl">28</span>, height <span class="op">=</span> <span class="fl">22</span><span class="op">)</span></code></pre></div>
-<p><img src="circular_plot_plant_all_K_11.png" width="70%" style="display: block; margin: auto;"></p>
+<p><img src="circular_plot_plant_all_K_11.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
-<div id="diagnostic-and-model-assessement-plots" class="section level3">
+<div id="diagnostic-and-model-assessment-plots" class="section level3">
 <h3 class="hasAnchor">
-<a href="#diagnostic-and-model-assessement-plots" class="anchor"></a>Diagnostic and model assessement plots</h3>
-<p>Compute <span class="math inline">\(\hat{R}\)</span> and ESS (effective sample size)</p>
+<a href="#diagnostic-and-model-assessment-plots" class="anchor"></a>Diagnostic and model assessment plots</h3>
+<p>Model assessment</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu">rstan</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html">extract</a></span><span class="op">(</span>
+  <span class="va">stan.fit</span>,
+  permuted <span class="op">=</span> <span class="cn">TRUE</span>,
+  inc_warmup <span class="op">=</span> <span class="cn">FALSE</span>,
+  include <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="co"># samples is a list</span>
+
+<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/get_taxa-methods.html">get_taxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span>
+  <span class="va">x</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , 
+  <span class="fl">2</span>, 
+  <span class="va">max</span><span class="op">)</span>
+
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  x_max_asv <span class="op">=</span> <span class="va">x_max_asv</span>
+  <span class="op">)</span>
+
+<span class="co"># draws from posterior predictive distribution</span>
+<span class="va">x_sim</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">x_sim</span> <span class="co"># iteration * samples * ASVs</span>
+<span class="co"># Choose only the first chain</span>
+<span class="va">x_sim</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">iter</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, ,<span class="op">]</span> <span class="co"># For each iteration, simulated data is x_sim[i, ,]</span>
+<span class="va">sim_ite</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">x_sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+
+<span class="co">#Find maximum of each asv for each replication</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">x_sim_i</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="fl">1</span>, ,<span class="op">]</span>
+<span class="va">max_x_sim_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span>
+  <span class="va">x_sim_i</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , 
+  <span class="fl">2</span>, 
+  <span class="va">max</span>
+  <span class="op">)</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">max_x_sim_i</span><span class="op">)</span>
+
+<span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">sim_ite</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">x_sim_i</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="va">i</span>, ,<span class="op">]</span>
+  <span class="va">max_x_sim_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span>
+    <span class="va">x_sim_i</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , 
+    <span class="fl">2</span>, 
+    <span class="va">max</span><span class="op">)</span>
+  <span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">max_all</span>, <span class="va">max_x_sim_i</span><span class="op">)</span>
+<span class="op">}</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
+    <span class="st">"x_max_rep"</span>, 
+    <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">sim_ite</span><span class="op">)</span>
+         <span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
+  <span class="st">"ASV_"</span>, 
+  <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>,
+  <span class="st">"_"</span>, 
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Class"</span><span class="op">]</span>
+  <span class="op">)</span>
+
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="va">max_all</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">## choose some of asvs for Posterior predictive check (these indexes are considered to avoid if ASV's Class is missing)</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="va">max_all</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">14</span>, <span class="fl">19</span><span class="op">:</span><span class="fl">26</span>, <span class="fl">36</span>, <span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span><span class="op">]</span>
+<span class="va">max_all_long</span> <span class="op">&lt;-</span> <span class="fu">melt</span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span>
+
+<span class="co"># observed stat data frame</span>
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  Var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span>
+    <span class="st">"x_max_obs"</span>, 
+    <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">x_max_asv</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+    <span class="op">)</span>, 
+  Var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
+    <span class="st">"ASV_"</span>, 
+    <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>,
+    <span class="st">"_"</span>, 
+    <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Class"</span><span class="op">]</span>
+    <span class="op">)</span>, 
+  value <span class="op">=</span> <span class="va">x_max_asv</span><span class="op">$</span><span class="va">x_max_asv</span>
+  <span class="op">)</span>
+
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="va">x_max_asv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">:</span><span class="fl">14</span>,<span class="fl">19</span><span class="op">:</span><span class="fl">26</span>,<span class="fl">36</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span>,<span class="op">]</span>
+
+
+<span class="va">p_hist</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span>
+  data <span class="op">=</span> <span class="va">max_all_long</span>
+  <span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">geom_histogram</span><span class="op">(</span>
+    <span class="fu">aes</span><span class="op">(</span>
+      x <span class="op">=</span> <span class="va">value</span>, 
+      group <span class="op">=</span> <span class="va">Var2</span>
+      <span class="op">)</span>,
+    color <span class="op">=</span> <span class="st">"blue"</span>, 
+    fill <span class="op">=</span> <span class="st">"blue"</span>,
+    bins <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">"maximum"</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">Var2</span>, nrow <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_vline</span><span class="op">(</span>
+    data <span class="op">=</span> <span class="va">x_max_asv</span>, 
+    <span class="fu">aes</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">value</span><span class="op">)</span>, 
+    color <span class="op">=</span> <span class="st">"purple"</span>
+    <span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">theme_update</span><span class="op">(</span>
+    text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>
+    <span class="op">)</span>
+
+
+<span class="fu">ggsave</span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
+    <span class="st">"model_assesment_hist_all_obs_sim_K_"</span>, 
+    <span class="va">K</span>, 
+    <span class="st">".png"</span>
+    <span class="op">)</span>, 
+  <span class="va">p_hist</span>, 
+  width <span class="op">=</span> <span class="fl">12</span>, 
+  height <span class="op">=</span> <span class="fl">6</span>
+  <span class="op">)</span></code></pre></div>
+<p><img src="model_assesment_hist_all_obs_sim_K_11.png" width="100%" style="display: block; margin: auto;"></p>
+<p>Compute <span class="math inline">\(\hat{R}\)</span> and ESS (effective sample size)</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">Rhat_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
   nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
   ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
@@ -712,127 +826,268 @@
 <span class="va">ESS_tail_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">ESS_tail_beta</span><span class="op">)</span>
 
 <span class="va">Rhat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">Rhat_theta</span>, <span class="va">Rhat_beta</span><span class="op">)</span>
-<span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../results/Rhat_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".rds"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">Rhat</span>, <span class="va">fileN</span><span class="op">)</span>
+
 
 <span class="va">ESS_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ESS_bulk_theta</span>, <span class="va">ESS_bulk_beta</span><span class="op">)</span>
-<span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../results/ESS_bulk_all_K_"</span>, <span class="va">K</span>, <span class="st">".rds"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ESS_bulk</span>, <span class="va">fileN</span><span class="op">)</span>
+
 
 <span class="va">ESS_tail</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ESS_tail_theta</span>, <span class="va">ESS_tail_beta</span><span class="op">)</span>
-<span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../results/ESS_tail_all_K_"</span>, <span class="va">K</span>, <span class="st">".rds"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ESS_tail</span>, <span class="va">fileN</span><span class="op">)</span>
 
 <span class="co"># R hat ~ 1.05</span>
-<span class="va">p_rhat</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Rhat <span class="op">=</span> <span class="va">Rhat</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">Rhat</span><span class="op">)</span>, 
-                 fill <span class="op">=</span> <span class="st">"lavender"</span>, 
-                 colour <span class="op">=</span> <span class="st">"black"</span>, 
-                 bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>  
-  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="op">+</span>
-  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">xlab</span><span class="op">(</span><span class="st">""</span><span class="op">)</span>
-<span class="va">p_rhat</span>
-
-
-<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/Rhat_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_rhat</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># ESS bulk and ESS tail at least 100 per Markov Chain in order to be reliable and indicate that estimates of respective posterior quantiles are reliable</span>
-
-<span class="va">p_ess_bulk</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ESS_bulk <span class="op">=</span> <span class="va">ESS_bulk</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">ESS_bulk</span><span class="op">)</span>, 
-                 fill <span class="op">=</span> <span class="st">"lavender"</span>, 
-                 colour <span class="op">=</span> <span class="st">"black"</span>, 
-                 bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>  
-  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>   <span class="op">+</span> 
+<span class="va">p_rhat</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Rhat <span class="op">=</span> <span class="va">Rhat</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_histogram</span><span class="op">(</span>
+    <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">Rhat</span><span class="op">)</span>, 
+    fill <span class="op">=</span> <span class="st">"lavender"</span>, 
+    colour <span class="op">=</span> <span class="st">"black"</span>, 
+    bins <span class="op">=</span> <span class="fl">100</span>
+    <span class="op">)</span> <span class="op">+</span>  
+  <span class="fu">theme</span><span class="op">(</span>
+    plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>
+    <span class="op">)</span>  <span class="op">+</span>
   <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">""</span><span class="op">)</span>
 
-<span class="co"># + </span>
-<span class="co">#   xlab("Effective sample size (ESS)")</span>
-<span class="va">p_ess_bulk</span>
 
-<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/ess_bulk_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_ess_bulk</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>
+<span class="fu">ggsave</span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Rhat_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, 
+  <span class="va">p_rhat</span>, 
+  width <span class="op">=</span> <span class="fl">9</span>, 
+  height <span class="op">=</span> <span class="fl">6</span>
+  <span class="op">)</span>
 
-<span class="va">p_ess_tail</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ESS_tail <span class="op">=</span> <span class="va">ESS_tail</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">ESS_tail</span><span class="op">)</span>, 
-                 fill <span class="op">=</span> <span class="st">"lavender"</span>, 
-                 colour <span class="op">=</span> <span class="st">"black"</span>, 
-                 bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>  
-  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>
+<span class="co"># ESS bulk and ESS tail at least 100 per Markov Chain in order to be reliable and indicate that estimates of respective posterior quantiles are reliable</span>
 
-<span class="va">p_ess_tail</span>
-<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/ess_tail_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_ess_tail</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></code></pre></div>
-<p>Model assessement</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu">rstan</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html">extract</a></span><span class="op">(</span><span class="va">stan.fit</span>,
-                          permuted <span class="op">=</span> <span class="cn">TRUE</span>,
-                          inc_warmup <span class="op">=</span> <span class="cn">FALSE</span>,
-                          include <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="co"># samples is a list</span>
-
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/get_taxa-methods.html">get_taxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
-<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">x</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>
-<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>x_max_asv <span class="op">=</span> <span class="va">x_max_asv</span><span class="op">)</span>
-
-
-<span class="co"># draws from posterior predictive distribution</span>
-<span class="va">x_sim</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">x_sim</span> <span class="co"># iteration * samples * ASVs</span>
-<span class="co"># Choose only the first chain</span>
-<span class="va">x_sim</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">iter</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, ,<span class="op">]</span> <span class="co"># For each iteration, simulated data is x_sim[i, ,]</span>
-<span class="va">sim_ite</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">x_sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
-
-<span class="co">#Find maximum of each asv for each replication</span>
-<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">x_sim_i</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="fl">1</span>, ,<span class="op">]</span>
-<span class="va">max_x_sim_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">x_sim_i</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>
-<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">max_x_sim_i</span><span class="op">)</span>
-<span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">sim_ite</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">x_sim_i</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="va">i</span>, ,<span class="op">]</span>
-  <span class="va">max_x_sim_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">x_sim_i</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>
-  <span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">max_all</span>, <span class="va">max_x_sim_i</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"x_max_rep"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">sim_ite</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>,<span class="st">"_"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Class"</span><span class="op">]</span><span class="op">)</span>
-<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="va">max_all</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">## choose number of asvs for PPC</span>
-<span class="co"># max_all &lt;- max_all[, c(10:20, 22:26,36,51:53)]</span>
-<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="va">max_all</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">:</span><span class="fl">14</span>,<span class="fl">19</span><span class="op">:</span><span class="fl">26</span>,<span class="fl">36</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span><span class="op">]</span>
-<span class="va">max_all_long</span> <span class="op">&lt;-</span> <span class="fu">melt</span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span>
+<span class="va">p_ess_bulk</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ESS_bulk <span class="op">=</span> <span class="va">ESS_bulk</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_histogram</span><span class="op">(</span>
+    <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">ESS_bulk</span><span class="op">)</span>, 
+    fill <span class="op">=</span> <span class="st">"lavender"</span>, 
+    colour <span class="op">=</span> <span class="st">"black"</span>, 
+    bins <span class="op">=</span> <span class="fl">100</span>
+    <span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme</span><span class="op">(</span>
+    plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>
+    <span class="op">)</span>   <span class="op">+</span> 
+  <span class="fu">theme_minimal</span><span class="op">(</span>
+    base_size <span class="op">=</span> <span class="fl">20</span>
+    <span class="op">)</span> <span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">""</span><span class="op">)</span>
 
 
-<span class="co"># observed stat data frame</span>
-<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"x_max_obs"</span>, 
-                                   <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">x_max_asv</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, 
-                        Var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>,<span class="st">"_"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Class"</span><span class="op">]</span><span class="op">)</span>, 
-                        value <span class="op">=</span> <span class="va">x_max_asv</span><span class="op">$</span><span class="va">x_max_asv</span><span class="op">)</span>
-<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="va">x_max_asv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">:</span><span class="fl">14</span>,<span class="fl">19</span><span class="op">:</span><span class="fl">26</span>,<span class="fl">36</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span>,<span class="op">]</span>
-
-
-<span class="va">p_hist</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">max_all_long</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">value</span>, group <span class="op">=</span> <span class="va">Var2</span><span class="op">)</span>, 
-                 color <span class="op">=</span> <span class="st">"blue"</span>, 
-                 fill <span class="op">=</span> <span class="st">"blue"</span>,
-                 bins <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu">xlab</span><span class="op">(</span><span class="st">"maximum"</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">Var2</span>, nrow <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">geom_vline</span><span class="op">(</span>data <span class="op">=</span> <span class="va">x_max_asv</span>, <span class="fu">aes</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">value</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"purple"</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu">theme_update</span><span class="op">(</span>
-  text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="va">p_hist</span> 
-
-<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/model_assesment_hist_all_obs_sim_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_hist</span>, width <span class="op">=</span> <span class="fl">12</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></code></pre></div>
+<span class="fu">ggsave</span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ess_bulk_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, 
+  <span class="va">p_ess_bulk</span>, 
+  width <span class="op">=</span> <span class="fl">9</span>, 
+  height <span class="op">=</span> <span class="fl">6</span>
+  <span class="op">)</span></code></pre></div>
+<p><img src="ess_bulk_plant_all_K_11.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="Rhat_plant_all_K_11.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div id="differential-topic-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#differential-topic-analysis" class="anchor"></a>Differential topic analysis</h2>
+<p>We do differential topic analysis to test whether topic memberships differ across conditions.</p>
+<ol style="list-style-type: decimal">
+<li><p>Compute the median Bayesian posterior of topic proportions in each specimen.</p></li>
+<li><p>Multiply the proportions by the library size and round to an integer. This will give an abundance of the topic in each specimen.</p></li>
+</ol>
+<p>3.Apply DESeq2 to identify differentially abundant topics across O and M pPNA types.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># posterior samples</span>
+<span class="va">theta_aligned_abun</span> <span class="op">&lt;-</span> <span class="va">theta_aligned</span>
+<span class="co"># median Bayesian posterior of topic proportions in each specimen</span>
+<span class="va">median_theta_aligned_abun</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span>
+  <span class="va">theta_aligned_abun</span>, 
+  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>, 
+  <span class="va">median</span><span class="op">)</span>
+
+<span class="co"># Multiply the proportions by the library size and round to an integer</span>
+<span class="va">lib_size</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/otu_table-methods.html">otu_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
+  <span class="op">)</span>
+
+<span class="va">median_theta_aligned_abun</span> <span class="op">&lt;-</span> <span class="va">median_theta_aligned_abun</span> <span class="op">*</span> <span class="va">lib_size</span>
+
+<span class="va">median_theta_aligned_abun</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span>
+  <span class="va">median_theta_aligned_abun</span>
+  <span class="op">)</span>
+
+<span class="va">sam_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_data-methods.html">sample_data</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<div id="test-on-all-specimens" class="section level3">
+<h3 class="hasAnchor">
+<a href="#test-on-all-specimens" class="anchor"></a>Test on all specimens</h3>
+<p>We do test on all specimens. We can write DESeq2 results to LaTex</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSetFromMatrix</a></span><span class="op">(</span>
+  countData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="va">median_theta_aligned_abun</span><span class="op">)</span>,
+  colData <span class="op">=</span> <span class="va">sam_data</span>,
+  design<span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>
+  <span class="op">)</span>
+
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeq.html">DESeq</a></span><span class="op">(</span>
+  <span class="va">dds</span>, 
+  fitType <span class="op">=</span> <span class="st">"mean"</span>
+  <span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">dds</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_K_11</span><span class="op">)</span>
+<span class="va">res</span> </code></pre></div>
+<pre><code>## log2 fold change (MLE): pna O vs M 
+## Wald test p-value: pna O vs M 
+## DataFrame with 11 rows and 6 columns
+##            baseMean log2FoldChange     lfcSE      stat      pvalue        padj
+##           &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;   &lt;numeric&gt;
+## Topic_1  12980.2689      -0.902957  0.954118 -0.946379 3.43955e-01 0.609485512
+## Topic_2   1388.4912       0.328641  0.691155  0.475495 6.34434e-01 0.719579869
+## Topic_3     14.5487      -0.559488  0.584374 -0.957414 3.38358e-01 0.609485512
+## Topic_4   6138.5557       2.056851  0.749974  2.742564 6.09615e-03 0.022352555
+## Topic_5     50.1848       2.693638  0.665150  4.049672 5.12894e-05 0.000564184
+## Topic_6   5002.9019      -0.285674  0.795705 -0.359020 7.19580e-01 0.719579869
+## Topic_7     25.1418      -0.382548  0.498956 -0.766696 4.43262e-01 0.609485512
+## Topic_8    642.9452       0.638403  0.749673  0.851575 3.94450e-01 0.609485512
+## Topic_9    728.3070       0.780513  0.781941  0.998174 3.18195e-01 0.609485512
+## Topic_10  2452.9197       2.617431  0.725300  3.608757 3.07668e-04 0.001692175
+## Topic_11  6788.9347       0.330308  0.782177  0.422294 6.72811e-01 0.719579869</code></pre>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#writeResTable(res, fileN = paste0("dds_all_K_", K,".tex"))</span></code></pre></div>
+</div>
+<div id="test-on-paired-specimens" class="section level3">
+<h3 class="hasAnchor">
+<a href="#test-on-paired-specimens" class="anchor"></a>Test on paired-specimens</h3>
+<p>We do the test on paired-specimens.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSetFromMatrix</a></span><span class="op">(</span>
+  countData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="va">median_theta_aligned_abun</span><span class="op">)</span>,
+  colData <span class="op">=</span> <span class="va">sam_data</span>,
+  design<span class="op">=</span> <span class="op">~</span>  <span class="va">pna</span>
+  <span class="op">)</span>
+
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="va">dds</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">dds</span><span class="op">$</span><span class="va">X</span><span class="op">)</span> <span class="op">%in%</span> <span class="va">paired_specimens</span><span class="op">]</span>
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeq.html">DESeq</a></span><span class="op">(</span>
+  <span class="va">dds</span>, 
+  fitType <span class="op">=</span> <span class="st">"mean"</span>
+  <span class="op">)</span>
+ 
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span>
+  <span class="va">dds</span>, 
+  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span>
+  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_K_11</span><span class="op">)</span>
+<span class="va">res</span> </code></pre></div>
+<pre><code>## log2 fold change (MLE): pna O vs M 
+## Wald test p-value: pna O vs M 
+## DataFrame with 11 rows and 6 columns
+##           baseMean log2FoldChange     lfcSE      stat      pvalue        padj
+##          &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;   &lt;numeric&gt;
+## Topic_1  3983.7697      -9.412600  1.056278 -8.911103 5.05275e-19 5.55802e-18
+## Topic_2   898.6700       1.491941  0.999725  1.492352 1.35607e-01 2.13097e-01
+## Topic_3    23.5763       0.282751  0.924598  0.305810 7.59749e-01 8.12226e-01
+## Topic_4  1138.7952       3.371133  0.995722  3.385618 7.10182e-04 1.95300e-03
+## Topic_5    31.7514       2.290040  0.892339  2.566333 1.02780e-02 1.88430e-02
+## Topic_6    83.5973       0.351490  0.912658  0.385128 7.00143e-01 8.12226e-01
+## Topic_7    35.3625       0.233201  0.801434  0.290979 7.71067e-01 8.12226e-01
+## Topic_8   393.8606      -0.265216  1.116438 -0.237556 8.12226e-01 8.12226e-01
+## Topic_9   468.2304      -6.004885  0.944671 -6.356589 2.06282e-10 7.56369e-10
+## Topic_10 1938.0794       3.029427  1.085621  2.790502 5.26263e-03 1.15778e-02
+## Topic_11  419.7516       6.324962  0.940052  6.728314 1.71641e-11 9.44024e-11</code></pre>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#writeResTable(res, fileN = paste0("dds_all_paired_K_", K,".tex"))</span></code></pre></div>
+</div>
+<div id="test-on-paired-non-aster-specimens" class="section level3">
+<h3 class="hasAnchor">
+<a href="#test-on-paired-non-aster-specimens" class="anchor"></a>Test on paired non-Aster specimens</h3>
+<p>We do the test on paired non-Aster specimens.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSetFromMatrix</a></span><span class="op">(</span>
+  countData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="va">median_theta_aligned_abun</span><span class="op">)</span>,
+  colData <span class="op">=</span> <span class="va">sam_data</span>,
+  design<span class="op">=</span> <span class="op">~</span>  <span class="va">pna</span>
+  <span class="op">)</span>
+
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="va">dds</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">dds</span><span class="op">$</span><span class="va">X</span><span class="op">)</span> <span class="op">%in%</span> <span class="va">paired_non_aster</span><span class="op">]</span>
+
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeq.html">DESeq</a></span><span class="op">(</span>
+  <span class="va">dds</span>, 
+  fitType <span class="op">=</span> <span class="st">"mean"</span>
+  <span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">dds</span>, 
+        file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_nonaster_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span>
+        <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_nonaster_K_11</span><span class="op">)</span>
+<span class="va">res</span> </code></pre></div>
+<pre><code>## log2 fold change (MLE): pna O vs M 
+## Wald test p-value: pna O vs M 
+## DataFrame with 11 rows and 6 columns
+##            baseMean log2FoldChange     lfcSE        stat      pvalue       padj
+##           &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;   &lt;numeric&gt;  &lt;numeric&gt;
+## Topic_1   860.20984    -0.00301489  1.571767 -0.00191815 0.998469536 0.99846954
+## Topic_2  1040.00766    -0.23883154  1.489550 -0.16033804 0.872614794 0.99846954
+## Topic_3     4.72578    -1.96488007  1.042164 -1.88538517 0.059377854 0.16328910
+## Topic_4   180.11478     4.32606625  1.204541  3.59146455 0.000328825 0.00361707
+## Topic_5    27.56455     2.23657681  1.180879  1.89399299 0.058225941 0.16328910
+## Topic_6     6.67586     0.09843585  0.881377  0.11168412 0.911073873 0.99846954
+## Topic_7     5.19734    -0.59432231  0.892778 -0.66569966 0.505603089 0.79451914
+## Topic_8   425.39352     0.63277929  1.509760  0.41912576 0.675124224 0.92829581
+## Topic_9  2991.31585    -2.69366584  1.665720 -1.61711797 0.105852819 0.19406350
+## Topic_10 1417.10667     2.41994794  1.495368  1.61829572 0.105598883 0.19406350
+## Topic_11   33.61182     3.26394880  1.158670  2.81697937 0.004847764 0.02666270</code></pre>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#writeResTable(res, fileN = paste0("dds_all_paired_nonaster_", K,".tex"))</span></code></pre></div>
+</div>
+<div id="test-on-paired-aster-specimens" class="section level3">
+<h3 class="hasAnchor">
+<a href="#test-on-paired-aster-specimens" class="anchor"></a>Test on paired Aster specimens</h3>
+<p>We do the test on paired Aster specimens.</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSetFromMatrix</a></span><span class="op">(</span>
+  countData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="va">median_theta_aligned_abun</span><span class="op">)</span>,
+  colData <span class="op">=</span> <span class="va">sam_data</span>,
+  design<span class="op">=</span> <span class="op">~</span>  <span class="va">pna</span>
+  <span class="op">)</span>
+
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="va">dds</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">dds</span><span class="op">$</span><span class="va">X</span><span class="op">)</span> <span class="op">%in%</span> <span class="va">paired_aster</span><span class="op">]</span>
+
+<span class="va">dds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/DESeq.html">DESeq</a></span><span class="op">(</span>
+  <span class="va">dds</span>, 
+  fitType <span class="op">=</span> <span class="st">"mean"</span>
+  <span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span>
+  <span class="va">dds</span>, 
+  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_aster_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span>
+  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_aster_K_11</span><span class="op">)</span>
+<span class="va">res</span> </code></pre></div>
+<pre><code>## log2 fold change (MLE): pna O vs M 
+## Wald test p-value: pna O vs M 
+## DataFrame with 11 rows and 6 columns
+##           baseMean log2FoldChange     lfcSE       stat      pvalue        padj
+##          &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt;  &lt;numeric&gt;   &lt;numeric&gt;   &lt;numeric&gt;
+## Topic_1  6218.5368    -10.4304467   1.51290 -6.8943421 5.41147e-12 5.95261e-11
+## Topic_2   808.8041      1.2913524   1.35518  0.9529025 3.40639e-01 6.24506e-01
+## Topic_3    62.3447      0.5769415   1.41106  0.4088702 6.82635e-01 8.34332e-01
+## Topic_4  3197.9976      0.9723636   1.53691  0.6326749 5.26946e-01 8.28058e-01
+## Topic_5    10.5337     -0.1502755   1.27513 -0.1178511 9.06186e-01 9.48164e-01
+## Topic_6   188.5282      0.0862107   1.32605  0.0650131 9.48164e-01 9.48164e-01
+## Topic_7    20.2758      0.4522516   1.03245  0.4380355 6.61361e-01 8.34332e-01
+## Topic_8    12.0123     -1.3189221   1.02924 -1.2814486 2.00036e-01 4.52427e-01
+## Topic_9  1035.0590     -7.8134758   1.32604 -5.8923438 3.80756e-09 1.39610e-08
+## Topic_10  129.1210     -1.5272929   1.20675 -1.2656214 2.05649e-01 4.52427e-01
+## Topic_11 2344.2823      8.3837719   1.38843  6.0383030 1.55743e-09 8.56589e-09</code></pre>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#writeResTable(res, fileN = paste0("dds_all_paired_aster_", K,".tex"))</span></code></pre></div>
+</div>
 </div>
   </div>
 

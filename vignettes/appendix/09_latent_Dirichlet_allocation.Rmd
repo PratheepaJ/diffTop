@@ -10,6 +10,8 @@ resource_files:
   - topic_dis_all_11.png
   - circular_plot_plant_all_K_11.png
   - Rhat_plant_all_K_11.png
+  - ess_bulk_plant_all_K_11.png
+  - model_assesment_hist_all_obs_sim_K_11.png
 ---
 
 The input parameters to run this R Markdown are $K$ number of topics and R - number of interations for each Markov chain.
@@ -41,12 +43,14 @@ iter
 
 
 ```{r include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
+knitr::opts_chunk$set(
+  echo = TRUE, 
   fig.width = 7, 
   fig.height = 4, 
   fig.align = 'center',
   message = FALSE, 
-  warning = FALSE)
+  warning = FALSE
+  )
 ```
 
 ```{r}
@@ -56,6 +60,7 @@ library(genefilter) #KOverA
 library(Rcpp)
 library(rstan)
 library(randomcoloR)# distinctColorPalette(n)
+library(DESeq2)
 
 devtools::load_all()
 ```
@@ -136,7 +141,7 @@ $\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$
 
 ```{r eval=FALSE}
 fileN <- paste0(
-  "../results/JABES_Endo_all_K_",
+  "JABES_Endo_all_K_",
   K,
   "_ite_",
   iter,
@@ -234,7 +239,7 @@ theta_all$pna <- factor(theta_all$pna)
 ### Plot the topic distribution in all chains
 
 - facet by pna and aster or non-aster plant type.
-- In the filtered ps, we have only one aster plant type
+
 ```{r eval=FALSE}
 theta_summary <- theta_all %>% 
   group_by(
@@ -558,11 +563,136 @@ p <- p +
 ggsave(paste0("circular_plot_plant_all_K_", K, ".png"), p, width = 28, height = 22)
 ```
 
-```{r echo=FALSE, out.width="70%", fig.caption = "Figure 7: ASV distribution over topics in all specimens", fig.align="center"}
+```{r echo=FALSE, out.width="100%", fig.caption = "Figure 7: ASV distribution over topics in all specimens", fig.align="center"}
 knitr::include_graphics(paste0("circular_plot_plant_all_K_", K, ".png"))
 ```
 
-### Diagnostic and model assessement plots
+### Diagnostic and model assessment plots
+
+Model assessment
+
+```{r eval=FALSE}
+samples <- rstan::extract(
+  stan.fit,
+  permuted = TRUE,
+  inc_warmup = FALSE,
+  include = TRUE)# samples is a list
+
+x <- get_taxa(ps) %>%
+  t()
+
+dimnames(x) <- NULL
+x_max_asv <- apply(
+  x %>% data.frame , 
+  2, 
+  max)
+
+x_max_asv <- data.frame(
+  x_max_asv = x_max_asv
+  )
+
+# draws from posterior predictive distribution
+x_sim <- samples$x_sim # iteration * samples * ASVs
+# Choose only the first chain
+x_sim <- x_sim[1:(iter/2), ,] # For each iteration, simulated data is x_sim[i, ,]
+sim_ite <- dim(x_sim)[1]
+
+#Find maximum of each asv for each replication
+max_all <- data.frame()
+x_sim_i <- x_sim[1, ,]
+max_x_sim_i <- apply(
+  x_sim_i %>% data.frame , 
+  2, 
+  max
+  )
+max_all <- data.frame(max_x_sim_i)
+
+for(i in 1:sim_ite){
+  x_sim_i <- x_sim[i, ,]
+  max_x_sim_i <- apply(
+    x_sim_i %>% data.frame , 
+    2, 
+    max)
+  max_all <- cbind(max_all, max_x_sim_i)
+}
+
+colnames(max_all) <- c(
+  paste0(
+    "x_max_rep", 
+    seq(1, sim_ite)
+         )
+  )
+
+rownames(max_all) <- paste0(
+  "ASV_", 
+  seq(1, ntaxa(ps)),
+  "_", 
+  tax_table(ps)[,"Class"]
+  )
+
+max_all <- max_all %>% t()
+## choose some of asvs for Posterior predictive check (these indexes are considered to avoid if ASV's Class is missing)
+max_all <- max_all[, c(1, 3, 10:14, 19:26, 36, 51:53, 148)]
+max_all_long <- melt(max_all)
+
+# observed stat data frame
+x_max_asv <- data.frame(
+  Var1 = rep(
+    "x_max_obs", 
+    dim(x_max_asv)[1]
+    ), 
+  Var2 = paste0(
+    "ASV_", 
+    seq(1, ntaxa(ps)),
+    "_", 
+    tax_table(ps)[,"Class"]
+    ), 
+  value = x_max_asv$x_max_asv
+  )
+
+x_max_asv <- x_max_asv[c(1,3,10:14,19:26,36,51:53, 148),]
+
+
+p_hist <- ggplot(
+  data = max_all_long
+  ) + 
+  geom_histogram(
+    aes(
+      x = value, 
+      group = Var2
+      ),
+    color = "blue", 
+    fill = "blue",
+    bins = 50) + 
+  xlab("maximum")+
+  facet_wrap(~Var2, nrow = 4) +
+  geom_vline(
+    data = x_max_asv, 
+    aes(xintercept = value), 
+    color = "purple"
+    ) + 
+  theme_update(
+    text = element_text(size = 8)
+    )
+
+
+ggsave(
+  paste0(
+    "model_assesment_hist_all_obs_sim_K_", 
+    K, 
+    ".png"
+    ), 
+  p_hist, 
+  width = 12, 
+  height = 6
+  )
+```
+
+
+```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 13: Predictive model check with simulated data, observed data, and a statistic G(Kij) = max{Kij}. Each facet shows the histogram of G(Kij) of each ASV in specimens from the posterior predictive distribution and the vertical line shows the value of G (Kij ) of each ASV in observed data.", fig.align="center"}
+knitr::include_graphics(paste0("model_assesment_hist_all_obs_sim_K_", K, ".png"))
+```
+
 
 Compute $\hat{R}$ and ESS (effective sample size)
 
@@ -633,138 +763,228 @@ ESS_bulk_beta <- as.vector(ESS_bulk_beta)
 ESS_tail_beta <- as.vector(ESS_tail_beta)
 
 Rhat <- c(Rhat_theta, Rhat_beta)
-fileN <- paste0("../results/Rhat_plant_all_K_", K, ".rds")
-saveRDS(Rhat, fileN)
+
 
 ESS_bulk <- c(ESS_bulk_theta, ESS_bulk_beta)
-fileN <- paste0("../results/ESS_bulk_all_K_", K, ".rds")
-saveRDS(ESS_bulk, fileN)
+
 
 ESS_tail <- c(ESS_tail_theta, ESS_tail_beta)
-fileN <- paste0("../results/ESS_tail_all_K_", K, ".rds")
-saveRDS(ESS_tail, fileN)
 
 # R hat ~ 1.05
-p_rhat <- ggplot(data.frame(Rhat = Rhat)) +
-  geom_histogram(aes(x = Rhat), 
-                 fill = "lavender", 
-                 colour = "black", 
-                 bins = 100) +
-  theme_minimal(base_size = 20) +  
-  theme(plot.title = element_text(hjust = 0.5))  +
+p_rhat <- ggplot(
+  data.frame(Rhat = Rhat)
+  ) +
+  geom_histogram(
+    aes(x = Rhat), 
+    fill = "lavender", 
+    colour = "black", 
+    bins = 100
+    ) +  
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )  +
   theme_minimal(base_size = 20) +
   xlab("")
-p_rhat
 
 
-ggsave(paste0("../figures/Rhat_plant_all_K_", K, ".png"), p_rhat, width = 9, height = 6)
-```
+ggsave(
+  paste0("Rhat_plant_all_K_", K, ".png"), 
+  p_rhat, 
+  width = 9, 
+  height = 6
+  )
 
-
-
-
-```{r eval=FALSE}
 # ESS bulk and ESS tail at least 100 per Markov Chain in order to be reliable and indicate that estimates of respective posterior quantiles are reliable
 
-p_ess_bulk <- ggplot(data.frame(ESS_bulk = ESS_bulk)) +
-  geom_histogram(aes(x = ESS_bulk), 
-                 fill = "lavender", 
-                 colour = "black", 
-                 bins = 100) +
-  theme_minimal(base_size = 20) +  
-  theme(plot.title = element_text(hjust = 0.5))   + 
-  theme_minimal(base_size = 20) +
+p_ess_bulk <- ggplot(
+  data.frame(ESS_bulk = ESS_bulk)
+  ) +
+  geom_histogram(
+    aes(x = ESS_bulk), 
+    fill = "lavender", 
+    colour = "black", 
+    bins = 100
+    ) +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )   + 
+  theme_minimal(
+    base_size = 20
+    ) +
   xlab("")
 
-# + 
-#   xlab("Effective sample size (ESS)")
-p_ess_bulk
 
-ggsave(paste0("../figures/ess_bulk_plant_all_K_", K, ".png"), p_ess_bulk, width = 9, height = 6)
+ggsave(
+  paste0("ess_bulk_plant_all_K_", K, ".png"), 
+  p_ess_bulk, 
+  width = 9, 
+  height = 6
+  )
 
-p_ess_tail <- ggplot(data.frame(ESS_tail = ESS_tail)) +
-  geom_histogram(aes(x = ESS_tail), 
-                 fill = "lavender", 
-                 colour = "black", 
-                 bins = 100) +
-  theme_minimal(base_size = 20) +  
-  theme(plot.title = element_text(hjust = 0.5))
-
-p_ess_tail
-ggsave(paste0("../figures/ess_tail_plant_all_K_", K, ".png"), p_ess_tail, width = 9, height = 6)
 ```
 
-Model assessement
 
-```{r eval=FALSE}
-samples <- rstan::extract(stan.fit,
-                          permuted = TRUE,
-                          inc_warmup = FALSE,
-                          include = TRUE)# samples is a list
-
-x <- t(get_taxa(ps))
-dimnames(x) <- NULL
-x_max_asv <- apply(x %>% data.frame , 2, max)
-x_max_asv <- data.frame(x_max_asv = x_max_asv)
-
-
-# draws from posterior predictive distribution
-x_sim <- samples$x_sim # iteration * samples * ASVs
-# Choose only the first chain
-x_sim <- x_sim[1:(iter/2), ,] # For each iteration, simulated data is x_sim[i, ,]
-sim_ite <- dim(x_sim)[1]
-
-#Find maximum of each asv for each replication
-max_all <- data.frame()
-x_sim_i <- x_sim[1, ,]
-max_x_sim_i <- apply(x_sim_i %>% data.frame , 2, max)
-max_all <- data.frame(max_x_sim_i)
-for(i in 1:sim_ite){
-  x_sim_i <- x_sim[i, ,]
-  max_x_sim_i <- apply(x_sim_i %>% data.frame , 2, max)
-  max_all <- cbind(max_all, max_x_sim_i)
-}
-
-colnames(max_all) <- c(paste0("x_max_rep", seq(1, sim_ite)))
-rownames(max_all) <- paste0("ASV_", seq(1, ntaxa(ps)),"_", tax_table(ps)[,"Class"])
-max_all <- max_all %>% t()
-## choose number of asvs for PPC
-# max_all <- max_all[, c(10:20, 22:26,36,51:53)]
-max_all <- max_all[, c(1,3,10:14,19:26,36,51:53, 148)]
-max_all_long <- melt(max_all)
-
-
-# observed stat data frame
-x_max_asv <- data.frame(Var1 = rep("x_max_obs", 
-                                   dim(x_max_asv)[1]), 
-                        Var2 = paste0("ASV_", seq(1, ntaxa(ps)),"_", tax_table(ps)[,"Class"]), 
-                        value = x_max_asv$x_max_asv)
-x_max_asv <- x_max_asv[c(1,3,10:14,19:26,36,51:53, 148),]
-
-
-p_hist <- ggplot(data = max_all_long) + 
-  geom_histogram(aes(x = value, group = Var2), 
-                 color = "blue", 
-                 fill = "blue",
-                 bins = 50) + 
-  xlab("maximum")+
-  facet_wrap(~Var2, nrow = 4) +
-  geom_vline(data = x_max_asv, aes(xintercept = value), color = "purple") + 
-  theme_update(
-  text = element_text(size = 8)
-)
-
-p_hist 
-
-ggsave(paste0("../figures/model_assesment_hist_all_obs_sim_K_", K, ".png"), p_hist, width = 12, height = 6)
+```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 14: Effective sample size (ESS) with eleven topics.", fig.align="center"}
+knitr::include_graphics(paste0("ess_bulk_plant_all_K_", K, ".png"))
 ```
+
+```{r echo=FALSE, out.width="100%", fig.caption = "Supplementary Figure 15: Split Rhat with eleven topics.", fig.align="center"}
+knitr::include_graphics(paste0("Rhat_plant_all_K_", K, ".png"))
+```
+
 
 
 ## Differential topic analysis
 
+We do differential topic analysis to test whether topic memberships differ across conditions.
+
+1. Compute the median Bayesian posterior of topic proportions in each specimen. 
+
+2. Multiply the proportions by the library size and round to an integer. This will give an abundance
+of the topic in each specimen. 
+
+3. Apply DESeq2 to identify differentially abundant topics across O and M pPNA types.
+
+```{r eval=FALSE}
+# posterior samples
+theta_aligned_abun <- theta_aligned
+# median Bayesian posterior of topic proportions in each specimen
+median_theta_aligned_abun <- apply(
+  theta_aligned_abun, 
+  c(2,3), 
+  median)
+
+# Multiply the proportions by the library size and round to an integer
+lib_size <- colSums(
+  otu_table(ps) %>% 
+    data.frame()
+  )
+
+median_theta_aligned_abun <- median_theta_aligned_abun * lib_size
+
+median_theta_aligned_abun <- ceiling(
+  median_theta_aligned_abun
+  )
+
+sam_data <- sample_data(ps) %>% 
+  data.frame()
+
+```
+
+### Test on all specimens
+
+We do test on all specimens. We can write DESeq2 results to LaTex
+
+```{r eval=FALSE}
+dds <- DESeqDataSetFromMatrix(
+  countData = t(median_theta_aligned_abun),
+  colData = sam_data,
+  design= ~ pna
+  )
+
+dds <- DESeq(
+  dds, 
+  fitType = "mean"
+  )
+
+saveRDS(dds, file = paste0("dds_all_K_", K,".rds"))
+```
+
+
+```{r}
+res <- results(dds_all_K_11)
+res 
+#writeResTable(res, fileN = paste0("dds_all_K_", K,".tex"))
+```
+
+### Test on paired-specimens
+We do the test on paired-specimens.
+
+```{r eval=FALSE}
+dds <- DESeqDataSetFromMatrix(
+  countData = t(median_theta_aligned_abun),
+  colData = sam_data,
+  design= ~  pna
+  )
+
+dds <- dds[, as.character(dds$X) %in% paired_specimens]
+dds <- DESeq(
+  dds, 
+  fitType = "mean"
+  )
+ 
+saveRDS(
+  dds, 
+  file = paste0("dds_all_paired_K_", K,".rds")
+  )
+```
+
+```{r}
+res <- results(dds_all_paired_K_11)
+res 
+#writeResTable(res, fileN = paste0("dds_all_paired_K_", K,".tex"))
+```
+### Test on paired non-Aster specimens
+
+We do the test on paired non-Aster specimens.
+
+```{r eval=FALSE}
+dds <- DESeqDataSetFromMatrix(
+  countData = t(median_theta_aligned_abun),
+  colData = sam_data,
+  design= ~  pna
+  )
+
+dds <- dds[, as.character(dds$X) %in% paired_non_aster]
+
+dds <- DESeq(
+  dds, 
+  fitType = "mean"
+  )
+
+saveRDS(dds, 
+        file = paste0("dds_all_paired_nonaster_K_", K,".rds")
+        )
+```
+
+
+```{r}
+res <- results(dds_all_paired_nonaster_K_11)
+res 
+#writeResTable(res, fileN = paste0("dds_all_paired_nonaster_", K,".tex"))
+```
+
+### Test on paired Aster specimens
+We do the test on paired Aster specimens.
+
+```{r eval=FALSE}
+dds <- DESeqDataSetFromMatrix(
+  countData = t(median_theta_aligned_abun),
+  colData = sam_data,
+  design= ~  pna
+  )
+
+dds <- dds[, as.character(dds$X) %in% paired_aster]
+
+dds <- DESeq(
+  dds, 
+  fitType = "mean"
+  )
+
+saveRDS(
+  dds, 
+  file = paste0("dds_all_paired_aster_K_", K,".rds")
+  )
+```
+
+```{r}
+res <- results(dds_all_paired_aster_K_11)
+res 
+#writeResTable(res, fileN = paste0("dds_all_paired_aster_", K,".tex"))
+```
 
 ```{r include=FALSE}
-rm(params, ps, stan.data, x, aster, iter, K, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names)
+rm(params, ps, stan.data, x, aster, iter, K, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names, res)
 ```
 
 
