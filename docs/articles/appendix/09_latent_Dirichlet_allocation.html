@@ -644,6 +644,190 @@
 <div id="diagnostic-and-model-assessement-plots" class="section level3">
 <h3 class="hasAnchor">
 <a href="#diagnostic-and-model-assessement-plots" class="anchor"></a>Diagnostic and model assessement plots</h3>
+<p>Compute <span class="math inline">\(\hat{R}\)</span> and ESS (effective sample size)</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">Rhat_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
+  <span class="op">)</span>
+
+<span class="va">ESS_bulk_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
+  <span class="op">)</span>
+
+<span class="va">ESS_tail_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
+  <span class="op">)</span>
+
+<span class="kw">for</span><span class="op">(</span><span class="va">sam</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">{</span>
+  <span class="kw">for</span><span class="op">(</span><span class="va">top</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">theta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">{</span>
+    <span class="va">sims_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+      <span class="va">theta_aligned</span><span class="op">[</span> ,<span class="va">sam</span> , <span class="va">top</span><span class="op">]</span>, 
+      nrow <span class="op">=</span> <span class="op">(</span><span class="va">iter</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, 
+      ncol <span class="op">=</span> <span class="fl">4</span>, 
+      byrow <span class="op">=</span> <span class="cn">FALSE</span>
+      <span class="op">)</span>
+    <span class="va">Rhat_theta</span><span class="op">[</span><span class="va">sam</span>, <span class="va">top</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/Rhat.html">Rhat</a></span><span class="op">(</span><span class="va">sims_theta</span><span class="op">)</span>
+    <span class="va">ESS_bulk_theta</span><span class="op">[</span><span class="va">sam</span>, <span class="va">top</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/Rhat.html">ess_bulk</a></span><span class="op">(</span><span class="va">sims_theta</span><span class="op">)</span>
+    <span class="va">ESS_tail_theta</span><span class="op">[</span><span class="va">sam</span>, <span class="va">top</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/Rhat.html">ess_tail</a></span><span class="op">(</span><span class="va">sims_theta</span><span class="op">)</span>
+  <span class="op">}</span>
+  
+<span class="op">}</span>
+
+<span class="va">Rhat_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">Rhat_theta</span><span class="op">)</span>
+<span class="va">ESS_bulk_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">ESS_bulk_theta</span><span class="op">)</span>
+<span class="va">ESS_tail_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">ESS_tail_theta</span><span class="op">)</span>
+
+<span class="va">Rhat_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
+  <span class="op">)</span>
+<span class="va">ESS_bulk_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
+  <span class="op">)</span>
+<span class="va">ESS_tail_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, 
+  ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>
+  <span class="op">)</span>
+  
+<span class="kw">for</span><span class="op">(</span><span class="va">top</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">{</span>
+    <span class="kw">for</span><span class="op">(</span><span class="va">fea</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">beta_aligned</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">{</span>
+      <span class="va">sims_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span>
+        <span class="va">beta_aligned</span><span class="op">[</span> , <span class="va">top</span>, <span class="va">fea</span><span class="op">]</span>, 
+        nrow <span class="op">=</span> <span class="op">(</span><span class="va">iter</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, 
+        ncol <span class="op">=</span> <span class="fl">4</span>, 
+        byrow <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+      <span class="va">Rhat_beta</span><span class="op">[</span><span class="va">top</span>, <span class="va">fea</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/Rhat.html">Rhat</a></span><span class="op">(</span><span class="va">sims_beta</span><span class="op">)</span>
+      <span class="va">ESS_bulk_beta</span><span class="op">[</span><span class="va">top</span>, <span class="va">fea</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/Rhat.html">ess_bulk</a></span><span class="op">(</span><span class="va">sims_beta</span><span class="op">)</span>
+      <span class="va">ESS_tail_beta</span><span class="op">[</span><span class="va">top</span>, <span class="va">fea</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/Rhat.html">ess_tail</a></span><span class="op">(</span><span class="va">sims_beta</span><span class="op">)</span>
+    <span class="op">}</span>
+  
+<span class="op">}</span>
+
+<span class="va">Rhat_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">Rhat_beta</span><span class="op">)</span>
+<span class="va">ESS_bulk_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">ESS_bulk_beta</span><span class="op">)</span>
+<span class="va">ESS_tail_beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="va">ESS_tail_beta</span><span class="op">)</span>
+
+<span class="va">Rhat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">Rhat_theta</span>, <span class="va">Rhat_beta</span><span class="op">)</span>
+<span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../results/Rhat_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".rds"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">Rhat</span>, <span class="va">fileN</span><span class="op">)</span>
+
+<span class="va">ESS_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ESS_bulk_theta</span>, <span class="va">ESS_bulk_beta</span><span class="op">)</span>
+<span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../results/ESS_bulk_all_K_"</span>, <span class="va">K</span>, <span class="st">".rds"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ESS_bulk</span>, <span class="va">fileN</span><span class="op">)</span>
+
+<span class="va">ESS_tail</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ESS_tail_theta</span>, <span class="va">ESS_tail_beta</span><span class="op">)</span>
+<span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../results/ESS_tail_all_K_"</span>, <span class="va">K</span>, <span class="st">".rds"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ESS_tail</span>, <span class="va">fileN</span><span class="op">)</span>
+
+<span class="co"># R hat ~ 1.05</span>
+<span class="va">p_rhat</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Rhat <span class="op">=</span> <span class="va">Rhat</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">Rhat</span><span class="op">)</span>, 
+                 fill <span class="op">=</span> <span class="st">"lavender"</span>, 
+                 colour <span class="op">=</span> <span class="st">"black"</span>, 
+                 bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>  
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="op">+</span>
+  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">""</span><span class="op">)</span>
+<span class="va">p_rhat</span>
+
+
+<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/Rhat_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_rhat</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># ESS bulk and ESS tail at least 100 per Markov Chain in order to be reliable and indicate that estimates of respective posterior quantiles are reliable</span>
+
+<span class="va">p_ess_bulk</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ESS_bulk <span class="op">=</span> <span class="va">ESS_bulk</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">ESS_bulk</span><span class="op">)</span>, 
+                 fill <span class="op">=</span> <span class="st">"lavender"</span>, 
+                 colour <span class="op">=</span> <span class="st">"black"</span>, 
+                 bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>  
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>   <span class="op">+</span> 
+  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">""</span><span class="op">)</span>
+
+<span class="co"># + </span>
+<span class="co">#   xlab("Effective sample size (ESS)")</span>
+<span class="va">p_ess_bulk</span>
+
+<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/ess_bulk_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_ess_bulk</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>
+
+<span class="va">p_ess_tail</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ESS_tail <span class="op">=</span> <span class="va">ESS_tail</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">ESS_tail</span><span class="op">)</span>, 
+                 fill <span class="op">=</span> <span class="st">"lavender"</span>, 
+                 colour <span class="op">=</span> <span class="st">"black"</span>, 
+                 bins <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span>  
+  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>
+
+<span class="va">p_ess_tail</span>
+<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/ess_tail_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_ess_tail</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></code></pre></div>
+<p>Model assessement</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu">rstan</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html">extract</a></span><span class="op">(</span><span class="va">stan.fit</span>,
+                          permuted <span class="op">=</span> <span class="cn">TRUE</span>,
+                          inc_warmup <span class="op">=</span> <span class="cn">FALSE</span>,
+                          include <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="co"># samples is a list</span>
+
+<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/get_taxa-methods.html">get_taxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">x</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>x_max_asv <span class="op">=</span> <span class="va">x_max_asv</span><span class="op">)</span>
+
+
+<span class="co"># draws from posterior predictive distribution</span>
+<span class="va">x_sim</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">x_sim</span> <span class="co"># iteration * samples * ASVs</span>
+<span class="co"># Choose only the first chain</span>
+<span class="va">x_sim</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">iter</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>, ,<span class="op">]</span> <span class="co"># For each iteration, simulated data is x_sim[i, ,]</span>
+<span class="va">sim_ite</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">x_sim</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+
+<span class="co">#Find maximum of each asv for each replication</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">x_sim_i</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="fl">1</span>, ,<span class="op">]</span>
+<span class="va">max_x_sim_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">x_sim_i</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">max_x_sim_i</span><span class="op">)</span>
+<span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">sim_ite</span><span class="op">)</span><span class="op">{</span>
+  <span class="va">x_sim_i</span> <span class="op">&lt;-</span> <span class="va">x_sim</span><span class="op">[</span><span class="va">i</span>, ,<span class="op">]</span>
+  <span class="va">max_x_sim_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">x_sim_i</span> <span class="op">%&gt;%</span> <span class="va">data.frame</span> , <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>
+  <span class="va">max_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">max_all</span>, <span class="va">max_x_sim_i</span><span class="op">)</span>
+<span class="op">}</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"x_max_rep"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">sim_ite</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>,<span class="st">"_"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Class"</span><span class="op">]</span><span class="op">)</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="va">max_all</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/transpose-methods.html">t</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">## choose number of asvs for PPC</span>
+<span class="co"># max_all &lt;- max_all[, c(10:20, 22:26,36,51:53)]</span>
+<span class="va">max_all</span> <span class="op">&lt;-</span> <span class="va">max_all</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">:</span><span class="fl">14</span>,<span class="fl">19</span><span class="op">:</span><span class="fl">26</span>,<span class="fl">36</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span><span class="op">]</span>
+<span class="va">max_all_long</span> <span class="op">&lt;-</span> <span class="fu">melt</span><span class="op">(</span><span class="va">max_all</span><span class="op">)</span>
+
+
+<span class="co"># observed stat data frame</span>
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>Var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"x_max_obs"</span>, 
+                                   <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">x_max_asv</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, 
+                        Var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"ASV_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html">ntaxa</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">)</span>,<span class="st">"_"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html">tax_table</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Class"</span><span class="op">]</span><span class="op">)</span>, 
+                        value <span class="op">=</span> <span class="va">x_max_asv</span><span class="op">$</span><span class="va">x_max_asv</span><span class="op">)</span>
+<span class="va">x_max_asv</span> <span class="op">&lt;-</span> <span class="va">x_max_asv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">:</span><span class="fl">14</span>,<span class="fl">19</span><span class="op">:</span><span class="fl">26</span>,<span class="fl">36</span>,<span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span>,<span class="op">]</span>
+
+
+<span class="va">p_hist</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span>data <span class="op">=</span> <span class="va">max_all_long</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">value</span>, group <span class="op">=</span> <span class="va">Var2</span><span class="op">)</span>, 
+                 color <span class="op">=</span> <span class="st">"blue"</span>, 
+                 fill <span class="op">=</span> <span class="st">"blue"</span>,
+                 bins <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">"maximum"</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">Var2</span>, nrow <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu">geom_vline</span><span class="op">(</span>data <span class="op">=</span> <span class="va">x_max_asv</span>, <span class="fu">aes</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">value</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"purple"</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu">theme_update</span><span class="op">(</span>
+  text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>
+<span class="op">)</span>
+
+<span class="va">p_hist</span> 
+
+<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"../figures/model_assesment_hist_all_obs_sim_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p_hist</span>, width <span class="op">=</span> <span class="fl">12</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 <div id="differential-topic-analysis" class="section level2">
