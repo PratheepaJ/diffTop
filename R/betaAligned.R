@@ -1,17 +1,18 @@
 #' Align ASVs proportions in topics across chain.
 #'
 #' @param beta array. three dimensional array (iterations * topic * ASVs).
-#' @param aligned matrix. A matrix of topic assignment for each chain. output of alignmentMatrix.
+#' @param aligned matrix. A matrix of topic assignment for each chain. output of alignmentMatrix().
 #' @inheritParams alignmentMatrix
 #'
-#' @return array. three dimensional array
+#' @return array. three dimensional array.
 #' @export
 #'
-betaAligned <- function(beta,
-                         K,
-                         aligned,
-                         iter = 2000,
-                         chain = 4){
+betaAligned <- function(
+  beta,
+  K,
+  aligned,
+  iter = 2000,
+  chain = 4){
   # align topics between chains
   # no need to switch array dimnension
   beta_chain <- list()

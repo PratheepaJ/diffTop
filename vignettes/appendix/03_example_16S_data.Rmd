@@ -195,7 +195,7 @@ sample_data(ps)$ReadsNC <- sample_sums(ps)
 ```
 
 
-Add plant type names, Asteraceae or non-Asteraceae to the phylose sample data. 
+Add plant type names, Asteraceae or non-Asteraceae to the phyloseq sample data. 
 
 ```{r eval=FALSE}
 df <- data.frame(

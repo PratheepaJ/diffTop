@@ -11,14 +11,14 @@ betaAligned(beta, K, aligned, iter = 2000, chain = 4)
 
 \item{K}{integer. number of topics.}
 
-\item{aligned}{matrix. A matrix of topic assignment for each chain. output of alignmentMatrix.}
+\item{aligned}{matrix. A matrix of topic assignment for each chain. output of alignmentMatrix().}
 
 \item{iter}{integer. number of iteration used in each chain.}
 
 \item{chain}{integer. number of chains used in MCMC.}
 }
 \value{
-array. three dimensional array
+array. three dimensional array.
 }
 \description{
 Align ASVs proportions in topics across chain.

@@ -4,7 +4,7 @@ Title: Reproducible Research Appendix
 Version: 0.1.0
 Author: Pratheepa Jeganathan <jpratheepa31@gmail.com>
 Maintainer: Pratheepa Jeganathan <jpratheepa31@gmail.com>, Susan Holmes <susan@stat.stanford.edu>
-Description: This pacakge provides functions for differential topic analysis for molecular microbial data. The assocaited articles are reproducible research appendix on statistical methods in molecular microbial data analysis.
+Description: This pacakge provides functions for differential topic analysis for molecular microbial data. The associated articles are reproducible research appendix on statistical methods in molecular microbial data analysis.
 License: AGPL-3
 Encoding: UTF-8
 LazyData: true

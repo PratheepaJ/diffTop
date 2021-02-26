@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Anscombe (1948) transformation — phyloseqTransformation • diffTop</title>
+<title>Plot the ASVs distribution in each topic. — plotASVCircular • diffTop</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Anscombe (1948) transformation — phyloseqTransformation" />
-<meta property="og:description" content="Anscombe (1948) transformation" />
+<meta property="og:title" content="Plot the ASVs distribution in each topic. — plotASVCircular" />
+<meta property="og:description" content="Plot the ASVs distribution in each topic." />
 
 
 
@@ -145,16 +145,26 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Anscombe (1948) transformation</h1>
+    <h1>Plot the ASVs distribution in each topic.</h1>
     
-    <div class="hidden name"><code>phyloseqTransformation.Rd</code></div>
+    <div class="hidden name"><code>plotASVCircular.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Anscombe (1948) transformation</p>
+    <p>Plot the ASVs distribution in each topic.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>phyloseqTransformation</span><span class='op'>(</span><span class='va'>ps</span>, cc <span class='op'>=</span> <span class='fl'>0.4</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>plotASVCircular</span><span class='op'>(</span>
+  <span class='va'>ps</span>,
+  <span class='va'>K</span>,
+  iter <span class='op'>=</span> <span class='fl'>2000</span>,
+  chain <span class='op'>=</span> <span class='fl'>4</span>,
+  <span class='va'>beta_aligned</span>,
+  varnames <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"iterations"</span>, <span class='st'>"topic"</span>, <span class='st'>"rsv_ix"</span><span class='op'>)</span>,
+  value_name <span class='op'>=</span> <span class='st'>"beta_h"</span>,
+  taxonomylevel <span class='op'>=</span> <span class='st'>"Class"</span>,
+  thresholdASVprop <span class='op'>=</span> <span class='fl'>0.008</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -164,14 +174,44 @@
       <td><p>phyloseq object.</p></td>
     </tr>
     <tr>
-      <th>cc</th>
-      <td><p>Double. a constant used in the Anscombe (1948) transformation if dispersion is &lt;= 2</p></td>
+      <th>K</th>
+      <td><p>integer. number of topics.</p></td>
+    </tr>
+    <tr>
+      <th>iter</th>
+      <td><p>integer. number of iteration used in each chain.</p></td>
+    </tr>
+    <tr>
+      <th>chain</th>
+      <td><p>integer. number of chains used in MCMC.</p></td>
+    </tr>
+    <tr>
+      <th>beta_aligned</th>
+      <td><p>List. returned object of betaAligned().</p></td>
+    </tr>
+    <tr>
+      <th>varnames</th>
+      <td><p>Character vector. Use to name column of long formatted data frame of ASVs distribution. An example is c("iterations", "topic", "rsv_ix")</p></td>
+    </tr>
+    <tr>
+      <th>value_name</th>
+      <td><p>Character. Use to name the summary of posterior samples of ASVs proportions.</p></td>
+    </tr>
+    <tr>
+      <th>taxonomylevel</th>
+      <td><p>Character. Use to label ASVs.</p></td>
+    </tr>
+    <tr>
+      <th>thresholdASVprop</th>
+      <td><p>Numberic. Use to select ASVs for circular plot.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>phyloseq object. otu table has transformed values of counts.</p>
+    
+
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

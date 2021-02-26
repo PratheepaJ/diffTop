@@ -2,4 +2,11 @@
 
 export(alignmentMatrix)
 export(betaAligned)
+export(diagnosticsPlot)
+export(diffTop)
+export(modelAssessment)
 export(phyloseqTransformation)
+export(plotASVCircular)
+export(plotTopicProportion)
+export(setUpData)
+export(thetaAligned)

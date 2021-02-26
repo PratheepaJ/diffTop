@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Anscombe (1948) transformation — phyloseqTransformation • diffTop</title>
+<title>Align topic proportions in specimens across chain. — thetaAligned • diffTop</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Anscombe (1948) transformation — phyloseqTransformation" />
-<meta property="og:description" content="Anscombe (1948) transformation" />
+<meta property="og:title" content="Align topic proportions in specimens across chain. — thetaAligned" />
+<meta property="og:description" content="Align topic proportions in specimens across chain." />
 
 
 
@@ -145,33 +145,45 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Anscombe (1948) transformation</h1>
+    <h1>Align topic proportions in specimens across chain.</h1>
     
-    <div class="hidden name"><code>phyloseqTransformation.Rd</code></div>
+    <div class="hidden name"><code>thetaAligned.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Anscombe (1948) transformation</p>
+    <p>Align topic proportions in specimens across chain.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>phyloseqTransformation</span><span class='op'>(</span><span class='va'>ps</span>, cc <span class='op'>=</span> <span class='fl'>0.4</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>thetaAligned</span><span class='op'>(</span><span class='va'>theta</span>, <span class='va'>K</span>, <span class='va'>aligned</span>, iter <span class='op'>=</span> <span class='fl'>2000</span>, chain <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ps</th>
-      <td><p>phyloseq object.</p></td>
+      <th>theta</th>
+      <td><p>array. three dimensional array (iterations * topic * specimens).</p></td>
     </tr>
     <tr>
-      <th>cc</th>
-      <td><p>Double. a constant used in the Anscombe (1948) transformation if dispersion is &lt;= 2</p></td>
+      <th>K</th>
+      <td><p>integer. number of topics.</p></td>
+    </tr>
+    <tr>
+      <th>aligned</th>
+      <td><p>aligned matrix. A matrix of topic assignment for each chain. output of alignmentMatrix.</p></td>
+    </tr>
+    <tr>
+      <th>iter</th>
+      <td><p>integer. number of iteration used in each chain.</p></td>
+    </tr>
+    <tr>
+      <th>chain</th>
+      <td><p>integer. number of chains used in MCMC.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>phyloseq object. otu table has transformed values of counts.</p>
+    <p>array. three dimensional array.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

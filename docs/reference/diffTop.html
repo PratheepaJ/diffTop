@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Anscombe (1948) transformation — phyloseqTransformation • diffTop</title>
+<title>Differential topic analysis — diffTop • diffTop</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Anscombe (1948) transformation — phyloseqTransformation" />
-<meta property="og:description" content="Anscombe (1948) transformation" />
+<meta property="og:title" content="Differential topic analysis — diffTop" />
+<meta property="og:description" content="Differential topic analysis" />
 
 
 
@@ -145,33 +145,46 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Anscombe (1948) transformation</h1>
+    <h1>Differential topic analysis</h1>
     
-    <div class="hidden name"><code>phyloseqTransformation.Rd</code></div>
+    <div class="hidden name"><code>diffTop.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Anscombe (1948) transformation</p>
+    <p>Differential topic analysis</p>
     </div>
 
-    <pre class="usage"><span class='fu'>phyloseqTransformation</span><span class='op'>(</span><span class='va'>ps</span>, cc <span class='op'>=</span> <span class='fl'>0.4</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>diffTop</span><span class='op'>(</span>
+  design <span class='op'>=</span> <span class='op'>~</span><span class='va'>pna</span>,
+  <span class='va'>ps</span>,
+  <span class='va'>theta_aligned</span>,
+  subsetSample <span class='op'>=</span> <span class='fu'>sample_names</span><span class='op'>(</span><span class='va'>psE_BARBI</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>design</th>
+      <td><p>Factors of interests.</p></td>
+    </tr>
+    <tr>
       <th>ps</th>
       <td><p>phyloseq object.</p></td>
     </tr>
     <tr>
-      <th>cc</th>
-      <td><p>Double. a constant used in the Anscombe (1948) transformation if dispersion is &lt;= 2</p></td>
+      <th>theta_aligned</th>
+      <td><p>List. returned object of thetaAligned().</p></td>
+    </tr>
+    <tr>
+      <th>subsetSample</th>
+      <td><p>Character vector. Sample names to be considered.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>phyloseq object. otu table has transformed values of counts.</p>
+    <p>DESeq object.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

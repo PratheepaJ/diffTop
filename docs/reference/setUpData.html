@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Anscombe (1948) transformation — phyloseqTransformation • diffTop</title>
+<title>Set-up data for latent Dirichlet allocation — setUpData • diffTop</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Anscombe (1948) transformation — phyloseqTransformation" />
-<meta property="og:description" content="Anscombe (1948) transformation" />
+<meta property="og:title" content="Set-up data for latent Dirichlet allocation — setUpData" />
+<meta property="og:description" content="Set-up data for latent Dirichlet allocation" />
 
 
 
@@ -145,33 +145,41 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Anscombe (1948) transformation</h1>
+    <h1>Set-up data for latent Dirichlet allocation</h1>
     
-    <div class="hidden name"><code>phyloseqTransformation.Rd</code></div>
+    <div class="hidden name"><code>setUpData.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Anscombe (1948) transformation</p>
+    <p>Set-up data for latent Dirichlet allocation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>phyloseqTransformation</span><span class='op'>(</span><span class='va'>ps</span>, cc <span class='op'>=</span> <span class='fl'>0.4</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>setUpData</span><span class='op'>(</span><span class='va'>ps</span>, <span class='va'>K</span>, alpha <span class='op'>=</span> <span class='fl'>0.9</span>, gamma <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>ps</th>
-      <td><p>phyloseq object.</p></td>
+      <td><p>phyloseq class.</p></td>
     </tr>
     <tr>
-      <th>cc</th>
-      <td><p>Double. a constant used in the Anscombe (1948) transformation if dispersion is &lt;= 2</p></td>
+      <th>K</th>
+      <td><p>Integer. Number of topics.</p></td>
+    </tr>
+    <tr>
+      <th>alpha</th>
+      <td><p>Non-negative numeric. Hyper-parameter alpha is less than one to generate sparse mixtures that are different from each other and avoid generating unrealistic topics.</p></td>
+    </tr>
+    <tr>
+      <th>gamma</th>
+      <td><p>Non-negative numeric. Hyper-parameter gamma is less than one to generate sparse mixtures of ASVs in each topic.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>phyloseq object. otu table has transformed values of counts.</p>
+    <p>List. List of object with number of topics, number of ASVs,number of specimens, count table, hyper parameters for topic and ASVs distribution.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -39,9 +39,12 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
+</li>
+<li>
+  <a href="../../articles/diffTop.html">Get started</a>
 </li>
 <li>
   <a href="../../reference/index.html">Reference</a>
@@ -96,14 +99,13 @@
 
       
 
-      </header><script src="08_differential_abundance_analysis_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="08_differential_abundance_analysis_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="08_differential_abundance_analysis_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="08_differential_abundance_analysis_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Section 8: DIFFERENTIAL ABUNDANCE ANALYSIS</h1>
                         <h4 class="author">Pratheepa Jeganathan and Susan Holmes</h4>
             
-            <h4 class="date">24 February, 2021</h4>
+            <h4 class="date">26 February, 2021</h4>
       
       
       <div class="hidden name"><code>08_differential_abundance_analysis.Rmd</code></div>
@@ -253,13 +255,13 @@
 ## Terms added sequentially (first to last)
 ## 
 ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)
-## afact      1    0.3361 0.33608  1.0199 0.02081  0.459
-## Residuals 48   15.8175 0.32953         0.97919       
-## Total     49   16.1536                 1.00000</code></pre>
+## afact      1    0.2879 0.28794 0.89778 0.01836  0.637
+## Residuals 48   15.3949 0.32073         0.98164       
+## Total     49   15.6828                 1.00000</code></pre>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#To extract the pvalue:</span>
 <span class="va">ptest1</span><span class="op">$</span><span class="va">aov.tab</span><span class="op">$</span><span class="va">`Pr(&gt;F)`</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] 0.459</code></pre>
+<pre><code>## [1] 0.637</code></pre>
 </div>
 <div id="power-computation-with-a-difference-in-non-switched-standard-and-switched-otus" class="section level3">
 <h3 class="hasAnchor">
