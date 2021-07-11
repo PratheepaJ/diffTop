@@ -1,17 +1,20 @@
 Package: diffTop
 Date: 02-16-2021
-Title: Reproducible Research Appendix
-Version: 0.1.0
+Title: Differential topic analysis using latent Dirichlet allocation.
+Version: 0.99.0
+Authors@R: c(
+    person("Pratheepa", "Jeganathan", email="jpratheepa31@gmail.com", role = c("aut","cre")),
+    person("Susan", "Holmes", role = c("aut","ctb")))
 Author: Pratheepa Jeganathan <jpratheepa31@gmail.com>
-Maintainer: Pratheepa Jeganathan <jpratheepa31@gmail.com>, Susan Holmes <susan@stat.stanford.edu>
-Description: This pacakge provides functions for differential topic analysis for molecular microbial data. The associated articles are reproducible research appendix on statistical methods in molecular microbial data analysis.
-License: AGPL-3
+Maintainer: Pratheepa Jeganathan <jpratheepa31@gmail.com>
+Description: Compute the median Bayesian posterior of topic proportions in each sample, multiply the proportions by the library size and round to an integer, and use this as the abundance of the topics in each sample to test differentially abundant topics.
+License: LGPL (>= 3)
 Encoding: UTF-8
-LazyData: true
 Suggests: 
     knitr,
     rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
 RoxygenNote: 7.1.1
+URL: https://github.com/PratheepaJ/diffTop
 Depends: 
-    R (>= 2.10)
+

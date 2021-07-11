@@ -34,6 +34,7 @@ DNA contamination is identified as additive error. For contamination removal, in
 ### Identify negative controls
 
 ```{r}
+data("psE")
 sample_data(psE)$is.neg <- (
   sample_data(psE)$community == "PAO") | (sample_data(psE)$community == "Water") | (sample_data(psE)$community == "WATER") | (sample_data(psE)$community == "MOCK")
 
@@ -353,6 +354,7 @@ saveRDS(psE_BARBI, "psE_BARBI.rds")
 ```
 
 ```{r}
+data("psE_BARBI")
 psE_BARBI
 ```
 

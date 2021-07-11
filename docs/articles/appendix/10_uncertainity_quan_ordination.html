@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">diffTop</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -89,7 +89,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/PratheepaJ/diffTop/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -99,15 +106,15 @@
 
       
 
-      </header><script src="10_uncertainity_quan_ordination_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="10_uncertainity_quan_ordination_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Section 10: UNCERTAINTY QUANTIFICATION FOR ORDINATION ANALYSIS</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">26 February, 2021</h4>
+            <h4 class="date">09 July, 2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/PratheepaJ/diffTop/blob/master/vignettes/appendix/10_uncertainity_quan_ordination.Rmd"><code>vignettes/appendix/10_uncertainity_quan_ordination.Rmd</code></a></small>
       <div class="hidden name"><code>10_uncertainity_quan_ordination.Rmd</code></div>
 
     </div>
@@ -116,7 +123,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217">phyloseq</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">randomcoloR</span><span class="op">)</span><span class="co"># distinctColorPalette(n)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">DirFactor</span><span class="op">)</span><span class="co"># Bayesian nonparametric ordination</span>
@@ -132,7 +139,8 @@
 <h2 class="hasAnchor">
 <a href="#data" class="anchor"></a>Data</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"psE_BARBI"</span><span class="op">)</span>
+<span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
 <span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu">phyloseq</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/filter_taxa.html">filter_taxa</a></span><span class="op">(</span>
   <span class="va">psE_BARBI</span>, 
   <span class="va">threshold</span>, <span class="cn">TRUE</span><span class="op">)</span> 
@@ -276,7 +284,7 @@ Figure 8: Ordination plot of specimens and 95% posterior credible regions.
 
 
       <footer><div class="copyright">
-  <p>Developed by Pratheepa Jeganathan.</p>
+  <p>Developed by Pratheepa Jeganathan, Susan Holmes.</p>
 </div>
 
 <div class="pkgdown">

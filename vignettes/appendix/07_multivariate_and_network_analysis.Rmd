@@ -39,7 +39,7 @@ theme_update(
 ## Data
 
 ```{r}
-
+data("psE_BARBI")
 threshold <- kOverA(2, A = 25) 
 psE_BARBI <- phyloseq::filter_taxa(
   psE_BARBI, 
@@ -200,6 +200,7 @@ A DPCoA plot incorporates phylogenetic information.
 The DPCoA specimens positions can be interpreted with respect to the ASVs coordinates in this display.
 
 ```{r fig.cap="Supplementary Figure 9: (A) A DPCoA plot that incorporates phylogenetic information."}
+data("ps_ans")
 out.dpcoa.log <- ordinate(
   ps_ans, 
   method = "DPCoA"

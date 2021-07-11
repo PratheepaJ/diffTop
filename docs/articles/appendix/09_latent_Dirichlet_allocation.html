@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">diffTop</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -89,7 +89,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/PratheepaJ/diffTop/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -99,15 +106,15 @@
 
       
 
-      </header><script src="09_latent_Dirichlet_allocation_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="09_latent_Dirichlet_allocation_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Section 9: LATENT DIRICHLET ALLOCATION</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">26 February, 2021</h4>
+            <h4 class="date">09 July, 2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/PratheepaJ/diffTop/blob/master/vignettes/appendix/09_latent_Dirichlet_allocation.Rmd"><code>vignettes/appendix/09_latent_Dirichlet_allocation.Rmd</code></a></small>
       <div class="hidden name"><code>09_latent_Dirichlet_allocation.Rmd</code></div>
 
     </div>
@@ -134,7 +141,7 @@
 <pre><code>## [1] 2000</code></pre>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217">phyloseq</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.rcpp.org">Rcpp</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/rstan">rstan</a></span><span class="op">)</span>
@@ -152,7 +159,8 @@
 <h2 class="hasAnchor">
 <a href="#data" class="anchor"></a>Data</h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"psE_BARBI"</span><span class="op">)</span>
+<span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
 <span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu">phyloseq</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/filter_taxa.html">filter_taxa</a></span><span class="op">(</span>
   <span class="va">psE_BARBI</span>, 
   <span class="va">threshold</span>, <span class="cn">TRUE</span><span class="op">)</span> 
@@ -325,55 +333,55 @@
 <ul>
 <li>facet by pna and aster or non-aster plant type.</li>
 </ul>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>theta_summary &lt;-<span class="st"> </span>theta_all <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb20-2"><a href="#cb20-2"></a><span class="st">  </span><span class="kw">group_by</span>(</span>
-<span id="cb20-3"><a href="#cb20-3"></a>    Sample, </span>
-<span id="cb20-4"><a href="#cb20-4"></a>    Topic, </span>
-<span id="cb20-5"><a href="#cb20-5"></a>    pna</span>
-<span id="cb20-6"><a href="#cb20-6"></a>    ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb20-7"><a href="#cb20-7"></a><span class="st">  </span><span class="kw">summarize</span>(</span>
-<span id="cb20-8"><a href="#cb20-8"></a>    <span class="dt">median.topic.dis =</span> <span class="kw">median</span>(topic.dis)</span>
-<span id="cb20-9"><a href="#cb20-9"></a>    ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb20-10"><a href="#cb20-10"></a><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb20-11"><a href="#cb20-11"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb20-12"><a href="#cb20-12"></a>    <span class="dt">Topic =</span> <span class="kw">factor</span>(</span>
-<span id="cb20-13"><a href="#cb20-13"></a>      Topic, </span>
-<span id="cb20-14"><a href="#cb20-14"></a>      <span class="dt">levels =</span> <span class="kw">rev</span>(<span class="kw">str_c</span>(<span class="st">"Topic_"</span>,<span class="dv">1</span><span class="op">:</span>K)</span>
-<span id="cb20-15"><a href="#cb20-15"></a>                   )</span>
-<span id="cb20-16"><a href="#cb20-16"></a>      )</span>
-<span id="cb20-17"><a href="#cb20-17"></a>    )</span>
-<span id="cb20-18"><a href="#cb20-18"></a></span>
-<span id="cb20-19"><a href="#cb20-19"></a>p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(</span>
-<span id="cb20-20"><a href="#cb20-20"></a>  theta_summary, </span>
-<span id="cb20-21"><a href="#cb20-21"></a>  <span class="kw">aes</span>(<span class="dt">x =</span> pna, </span>
-<span id="cb20-22"><a href="#cb20-22"></a>      <span class="dt">y =</span> Topic,</span>
-<span id="cb20-23"><a href="#cb20-23"></a>      <span class="dt">fill =</span> pna)</span>
-<span id="cb20-24"><a href="#cb20-24"></a>  )</span>
-<span id="cb20-25"><a href="#cb20-25"></a>p &lt;-<span class="st"> </span>p<span class="op">+</span></span>
-<span id="cb20-26"><a href="#cb20-26"></a><span class="st">  </span><span class="kw">geom_tile</span>(</span>
-<span id="cb20-27"><a href="#cb20-27"></a>    <span class="kw">aes</span>(<span class="dt">alpha =</span> median.topic.dis)</span>
-<span id="cb20-28"><a href="#cb20-28"></a>    ) <span class="op">+</span></span>
-<span id="cb20-29"><a href="#cb20-29"></a><span class="st">  </span><span class="kw">facet_grid</span>(</span>
-<span id="cb20-30"><a href="#cb20-30"></a>    .<span class="op">~</span>Sample,</span>
-<span id="cb20-31"><a href="#cb20-31"></a>    <span class="dt">scale =</span> <span class="st">"free"</span></span>
-<span id="cb20-32"><a href="#cb20-32"></a>    )<span class="op">+</span></span>
-<span id="cb20-33"><a href="#cb20-33"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"pna"</span>) <span class="op">+</span></span>
-<span id="cb20-34"><a href="#cb20-34"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(</span>
-<span id="cb20-35"><a href="#cb20-35"></a>    <span class="dt">name =</span> <span class="st">"pna"</span>, </span>
-<span id="cb20-36"><a href="#cb20-36"></a>    <span class="dt">values =</span> <span class="kw">c</span>(<span class="st">"steelblue1"</span>,<span class="st">"green3"</span>)</span>
-<span id="cb20-37"><a href="#cb20-37"></a>    ) <span class="op">+</span></span>
-<span id="cb20-38"><a href="#cb20-38"></a><span class="st">  </span><span class="kw">scale_alpha</span>(</span>
-<span id="cb20-39"><a href="#cb20-39"></a>    <span class="dt">name =</span> <span class="st">"median topic distribution"</span></span>
-<span id="cb20-40"><a href="#cb20-40"></a>    ) <span class="op">+</span></span>
-<span id="cb20-41"><a href="#cb20-41"></a><span class="st">  </span><span class="kw">theme_minimal</span>(</span>
-<span id="cb20-42"><a href="#cb20-42"></a>    <span class="dt">base_size =</span> <span class="dv">20</span></span>
-<span id="cb20-43"><a href="#cb20-43"></a>    ) <span class="op">+</span><span class="st">  </span></span>
-<span id="cb20-44"><a href="#cb20-44"></a><span class="st">  </span><span class="kw">theme</span>(</span>
-<span id="cb20-45"><a href="#cb20-45"></a>    <span class="dt">plot.title =</span> <span class="kw">element_text</span>(<span class="dt">hjust =</span> <span class="fl">0.5</span>),</span>
-<span id="cb20-46"><a href="#cb20-46"></a>    <span class="dt">strip.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">90</span>)</span>
-<span id="cb20-47"><a href="#cb20-47"></a>    )</span>
-<span id="cb20-48"><a href="#cb20-48"></a>p</span>
-<span id="cb20-49"><a href="#cb20-49"></a><span class="kw">ggsave</span>(<span class="kw">paste0</span>(<span class="st">"topic_dis_all_"</span>,K, <span class="st">".png"</span>)), p, width =<span class="st"> </span><span class="dv">30</span>, height =<span class="st"> </span><span class="dv">16</span><span class="er">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>theta_summary <span class="ot">&lt;-</span> theta_all <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    Sample, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    Topic, </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    pna</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median.topic.dis =</span> <span class="fu">median</span>(topic.dis)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Topic =</span> <span class="fu">factor</span>(</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>      Topic, </span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">rev</span>(<span class="fu">str_c</span>(<span class="st">"Topic_"</span>,<span class="dv">1</span><span class="sc">:</span>K)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>                   )</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  theta_summary, </span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> pna, </span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> Topic,</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">fill =</span> pna)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p<span class="sc">+</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">alpha =</span> median.topic.dis)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    .<span class="sc">~</span>Sample,</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale =</span> <span class="st">"free"</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">+</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"pna"</span>) <span class="sc">+</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"pna"</span>, </span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"steelblue1"</span>,<span class="st">"green3"</span>)</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_alpha</span>(</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"median topic distribution"</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_size =</span> <span class="dv">20</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span>  </span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>p</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">paste0</span>(<span class="st">"topic_dis_all_"</span>,K, <span class="st">".png"</span>)), p, width <span class="ot">=</span> <span class="dv">30</span>, height <span class="ot">=</span> <span class="dv">16</span><span class="er">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="topic_dis_all_11.png" alt="Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution." width="70%"><p class="caption">
 Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution.
@@ -962,7 +970,8 @@ Supplementary Figure 15: Split Rhat with eleven topics.
 
 <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">dds</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_K_11</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"dds_all_K_11"</span><span class="op">)</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_K_11</span><span class="op">)</span>
 <span class="va">res</span> </code></pre></div>
 <pre><code>## log2 fold change (MLE): pna O vs M 
 ## Wald test p-value: pna O vs M 
@@ -1005,7 +1014,8 @@ Supplementary Figure 15: Split Rhat with eleven topics.
   file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span>
   <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_K_11</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"dds_all_paired_K_11"</span><span class="op">)</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_K_11</span><span class="op">)</span>
 <span class="va">res</span> </code></pre></div>
 <pre><code>## log2 fold change (MLE): pna O vs M 
 ## Wald test p-value: pna O vs M 
@@ -1048,7 +1058,8 @@ Supplementary Figure 15: Split Rhat with eleven topics.
         file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_nonaster_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span>
         <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_nonaster_K_11</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"dds_all_paired_nonaster_K_11"</span><span class="op">)</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_nonaster_K_11</span><span class="op">)</span>
 <span class="va">res</span> </code></pre></div>
 <pre><code>## log2 fold change (MLE): pna O vs M 
 ## Wald test p-value: pna O vs M 
@@ -1092,7 +1103,8 @@ Supplementary Figure 15: Split Rhat with eleven topics.
   file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_aster_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span>
   <span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_aster_K_11</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"dds_all_paired_aster_K_11"</span><span class="op">)</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired_aster_K_11</span><span class="op">)</span>
 <span class="va">res</span> </code></pre></div>
 <pre><code>## log2 fold change (MLE): pna O vs M 
 ## Wald test p-value: pna O vs M 
@@ -1127,7 +1139,7 @@ Supplementary Figure 15: Split Rhat with eleven topics.
 
 
       <footer><div class="copyright">
-  <p>Developed by Pratheepa Jeganathan.</p>
+  <p>Developed by Pratheepa Jeganathan, Susan Holmes.</p>
 </div>
 
 <div class="pkgdown">

@@ -1,25 +1,47 @@
 ---
-title: "Differential topic analysis for molecular microbial data"
-output: rmarkdown::html_vignette
+title: "Analzying molecular microbiome data with diffTop"
+author: "Pratheepa Jeganathan and Susan Holmes"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+abstract: >
+  One of the important tasks in molecular microbiome data is the quantification and statistical inference  of micriobial communities across envrionment or groups. The count data are presented as a contingency table, for each sample the number of sequence fragments that have been assigned to each taxon. The package diffTop provides methods to estimate topics using latent Dirichlet allocation, align posterior samples across chains, find topic differences across environments by use of generalized linear models, visualize the topic and taxa proportions. This vignette explains the use of the package and demonstrates typical workflows.
+output:
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    fig_width: 5
+bibliography: library.bib
 vignette: >
-  %\VignetteIndexEntry{Differential topic analysis for molecular microbial data}
+  %\VignetteIndexEntry{Analzying molecular microbiome data with diffTop}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(tidy = FALSE,
+                      cache = FALSE,
+                      dev = "png",
+                      message = FALSE, error = FALSE, warning = TRUE)
+```	
 
-```{r setup}
+```{r}
 devtools::load_all()
 # library(diffTop)
+
 ```
 
-In the molecular microbial data analysis, an important goal in microbiome research is often to find taxonomic differences across environments or groups.  
+# Standard workflow
+
+**Note:** if you use diffTop in published research, please cite:
+
+> Jeganathan, P. and Holmes, S.P. (2021)
+> A statistical perspective on the challenges in molecular microbial biology.
+> *Journal of Agricultural, Biological and Environmental Statistics*, **26(2)**:131 - 160.
+> [10.1007/s13253-021-00447-1](https://doi.org/10.1007/s13253-021-00447-1)
+
+## Quick start
+
+The following code assume that 
 
 ## Set-up data for LDA
 
@@ -39,7 +61,7 @@ stan.data <- setUpData(
 
 ## Posterior sampling 
 
-We need to estimate $\theta$, where $\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$ 
+We need to estimate $\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$ 
 
 We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warmup samples. 
 

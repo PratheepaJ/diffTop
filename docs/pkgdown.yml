@@ -1,4 +1,4 @@
-pandoc: 2.7.3
+pandoc: 2.11.4
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
@@ -13,5 +13,5 @@ articles:
   appendix/09_latent_Dirichlet_allocation: 09_latent_Dirichlet_allocation.html
   appendix/10_uncertainity_quan_ordination: 10_uncertainity_quan_ordination.html
   diffTop: diffTop.html
-last_built: 2021-02-26T16:58Z
+last_built: 2021-07-09T16:24Z
 

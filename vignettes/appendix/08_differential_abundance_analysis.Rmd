@@ -36,7 +36,7 @@ theme_update(
 ## Data
 
 ```{r}
-
+data("psE_BARBI")
 threshold <- kOverA(2, A = 25) 
 psE_BARBI <- phyloseq::filter_taxa(
   psE_BARBI, 
@@ -216,8 +216,13 @@ powerstand<-poweranalysis(
   mu0=500,
   size=0.2)
 
-usethis::use_data(powerswitch)
-usethis::use_data(powerstand)
+# usethis::use_data(powerswitch)
+# usethis::use_data(powerstand)
+```
+
+```{r}
+data("powerstand")
+data("powerswitch")
 ```
 
 

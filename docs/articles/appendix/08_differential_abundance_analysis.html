@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../../index.html">diffTop</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -89,7 +89,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/PratheepaJ/diffTop/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -99,15 +106,15 @@
 
       
 
-      </header><script src="08_differential_abundance_analysis_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="08_differential_abundance_analysis_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Section 8: DIFFERENTIAL ABUNDANCE ANALYSIS</h1>
                         <h4 class="author">Pratheepa Jeganathan and Susan Holmes</h4>
             
-            <h4 class="date">26 February, 2021</h4>
+            <h4 class="date">09 July, 2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/PratheepaJ/diffTop/blob/master/vignettes/appendix/08_differential_abundance_analysis.Rmd"><code>vignettes/appendix/08_differential_abundance_analysis.Rmd</code></a></small>
       <div class="hidden name"><code>08_differential_abundance_analysis.Rmd</code></div>
 
     </div>
@@ -117,7 +124,7 @@
 <p>An important goal in microbiome research is often to find taxonomic differences across environments or groups.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217">phyloseq</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">genefilter</span><span class="op">)</span> <span class="co">#KOverA</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://cran.r-project.org">vegan</a></span><span class="op">)</span>
 
@@ -132,7 +139,8 @@
 <h2 class="hasAnchor">
 <a href="#data" class="anchor"></a>Data</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"psE_BARBI"</span><span class="op">)</span>
+<span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/genefilter/man/kOverA.html">kOverA</a></span><span class="op">(</span><span class="fl">2</span>, A <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> 
 <span class="va">psE_BARBI</span> <span class="op">&lt;-</span> <span class="fu">phyloseq</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/filter_taxa.html">filter_taxa</a></span><span class="op">(</span>
   <span class="va">psE_BARBI</span>, 
   <span class="va">threshold</span>, <span class="cn">TRUE</span><span class="op">)</span> 
@@ -255,13 +263,13 @@
 ## Terms added sequentially (first to last)
 ## 
 ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)
-## afact      1    0.2879 0.28794 0.89778 0.01836  0.637
-## Residuals 48   15.3949 0.32073         0.98164       
-## Total     49   15.6828                 1.00000</code></pre>
+## afact      1    0.3289 0.32889   1.014 0.02069  0.444
+## Residuals 48   15.5689 0.32435         0.97931       
+## Total     49   15.8978                 1.00000</code></pre>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#To extract the pvalue:</span>
 <span class="va">ptest1</span><span class="op">$</span><span class="va">aov.tab</span><span class="op">$</span><span class="va">`Pr(&gt;F)`</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] 0.637</code></pre>
+<pre><code>## [1] 0.444</code></pre>
 </div>
 <div id="power-computation-with-a-difference-in-non-switched-standard-and-switched-otus" class="section level3">
 <h3 class="hasAnchor">
@@ -328,8 +336,11 @@
   mu0<span class="op">=</span><span class="fl">500</span>,
   size<span class="op">=</span><span class="fl">0.2</span><span class="op">)</span>
 
-<span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span><span class="op">(</span><span class="va">powerswitch</span><span class="op">)</span>
-<span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span><span class="op">(</span><span class="va">powerstand</span><span class="op">)</span></code></pre></div>
+<span class="co"># usethis::use_data(powerswitch)</span>
+<span class="co"># usethis::use_data(powerstand)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"powerstand"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"powerswitch"</span><span class="op">)</span></code></pre></div>
 <p>In the case of strain switching standard PERMANOVA will see it’s power substantially decreased from 0.51 to 0.25.</p>
 </div>
 </div>
@@ -356,7 +367,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Pratheepa Jeganathan.</p>
+  <p>Developed by Pratheepa Jeganathan, Susan Holmes.</p>
 </div>
 
 <div class="pkgdown">

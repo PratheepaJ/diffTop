@@ -5,7 +5,7 @@
 #' @param alpha Non-negative numeric. Hyper-parameter alpha is less than one to generate sparse mixtures that are different from each other and avoid generating unrealistic topics.
 #' @param gamma Non-negative numeric. Hyper-parameter gamma is less than one to generate sparse mixtures of ASVs in each topic.
 #'
-#' @return List. List of object with number of topics, number of ASVs,number of specimens, count table, hyper parameters for topic and ASVs distribution.
+#' @return List. List of object with number of topics, number of ASVs, number of specimens, count table, hyper parameters for topic and ASVs distribution.
 #' @export
 #'
 setUpData <- function(

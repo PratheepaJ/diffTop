@@ -35,7 +35,7 @@ theme_update(
 ## Data
 
 ```{r}
-rm(psE)
+data("psE_BARBI")
 threshold <- kOverA(2, A = 25) 
 psE_BARBI <- phyloseq::filter_taxa(
   psE_BARBI, 
@@ -202,6 +202,7 @@ plot_abundance(
 We plot the heatmap of Anscombe's transformed values.
 
 ```{r fig.cap="Figure 3: Thirty most abundant ASVs were selected in all specimens. Taxa are labeled by Class on rows, and specimens are on the columns of the heatmap. Some specimens from Centaurea solstitialis plant have the most abundant ASVs of the Class Actinobacteria, Alphaproteobacteria, Sphingobacteria, and Gammaproteobacteria."}
+data("ps_ans")
 # do use asinh transformation
 ps_top <- ps_ans 
     

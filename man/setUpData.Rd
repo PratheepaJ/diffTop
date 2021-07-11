@@ -16,7 +16,7 @@ setUpData(ps, K, alpha = 0.9, gamma = 0.5)
 \item{gamma}{Non-negative numeric. Hyper-parameter gamma is less than one to generate sparse mixtures of ASVs in each topic.}
 }
 \value{
-List. List of object with number of topics, number of ASVs,number of specimens, count table, hyper parameters for topic and ASVs distribution.
+List. List of object with number of topics, number of ASVs, number of specimens, count table, hyper parameters for topic and ASVs distribution.
 }
 \description{
 Set-up data for latent Dirichlet allocation

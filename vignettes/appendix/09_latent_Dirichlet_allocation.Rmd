@@ -77,7 +77,7 @@ theme_update(
 ## Data
 
 ```{r}
-
+data("psE_BARBI")
 threshold <- kOverA(2, A = 25) 
 psE_BARBI <- phyloseq::filter_taxa(
   psE_BARBI, 
@@ -892,6 +892,7 @@ saveRDS(dds, file = paste0("dds_all_K_", K,".rds"))
 
 
 ```{r}
+data("dds_all_K_11")
 res <- results(dds_all_K_11)
 res 
 #writeResTable(res, fileN = paste0("dds_all_K_", K,".tex"))
@@ -920,6 +921,7 @@ saveRDS(
 ```
 
 ```{r}
+data("dds_all_paired_K_11")
 res <- results(dds_all_paired_K_11)
 res 
 #writeResTable(res, fileN = paste0("dds_all_paired_K_", K,".tex"))
@@ -949,6 +951,7 @@ saveRDS(dds,
 
 
 ```{r}
+data("dds_all_paired_nonaster_K_11")
 res <- results(dds_all_paired_nonaster_K_11)
 res 
 #writeResTable(res, fileN = paste0("dds_all_paired_nonaster_", K,".tex"))
@@ -978,6 +981,7 @@ saveRDS(
 ```
 
 ```{r}
+data("dds_all_paired_aster_K_11")
 res <- results(dds_all_paired_aster_K_11)
 res 
 #writeResTable(res, fileN = paste0("dds_all_paired_aster_", K,".tex"))

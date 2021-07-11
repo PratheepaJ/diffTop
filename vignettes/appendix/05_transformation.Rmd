@@ -39,7 +39,7 @@ theme_update(
 ## Data
 
 ```{r}
-rm(psE)
+data("psE_BARBI")
 threshold <- kOverA(2, A = 25) 
 psE_BARBI <- phyloseq::filter_taxa(psE_BARBI, threshold, TRUE) 
 psE_BARBI
@@ -142,6 +142,7 @@ ps_local_deseq2 <- phyloseqTransformationVST(
 We use `meanSdPlot()` in _vsn_ package.
 
 ```{r fig.cap="Supplementary Figure 2: Anscombe’s transformation of abundance data."}
+data("ps_ans")
 msd_ps_ans <- meanSdPlot(
   otu_table(ps_ans) %>% 
     as.matrix(), 

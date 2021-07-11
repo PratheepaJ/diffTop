@@ -39,7 +39,7 @@ theme_update(
 ## Data
 
 ```{r}
-
+data("psE_BARBI")
 threshold <- kOverA(2, A = 25) 
 psE_BARBI <- phyloseq::filter_taxa(
   psE_BARBI, 
