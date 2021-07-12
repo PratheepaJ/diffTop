@@ -24,6 +24,7 @@ library(DESeq2)
 library(vsn)
 library(ade4) # dudi.pca
 library(ggrepel) # geom_text_repel
+library(hexbin) # for stat_binhex()
 devtools::load_all()
 ```
 
@@ -82,7 +83,6 @@ The following transformation may take long time so we saved it as `ps_ans`. We c
 
 ```{r eval=FALSE}
 ps_ans <- phyloseqTransformation(ps  = ps, c = 0.4)
-usethis::use_data(ps_ans)
 ```
 
 ### DESeq2 transformation

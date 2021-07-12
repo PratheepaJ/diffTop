@@ -112,7 +112,7 @@
       <h1 data-toc-skip>Section 5: TRANSFORMATIONS</h1>
                         <h4 class="author">Pratheepa Jeganathan</h4>
             
-            <h4 class="date">09 July, 2021</h4>
+            <h4 class="date">11 July, 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/PratheepaJ/diffTop/blob/master/vignettes/appendix/05_transformation.Rmd"><code>vignettes/appendix/05_transformation.Rmd</code></a></small>
       <div class="hidden name"><code>05_transformation.Rmd</code></div>
@@ -129,6 +129,7 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://www.r-project.org">vsn</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a></span><span class="op">)</span> <span class="co"># dudi.pca</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/slowkow/ggrepel">ggrepel</a></span><span class="op">)</span> <span class="co"># geom_text_repel</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/edzer/hexbin">hexbin</a></span><span class="op">)</span> <span class="co"># for stat_binhex()</span>
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
@@ -187,8 +188,7 @@
 <a href="#anscombes-transformation" class="anchor"></a>Anscombe’s transformation</h3>
 <p>The following transformation may take long time so we saved it as <code>ps_ans</code>. We can access it from <em>diffTop</em> package.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ps_ans</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/phyloseqTransformation.html">phyloseqTransformation</a></span><span class="op">(</span>ps  <span class="op">=</span> <span class="va">ps</span>, c <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>
-<span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span><span class="op">(</span><span class="va">ps_ans</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">ps_ans</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/phyloseqTransformation.html">phyloseqTransformation</a></span><span class="op">(</span>ps  <span class="op">=</span> <span class="va">ps</span>, c <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="deseq2-transformation" class="section level3">
 <h3 class="hasAnchor">
