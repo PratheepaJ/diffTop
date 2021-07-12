@@ -41,7 +41,7 @@ devtools::load_all()
 
 ## Quick start
 
-The following code assume that 
+The following code assume that the `phyloseq` object is available.
 
 ## Set-up data for LDA
 
