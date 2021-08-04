@@ -105,7 +105,7 @@
       <h1 data-toc-skip>Analzying molecular microbiome data with diffTop</h1>
                         <h4 class="author">Pratheepa Jeganathan and Susan Holmes</h4>
             
-            <h4 class="date">08/03/2021</h4>
+            <h4 class="date">08/04/2021</h4>
       
       
       <div class="hidden name"><code>diffTop.Rmd</code></div>
@@ -208,7 +208,6 @@
 <a href="#input-data" class="anchor"></a>Input data</h2>
 <p>We set-up data for latent Dirichlet allocation (LDA) based on a <code>phyloseq</code> object, the number of topics, hyperparameters for topic proportion in each sample and ASVs proportion in each topic.</p>
 <p>We set the hyperparameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\gamma\)</span> less than one to generate mixtures that are different from each other. We choose 0.8 for <span class="math inline">\(\alpha\)</span> across all samples so that we avoid generating unrealistic topics.</p>
-<!-- For the vignette, we will consider a subset of taxa and paired Asteraceae plants.  -->
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"psE_BARBI"</span><span class="op">)</span>
 <span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span></code></pre></div>
@@ -307,7 +306,7 @@
 <div id="plot-topic-proportion" class="section level3">
 <h3 class="hasAnchor">
 <a href="#plot-topic-proportion" class="anchor"></a>Plot topic proportion</h3>
-<p>Plot the topic proportion in specimens and we can save it for puplication purposes. We can draw an informative summary of bacterial communities in each phenotype.</p>
+<p>Plot the topic proportion in specimens and we can save it for publication purposes. We can draw an informative summary of bacterial communities in each phenotype.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotTopicProportion.html">plotTopicProportion</a></span><span class="op">(</span>
   <span class="va">ps</span>,

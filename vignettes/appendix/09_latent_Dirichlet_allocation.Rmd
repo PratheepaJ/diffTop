@@ -11,7 +11,7 @@ resource_files:
   - model_assesment_hist_all_obs_sim_K_11.png
 ---
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 library(phyloseq)
 library(tidyverse)
 library(genefilter) 
@@ -30,54 +30,34 @@ theme_update(
 )
 ```
 
-Here, we are interested infer on the topics (bacterial communities) when we use original and modified PNA clams (two different experimental conditions). To infer about these topics, we use latent Dirichlet allocation.  
-
-## Input data
-
-We set-up data for latent Dirichlet allocation (LDA) based on a `phyloseq` object `(psE_BARBI)`, the number of topics (K=11), hyperparameters for topic proportion in each sample $\alpha = 0.8$ and ASVs proportion in each topic $gamma = 0.8$.
-
-
-In `psE_BARBI`, we removed DNA contaminants using BARBI. Then, we choose ASVs that have at least 25 counts in at least two specimens. 
-
-
-We set the hyper-parameters $\alpha$ and $\gamma$ less than one to generate mixtures that are different from each other. We choose 0.8 for $\alpha$ across all samples so that we avoid generating unrealistic topics. 
-
-
-We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples. 
-
-
-```{r inputdata}
-K <- 11
-alpha <- 0.8
-gamma <- 0.8
-stan.data <- setUpData(
-  ps = ps,
-  K = K,
-  alpha = alpha,
-  gamma = gamma
-)
-```
-
-
-
-
-
-
-
+Here, we are interested infer on the topics (bacterial communities) when we use original and modified PNA clams (two different experimental conditions). We use latent Dirichlet allocation to identify topics.
 
 ## Data
 
-```{r}
+In this workflow we use `psE_BARBI` `phyloseq` object in this package. In `psE_BARBI`, we removed DNA contaminants using BARBI. 
+
+
+```{r inputdata}
 data("psE_BARBI")
+ps <- psE_BARBI
+
+rm(psE_BARBI)
+```
+
+### Preprocessing
+
+We choose ASVs that have at least 25 counts in at least two specimens. 
+
+
+```{r}
 threshold <- kOverA(2, A = 25) 
-psE_BARBI <- phyloseq::filter_taxa(
-  psE_BARBI, 
+ps <- phyloseq::filter_taxa(
+  ps, 
   threshold, TRUE) 
 
-psE_BARBI
+ps
 
-ps <- psE_BARBI
-rm(psE_BARBI)
+
 ps <- prune_taxa(taxa_sums(ps) > 0, ps)
 ps
 
@@ -87,7 +67,7 @@ ps
 
 We edit specimen names and identify Asteraceae and non-Asteraceae plants.
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 sam_names <- str_replace(sample_names(ps), "E106", "E-106")
 sam_names <- str_replace(sam_names, "_F_filt.fastq.gz", "")
 sam_names <- str_replace(sam_names, "Connor-", "E")
@@ -102,33 +82,38 @@ paired_non_aster <- c("E33-7", "E-33-7", "E33-8", "E-33-8", "E33-9", "E-33-9", "
 paired_specimens <- c(paired_aster, paired_non_aster)
 ```
 
+Choose colors for plots. We will use nine colors for nine different plants in the dataset.
 
 ```{r}
-# We will use 9 colors for 9 different plants
 plant_colors <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "purple")
 ```
 
-## Topic modeling
+## Input data for LDA
 
-### Set-up data
+Based on the ordination, we choose the number of topics as K=11. We set the hyperparameters for topic proportion in each sample as $\alpha = 0.8$ and ASVs proportion in each topic as $gamma = 0.8$.
+
 ```{r}
-x <- t(get_taxa(ps))
-dimnames(x) <- NULL
-
-# theta[d] ~ dirichlet(alpha), alpha pseudocount for each topic
-# beta[k] ~ dirichlet(gamma), gamma pseudocount for each ASV in each topic
-print(K)
-stan.data <- list(K = K, 
-  V = ncol(x), 
-  D = nrow(x), 
-  n = x, 
-  alpha = rep(.8, K), 
-  gamma = rep(.5, ncol(x))
+K <- 11
+alpha <- 0.8
+gamma <- 0.8
+stan.data <- setUpData(
+  ps = ps,
+  K = K,
+  alpha = alpha,
+  gamma = gamma
 )
 ```
 
-### Posterior sampling 
-$\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$
+
+## Posterior sampling 
+
+We need to estimate $\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$ 
+
+We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples. 
+
+We use high-performance computing and save the results.
+
+We specify a file name.
 
 ```{r eval=FALSE}
 fileN <- paste0(
@@ -139,158 +124,87 @@ fileN <- paste0(
   ".RData"
   )
 
-stan.fit <- stan(file = "./lda.stan", 
-  data = stan.data, 
+```
+
+```{r posterior-sampling, eval=FALSE}
+iter <- 2000
+chains <- 4
+
+stan.fit <- LDAtopicmodel(
+  stan_data = stan.data, 
   iter = iter, 
-  chains = 4, 
+  chains = chains, 
   sample_file = NULL,
   diagnostic_file = NULL,
   cores = 4,
   control = list(adapt_delta = 0.9),
   save_dso = TRUE,
-  algorithm = "NUTS")
-
+  algorithm = "NUTS"
+  )
 save(stan.fit, file = fileN)
 ```
 
-```{r eval=FALSE}
+
+```{r eval=FALSE, include=FALSE}
 load(file = fileN)
 ```
 
 
-### Extract posterior samples
-```{r eval=FALSE}
+We extract posterior samples from the results.
+
+```{r extract-ps-sample, eval=FALSE}
 samples <- rstan::extract(
   stan.fit, 
   permuted = TRUE, 
   inc_warmup = FALSE, 
-  include = TRUE)# samples is a list
+  include = TRUE
+  )
 ```
 
+
 ### Alignment
-- Create a Topic $*$ Chain matrix
-```{r eval=FALSE}
+
+We estimated the parameters using the HMC-NUTS sampler with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples and discarded. Label switching across chains makes it difficult to directly compute log predictive density, split-$\hat{R}$, effective sample
+size for model assessment, and evaluate convergence and mixing of chains.
+
+To address this issue, we fixed the order of topics in chain one and then found the permutation that best aligned the topics across all four chains. For each chain two to four, we identified the estimated topics pair with the highest correlation, then found the next highest pair among the remaining, and so forth.
+
+We create a Topic $*$ Chain matrix.
+
+```{r alignment, eval=FALSE}
 theta <- samples$theta 
-# dim(theta)
+
 aligned <- alignmentMatrix(
   theta, 
   ps, 
   K, 
   iter = iter,
-  chain = 4,
+  chain = chains,
   SampleID_name = "unique_names"
   )
 
+```
+
+### Align topic proportion
+
+We align the topic proportion in each specimen across four chains.
+
+```{r align-theta, eval=FALSE}
 theta_aligned <- thetaAligned(
   theta, 
   K, 
   aligned, 
   iter = iter, 
-  chain = 4
+  chain = chains
   )
-
-dimnames(theta_aligned)[[2]] <- sample_names(ps)
-dimnames(theta_aligned)[[3]] <- c(paste0("Topic_", seq(1,K)))
-
-# array to a dataframe
-theta_all <- reshape2::melt(theta_aligned)
-
-colnames(theta_all) <- c(
-"iteration", 
-"Sample", 
-"Topic", 
-"topic.dis"
-)
-
-theta_all$Chain <- paste0(
-  "Chain ", 
-  rep(seq(1, 4), 
-      each = (iter/2)
-      )
-  )
-
-sam <- sample_data(ps) %>% 
-  data.frame()
-
-theta_all$Sample <- theta_all$Sample %>%
-  as.character()
-
-theta_all <- left_join(
-  theta_all, 
-  sam, 
-  by =c("Sample"= "unique_names")
-  )
-
-theta_all$Chain <- factor(theta_all$Chain)
-theta_all$Topic <- factor(theta_all$Topic)
-theta_all$Sample <- factor(theta_all$Sample)
-theta_all$pna <- factor(theta_all$pna)
 ```
-
-### Plot the topic distribution in all chains
-
-- facet by pna and aster or non-aster plant type.
-
-```{r eval=FALSE}
-theta_summary <- theta_all %>% 
-  group_by(
-    Sample, 
-    Topic, 
-    pna
-    ) %>% 
-  summarize(
-    median.topic.dis = median(topic.dis)
-    ) %>% 
-  ungroup() %>% 
-  mutate(
-    Topic = factor(
-      Topic, 
-      levels = rev(str_c("Topic_",1:K)
-                   )
-      )
-    )
-
-p <- ggplot(
-  theta_summary, 
-  aes(x = pna, 
-      y = Topic,
-      fill = pna)
-  )
-p <- p+
-  geom_tile(
-    aes(alpha = median.topic.dis)
-    ) +
-  facet_grid(
-    .~Sample,
-    scale = "free"
-    )+
-  xlab("pna") +
-  scale_fill_manual(
-    name = "pna", 
-    values = c("steelblue1","green3")
-    ) +
-  scale_alpha(
-    name = "median topic distribution"
-    ) +
-  theme_minimal(
-    base_size = 20
-    ) +  
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    strip.text.x = element_text(angle = 90)
-    )
-p
-ggsave(paste0("topic_dis_all_",K, ".png")), p, width = 30, height = 16)
-```
-
-```{r echo=FALSE, out.width="70%", fig.cap = "Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution.", fig.align="center"}
-knitr::include_graphics(paste0("topic_dis_all_",K,".png"))
-```
+ 
 
 
-### ASV distribution
+### Align ASV proportion
 
-```{r eval=FALSE}
+We align the ASVs proportion in each topic across four chains.
+```{r align-beta, eval=FALSE}
 # an array (iterations *topic * ASV)
 beta <- samples$beta 
 
@@ -300,372 +214,74 @@ beta_aligned <- betaAligned(
   K, 
   aligned, 
   iter = iter, 
-  chain = 4
+  chain = chains
   ) 
+```
+
+## Visualization
+
+### Plot topic proportion
+
+Plot the topic proportion in specimens and we can save it for publication purposes. We can draw an informative summary of bacterial communities in each phenotype.
+
+```{r plot-topic-prop, eval=FALSE}
+p <- plotTopicProportion(
+  ps,
+  theta_aligned,
+  K,
+  col_names_theta_all = c("iteration", "Sample", "Topic", "topic.dis"),
+  chain = 4,
+  iter = iter,
+  SampleIDVarInphyloseq = "unique_names",
+  design = ~ pna
+)
+
+ggsave(paste0("topic_dis_all_",K, ".png")), p, width = 30, height = 16)
+```
 
 
-# array to data frame
-beta_hat <- beta_aligned %>%
-  reshape2::melt(
-    varnames = c("iterations", 
-                 "topic", 
-                 "rsv_ix"),
-    value.name = "beta_h") %>% 
-  as_tibble()
+```{r echo=FALSE, out.width="70%", fig.cap = "Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color gradient represents the median topic distribution.", fig.align="center"}
+knitr::include_graphics(paste0("topic_dis_all_",K,".png"))
+```
 
-beta_hat$rsv <- rownames(
-  tax_table(ps)
-  )[beta_hat$rsv_ix]
+### Plot ASVs distribution
 
-# join taxa_table with beta_hat
+We plot the ASVs distribution in each topic.
 
-## If we use a taxonomy level with NA, 
-## we can replace the taxonomy level with 
-## one level before this level
-#taxa$Class[which(is.na(taxa$Class))] = taxa$Phylum[which(is.na(taxa$Class))]
-taxa <- tax_table(ps) %>%  
-  as.data.frame() %>% 
-  as_tibble() 
-
-taxa$rsv <- rownames(
-  tax_table(ps)
+```{r ASV-prop, eval=FALSE}
+p <- plotASVCircular(
+  ps,
+  K,
+  iter = iter,
+  chain = chains,
+  beta_aligned,
+  varnames = c("iterations", "topic", "rsv_ix"),
+  value_name = "beta_h",
+  taxonomylevel = "Class",
+  thresholdASVprop = 0.008
   )
-
-beta_hat <- beta_hat %>%
-  left_join(
-    taxa, 
-    by = "rsv"
-    ) %>% 
-  mutate(
-    topic = paste("Topic", topic)
-    )
-
-# Filtering ASVs for visualization:
-## We can filter by ASVs proportion in all topics.
-
-beta_hat$Class <- factor(beta_hat$Class)
-beta_hat$rsv <- factor(beta_hat$rsv)
-beta_hat$rsv_ix <- factor(beta_hat$rsv_ix)
-beta_hat$topic <- factor(beta_hat$topic)
-
-# We plot the median of posterior sample and keep all taxonomy for each ASV.
-beta_summary <- beta_hat %>% 
-  dplyr::group_by(
-    rsv_ix, 
-    topic
-    ) %>% 
-  dplyr::summarise(
-    beta_median = median(beta_h),
-    rsv = rsv[1],
-    Phylum = Phylum[1],
-    Class = Class[1],
-    Order = Order[1],
-    Family = Family[1],
-    Genus = Genus[1]
-  )
-
-usethis::use_data(beta_summary)
-
-#######
-beta_subset <- beta_summary 
-
-beta_subset$rsv_ix <- rep(
-  seq_len(
-    nrow(beta_subset) / K
-    ), 
-  each = K
-  )
-
-
-beta_subset <- beta_subset %>% 
-  arrange(
-    rsv_ix, 
-    topic
-    )
-
-beta_subset <- beta_subset %>%
-  mutate(
-    Class = factor(
-      Class, 
-      levels = unique(beta_subset$Class)
-      ),
-    Topic = str_remove(topic, "Topic ")
-    )
-
-
-beta_subset$Class <- beta_subset$Class %>% 
-  as.character()
-
-beta_subset$Class <- ifelse(
-  is.na(beta_subset$Class), 
-  "other", 
-  beta_subset$Class
-  )
-
-beta_subset$Class <- factor(
-  beta_subset$Class
-  )
-
-
-beta_subset$Topic <- factor(
-  beta_subset$Topic,
-  levels = seq(1,K) %>% 
-    as.character()
-  )
-
-####
-
-beta_subset_wide <- dplyr::select(
-  beta_subset, 
-  rsv_ix, 
-  rsv, 
-  topic, 
-  Class, 
-  beta_median
-  ) %>% 
-  as.data.frame()
-
-beta_subset_wide <- dplyr::select(
-  beta_subset_wide, 
-  -rsv_ix
-  )
-
-beta_subset_wide <- tidyr::spread(
-  beta_subset_wide, 
-  key = topic, 
-  value = beta_median
-  )
-
-rownames(beta_subset_wide) <- beta_subset_wide$rsv
-
-beta_subset_wide$Class <- beta_subset_wide$Class %>%
-  as.character()
-
-beta_subset_wide$Class <- ifelse(
-  is.na(beta_subset_wide$Class), 
-  "other", 
-  beta_subset_wide$Class)
-
-beta_subset_wide$Class <- factor(
-  beta_subset_wide$Class
-  )
-
-# Choose rsv if at least in one topic the feature distribution is greater than the cutoff = 0.008
-choose_rsv_logical <- apply(
-  beta_subset_wide[, 3:dim(beta_subset_wide)[2]], 
-  1, 
-  function(x){
-    sum(x >= 0.008) >= 1
-    }
-  )
-
-choose_rsv <- beta_subset_wide$rsv[which(
-  choose_rsv_logical
-  )] %>% 
-  as.character()
-
-  
-beta_subset_wide <- beta_subset_wide[choose_rsv, ]
-
-tree <- phyloseq::phy_tree(
-  prune_taxa(
-    choose_rsv, 
-    ps
-    )
-  )
-
-circ <- ggtree(
-  tree, 
-  layout = "circular"
-  )
-
-beta_subset_wide <- beta_subset_wide[tree$tip.label, ]
-
-beta_subset_wide <- beta_subset_wide[ , c("rsv", "Class", paste0("Topic ", seq(1,K)))]
-
-color <- distinctColorPalette(
-  length(
-    unique(
-      beta_subset_wide$Class
-      )
-    )
-  )
-
-color_topic <- rainbow(K)
-
-## in circular plot, ASVs will be labeled by Class 
-df <- data.frame(
-  Class = beta_subset_wide$Class
-  )
-
-rownames(df) <- tree$tip.label
-
-
-df2 <- beta_subset_wide[, 3:dim(beta_subset_wide)[2]]
-
-rownames(df2) <- tree$tip.label
-
-
-## append Class to phylogenetic tree
-p <- gheatmap(
-  p = circ, 
-  data = df, 
-  offset = -.1, 
-  width = .1,
-  colnames_angle = 95, 
-  colnames_offset_y = .5, 
-  font.size = 5) + 
-  scale_fill_manual(
-    values = color, 
-    name = "Class"
-    )
-
-
-for(i in 1:K){
-  if(i == 1){
-    p <- p + 
-      new_scale_fill()# to make once fill scale
-  }
-  df2_i <- dplyr::select(
-    beta_subset_wide, (i+2)
-    )
-  rownames(df2_i) <- tree$tip.label
-  p <- gheatmap(
-    p,
-    df2_i,
-    offset = i*.08, 
-    width = .1,
-    colnames_angle = 90, 
-    colnames_offset_y = .25, 
-    font.size = 6,
-    high = "dodgerblue",
-    low = "gray98",
-    legend_title = expression(beta[k])) 
-}
-
-p <- p + 
-  theme_minimal(
-    base_size = 20
-    ) +  
-  theme(
-    plot.title = element_text(hjust = 0.5)
-    )
 
 ggsave(paste0("circular_plot_plant_all_K_", K, ".png"), p, width = 28, height = 22)
+
 ```
+
 
 ```{r echo=FALSE, out.width="100%", fig.cap = "Figure 7: ASV distribution over topics in all specimens", fig.align="center"}
 knitr::include_graphics(paste0("circular_plot_plant_all_K_", K, ".png"))
 ```
 
-### Diagnostic and model assessment plots
+## Model assessement
 
-Model assessment
+We do goodness of fit test using the posterior estimates and observed data. 
 
-```{r eval=FALSE}
-samples <- rstan::extract(
+```{r model-ass, eval=FALSE}
+p_hist <- modelAssessment(
+  ps,
   stan.fit,
-  permuted = TRUE,
-  inc_warmup = FALSE,
-  include = TRUE)# samples is a list
-
-x <- get_taxa(ps) %>%
-  t()
-
-dimnames(x) <- NULL
-x_max_asv <- apply(
-  x %>% data.frame , 
-  2, 
-  max)
-
-x_max_asv <- data.frame(
-  x_max_asv = x_max_asv
-  )
-
-# draws from posterior predictive distribution
-x_sim <- samples$x_sim # iteration * samples * ASVs
-# Choose only the first chain
-x_sim <- x_sim[1:(iter/2), ,] # For each iteration, simulated data is x_sim[i, ,]
-sim_ite <- dim(x_sim)[1]
-
-#Find maximum of each asv for each replication
-max_all <- data.frame()
-x_sim_i <- x_sim[1, ,]
-max_x_sim_i <- apply(
-  x_sim_i %>% data.frame , 
-  2, 
-  max
-  )
-max_all <- data.frame(max_x_sim_i)
-
-for(i in 1:sim_ite){
-  x_sim_i <- x_sim[i, ,]
-  max_x_sim_i <- apply(
-    x_sim_i %>% data.frame , 
-    2, 
-    max)
-  max_all <- cbind(max_all, max_x_sim_i)
-}
-
-colnames(max_all) <- c(
-  paste0(
-    "x_max_rep", 
-    seq(1, sim_ite)
-         )
-  )
-
-rownames(max_all) <- paste0(
-  "ASV_", 
-  seq(1, ntaxa(ps)),
-  "_", 
-  tax_table(ps)[,"Class"]
-  )
-
-max_all <- max_all %>% t()
-## choose some of asvs for Posterior predictive check (these indexes are considered to avoid if ASV's Class is missing)
-max_all <- max_all[, c(1, 3, 10:14, 19:26, 36, 51:53, 148)]
-max_all_long <- melt(max_all)
-
-# observed stat data frame
-x_max_asv <- data.frame(
-  Var1 = rep(
-    "x_max_obs", 
-    dim(x_max_asv)[1]
-    ), 
-  Var2 = paste0(
-    "ASV_", 
-    seq(1, ntaxa(ps)),
-    "_", 
-    tax_table(ps)[,"Class"]
-    ), 
-  value = x_max_asv$x_max_asv
-  )
-
-x_max_asv <- x_max_asv[c(1,3,10:14,19:26,36,51:53, 148),]
-
-
-p_hist <- ggplot(
-  data = max_all_long
-  ) + 
-  geom_histogram(
-    aes(
-      x = value, 
-      group = Var2
-      ),
-    color = "blue", 
-    fill = "blue",
-    bins = 50) + 
-  xlab("maximum")+
-  facet_wrap(~Var2, nrow = 4) +
-  geom_vline(
-    data = x_max_asv, 
-    aes(xintercept = value), 
-    color = "purple"
-    ) + 
-  theme_update(
-    text = element_text(size = 8)
-    )
-
+  iter,
+  statistic = "max",
+  ASVsIndexToPlot = c(1, 3, 10:14, 19:26, 36, 51:53, 148)
+)
 
 ggsave(
   paste0(
@@ -684,126 +300,18 @@ ggsave(
 knitr::include_graphics(paste0("model_assesment_hist_all_obs_sim_K_", K, ".png"))
 ```
 
+## Diagnostics 
 
-Compute $\hat{R}$ and ESS (effective sample size)
+### Effective sample size (ESS)
 
-```{r eval=FALSE}
-Rhat_theta <- matrix(
-  nrow = dim(theta_aligned)[2], 
-  ncol = dim(theta_aligned)[3]
-  )
+We compute effective sample size for each parameter.
 
-ESS_bulk_theta <- matrix(
-  nrow = dim(theta_aligned)[2], 
-  ncol = dim(theta_aligned)[3]
-  )
-
-ESS_tail_theta <- matrix(
-  nrow = dim(theta_aligned)[2], 
-  ncol = dim(theta_aligned)[3]
-  )
-
-for(sam in 1:dim(theta_aligned)[2]){
-  for(top in 1:dim(theta_aligned)[3]){
-    sims_theta <- matrix(
-      theta_aligned[ ,sam , top], 
-      nrow = (iter/2), 
-      ncol = 4, 
-      byrow = FALSE
-      )
-    Rhat_theta[sam, top] <- Rhat(sims_theta)
-    ESS_bulk_theta[sam, top] <- ess_bulk(sims_theta)
-    ESS_tail_theta[sam, top] <- ess_tail(sims_theta)
-  }
-  
-}
-
-Rhat_theta <- as.vector(Rhat_theta)
-ESS_bulk_theta <- as.vector(ESS_bulk_theta)
-ESS_tail_theta <- as.vector(ESS_tail_theta)
-
-Rhat_beta <- matrix(
-  nrow = dim(beta_aligned)[2], 
-  ncol = dim(beta_aligned)[3]
-  )
-ESS_bulk_beta <- matrix(
-  nrow = dim(beta_aligned)[2], 
-  ncol = dim(beta_aligned)[3]
-  )
-ESS_tail_beta <- matrix(
-  nrow = dim(beta_aligned)[2], 
-  ncol = dim(beta_aligned)[3]
-  )
-  
-for(top in 1:dim(beta_aligned)[2]){
-    for(fea in 1:dim(beta_aligned)[3]){
-      sims_beta <- matrix(
-        beta_aligned[ , top, fea], 
-        nrow = (iter/2), 
-        ncol = 4, 
-        byrow = FALSE)
-      Rhat_beta[top, fea] <- Rhat(sims_beta)
-      ESS_bulk_beta[top, fea] <- ess_bulk(sims_beta)
-      ESS_tail_beta[top, fea] <- ess_tail(sims_beta)
-    }
-  
-}
-
-Rhat_beta <- as.vector(Rhat_beta)
-ESS_bulk_beta <- as.vector(ESS_bulk_beta)
-ESS_tail_beta <- as.vector(ESS_tail_beta)
-
-Rhat <- c(Rhat_theta, Rhat_beta)
-
-
-ESS_bulk <- c(ESS_bulk_theta, ESS_bulk_beta)
-
-
-ESS_tail <- c(ESS_tail_theta, ESS_tail_beta)
-
-# R hat ~ 1.05
-p_rhat <- ggplot(
-  data.frame(Rhat = Rhat)
-  ) +
-  geom_histogram(
-    aes(x = Rhat), 
-    fill = "lavender", 
-    colour = "black", 
-    bins = 100
-    ) +  
-  theme(
-    plot.title = element_text(hjust = 0.5)
-    )  +
-  theme_minimal(base_size = 20) +
-  xlab("")
-
-
-ggsave(
-  paste0("Rhat_plant_all_K_", K, ".png"), 
-  p_rhat, 
-  width = 9, 
-  height = 6
-  )
-
-# ESS bulk and ESS tail at least 100 per Markov Chain in order to be reliable and indicate that estimates of respective posterior quantiles are reliable
-
-p_ess_bulk <- ggplot(
-  data.frame(ESS_bulk = ESS_bulk)
-  ) +
-  geom_histogram(
-    aes(x = ESS_bulk), 
-    fill = "lavender", 
-    colour = "black", 
-    bins = 100
-    ) +
-  theme(
-    plot.title = element_text(hjust = 0.5)
-    )   + 
-  theme_minimal(
-    base_size = 20
-    ) +
-  xlab("")
-
+```{r diagnostics-ess, eval=FALSE}
+p <- diagnosticsPlot(
+  theta_aligned = theta_aligned,
+  beta_aligned = beta_aligned
+)
+p_ess_bulk <- p[[[1]]]
 
 ggsave(
   paste0("ess_bulk_plant_all_K_", K, ".png"), 
@@ -811,13 +319,27 @@ ggsave(
   width = 9, 
   height = 6
   )
-
 ```
-
 
 ```{r echo=FALSE, out.width="100%", fig.cap = "Supplementary Figure 14: Effective sample size (ESS) with eleven topics.", fig.align="center"}
 knitr::include_graphics(paste0("ess_bulk_plant_all_K_", K, ".png"))
 ```
+
+### $\hat{R}$
+
+We can check whether $\hat{R}$ is less than 1.02.
+
+```{r diagnostics-rhat, eval=FALSE}
+p_rhat <- p[[2]]
+
+ggsave(
+  paste0("Rhat_plant_all_K_", K, ".png"), 
+  p_rhat, 
+  width = 9, 
+  height = 6
+  )
+```
+
 
 ```{r echo=FALSE, out.width="100%", fig.cap = "Supplementary Figure 15: Split Rhat with eleven topics.", fig.align="center"}
 knitr::include_graphics(paste0("Rhat_plant_all_K_", K, ".png"))
@@ -827,58 +349,23 @@ knitr::include_graphics(paste0("Rhat_plant_all_K_", K, ".png"))
 
 ## Differential topic analysis
 
-We do differential topic analysis to test whether topic memberships differ across conditions.
-
-1. Compute the median Bayesian posterior of topic proportions in each specimen. 
-
-2. Multiply the proportions by the library size and round to an integer. This will give an abundance
-of the topic in each specimen. 
-
-3. Apply DESeq2 to identify differentially abundant topics across O and M pPNA types.
-
-```{r eval=FALSE}
-# posterior samples
-theta_aligned_abun <- theta_aligned
-# median Bayesian posterior of topic proportions in each specimen
-median_theta_aligned_abun <- apply(
-  theta_aligned_abun, 
-  c(2,3), 
-  median)
-
-# Multiply the proportions by the library size and round to an integer
-lib_size <- colSums(
-  otu_table(ps) %>% 
-    data.frame()
-  )
-
-median_theta_aligned_abun <- median_theta_aligned_abun * lib_size
-
-median_theta_aligned_abun <- ceiling(
-  median_theta_aligned_abun
-  )
-
-sam_data <- sample_data(ps) %>% 
-  data.frame()
-
-```
-
 ### Test on all specimens
 
-We do test on all specimens. We can write DESeq2 results to LaTex
+We do test on all specimens. We can write DESeq2 results to LaTex.
 
 ```{r eval=FALSE}
-dds <- DESeqDataSetFromMatrix(
-  countData = t(median_theta_aligned_abun),
-  colData = sam_data,
-  design= ~ pna
-  )
-
-dds <- DESeq(
-  dds, 
+dds_all <- diffTopAnalysis(
+  design = ~ pna,
+  ps,
+  theta_aligned,
+  subsetSample = sample_names(ps),
   fitType = "mean"
-  )
+)
 
-saveRDS(dds, file = paste0("dds_all_K_", K,".rds"))
+saveRDS(
+  dds_all, 
+  file = paste0("dds_all_K_", K,".rds")
+  )
 ```
 
 
@@ -890,23 +377,19 @@ res
 ```
 
 ### Test on paired-specimens
+
 We do the test on paired-specimens.
 
 ```{r eval=FALSE}
-dds <- DESeqDataSetFromMatrix(
-  countData = t(median_theta_aligned_abun),
-  colData = sam_data,
-  design= ~  pna
-  )
-
-dds <- dds[, as.character(dds$X) %in% paired_specimens]
-dds <- DESeq(
-  dds, 
-  fitType = "mean"
-  )
+dds_all_paired <- diffTopAnalysis(
+  design = ~ pna,
+  ps,
+  theta_aligned,
+  subsetSample = paired_specimens
+)
  
 saveRDS(
-  dds, 
+  dds_all_paired, 
   file = paste0("dds_all_paired_K_", K,".rds")
   )
 ```
@@ -917,29 +400,24 @@ res <- results(dds_all_paired_K_11)
 res 
 #writeResTable(res, fileN = paste0("dds_all_paired_K_", K,".tex"))
 ```
+
 ### Test on paired non-Aster specimens
 
 We do the test on paired non-Aster specimens.
 
 ```{r eval=FALSE}
-dds <- DESeqDataSetFromMatrix(
-  countData = t(median_theta_aligned_abun),
-  colData = sam_data,
-  design= ~  pna
-  )
+dds_all_paired_nonaster <- diffTopAnalysis(
+  design = ~ pna,
+  ps,
+  theta_aligned,
+  subsetSample = paired_non_aster
+)
 
-dds <- dds[, as.character(dds$X) %in% paired_non_aster]
 
-dds <- DESeq(
-  dds, 
-  fitType = "mean"
-  )
-
-saveRDS(dds, 
+saveRDS(dds_all_paired_nonaster, 
         file = paste0("dds_all_paired_nonaster_K_", K,".rds")
         )
 ```
-
 
 ```{r}
 data("dds_all_paired_nonaster_K_11")
@@ -949,24 +427,20 @@ res
 ```
 
 ### Test on paired Aster specimens
+
 We do the test on paired Aster specimens.
 
 ```{r eval=FALSE}
-dds <- DESeqDataSetFromMatrix(
-  countData = t(median_theta_aligned_abun),
-  colData = sam_data,
-  design= ~  pna
-  )
+dds_all_paired_aster <- diffTopAnalysis(
+  design = ~ pna,
+  ps,
+  theta_aligned,
+  subsetSample = paired_aster
+)
 
-dds <- dds[, as.character(dds$X) %in% paired_aster]
-
-dds <- DESeq(
-  dds, 
-  fitType = "mean"
-  )
 
 saveRDS(
-  dds, 
+  dds_all_paired_aster, 
   file = paste0("dds_all_paired_aster_K_", K,".rds")
   )
 ```
@@ -979,7 +453,7 @@ res
 ```
 
 ```{r include=FALSE}
-rm(params, ps, stan.data, x, aster, iter, K, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names, res)
+rm(ps, stan.data, aster, iter, K, non_aster, paired_aster, paired_non_aster, paired_specimens, plant_colors, sam_names, res)
 ```
 
 

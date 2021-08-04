@@ -122,21 +122,11 @@ We set-up data for latent Dirichlet allocation (LDA) based on a `phyloseq` objec
 
 We set the hyperparameters $\alpha$ and $\gamma$ less than one to generate mixtures that are different from each other. We choose 0.8 for $\alpha$ across all samples so that we avoid generating unrealistic topics. 
 
-<!-- For the vignette, we will consider a subset of taxa and paired Asteraceae plants.  -->
-
-
 ```{r}
 data("psE_BARBI")
 ps <- psE_BARBI
 ```
 
-```{r eval=FALSE, include=FALSE}
-paired_aster <- c("E-142-1", "E142-1", "E-142-5", "E142-5", "E-142-10", "E142-10", "E-143-2", "E143-2", "E-143-7", "E143-7", "E-15-1", "E15-1", "ST-CAZ-4-R-O", "ST-CAZ-4-R-M", "ST-SAL-22-R-O", "ST-SAL-22-R-M", "ST-TRI-10-R-O", "ST-TRI-10-R-M")
-
-ps <- subset_samples(ps, sample_names(ps) %in% paired_aster)
-select_taxa <- names(sort(taxa_sums(ps), decreasing = TRUE)[1:50])
-ps <- prune_taxa(select_taxa, ps)
-```
 
 
 ```{r inputdata}
@@ -248,7 +238,7 @@ beta_aligned <- betaAligned(
 
 ### Plot topic proportion
 
-Plot the topic proportion in specimens and we can save it for puplication purposes. We can draw an informative summary of bacterial communities in each phenotype.
+Plot the topic proportion in specimens and we can save it for publication purposes. We can draw an informative summary of bacterial communities in each phenotype.
 
 ```{r plot-topic-prop, eval=FALSE}
 plotTopicProportion(
