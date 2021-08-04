@@ -22,7 +22,15 @@ library(DESeq2)
 library(diffTop)
 ```
 
-In this data set, we are interested infer on the topics (bacterial communities) when we use original and modified PNA clams (two different experimental conditions). To infer about these topics, we use latent Dirichlet allocation.  
+```{r}
+theme_set(theme_minimal())
+theme_update(
+  text = element_text(size = 10),
+  legend.text = element_text(size = 10)
+)
+```
+
+Here, we are interested infer on the topics (bacterial communities) when we use original and modified PNA clams (two different experimental conditions). To infer about these topics, we use latent Dirichlet allocation.  
 
 ## Input data
 
@@ -55,13 +63,7 @@ stan.data <- setUpData(
 
 
 
-```{r}
-theme_set(theme_minimal())
-theme_update(
-  text = element_text(size = 10),
-  legend.text = element_text(size = 10)
-)
-```
+
 
 ## Data
 
