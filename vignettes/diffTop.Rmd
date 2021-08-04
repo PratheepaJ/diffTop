@@ -26,8 +26,7 @@ knitr::opts_chunk$set(tidy = FALSE,
 
 ```{r}
 devtools::load_all()
-# library(diffTop)
-
+#library(diffTop)
 ```
 
 # Standard workflow
@@ -43,48 +42,23 @@ devtools::load_all()
 
 The following code assume that the `phyloseq` object is available.
 
-## Set-up data for LDA
-
-We set-up data for LDA from phyloseq object, the number of topics, hyper parameters for topic proportion in each sample and ASVs proportion in each topic.
-
-We set the hyper-parameters $\alpha$ and $\gamma$ less than one to generate mixtures that are different from each other. We choose 0.8 for $\alpha$ across all samples so that we avoid generating unrealistic topics. 
-
-```{r set-up, eval=FALSE}
+```{r eval=FALSE}
 K <- 11
+alpha <- 0.8
+gamma <- 0.8
 stan.data <- setUpData(
   ps = psE_BARBI
   K = K,
-  alpha = 0.9,
-  gamma = 0.5
+  alpha = alpha,
+  gamma = gamma
 )
-```
 
-## Posterior sampling 
-
-We need to estimate $\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$ 
-
-We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warmup samples. 
-
-Here we want to save the posterior sampling results to
-```{r file-name, eval=FALSE}
-fileN <- paste0(
-  "JABES_Endo_all_K_",
-  K,
-  "_ite_",
-  iter,
-  ".RData"
-  )
-
-```
-
-Here we specify the LDA model written in lda.stan. We use `stan` function from `rstan` package. We save the results. We can do this in high-performance computing. 
-
-```{r posterior-sampling, eval=FALSE}
-stan.fit <- stan(
-  file = "./lda.stan", 
-  data = stan.data, 
+iter <- 2000
+chains <- 4
+stan.fit <- LDAtopicmodel(
+  stan_data = stan.data, 
   iter = iter, 
-  chains = 4, 
+  chains = chains, 
   sample_file = NULL,
   diagnostic_file = NULL,
   cores = 4,
@@ -92,7 +66,97 @@ stan.fit <- stan(
   save_dso = TRUE,
   algorithm = "NUTS"
   )
-save(stan.fit, file = fileN)
+
+samples <- rstan::extract(
+  stan.fit, 
+  permuted = TRUE, 
+  inc_warmup = FALSE, 
+  include = TRUE
+  )
+
+theta <- samples$theta 
+
+aligned <- alignmentMatrix(
+  theta, 
+  ps, 
+  K, 
+  iter = iter,
+  chain = chains,
+  SampleID_name = "unique_names"
+  )
+
+theta_aligned <- thetaAligned(
+  theta, 
+  K, 
+  aligned, 
+  iter = iter, 
+  chain = chains
+  )
+
+beta <- samples$beta 
+
+beta_aligned <- betaAligned(
+  beta, 
+  K, 
+  aligned, 
+  iter = iter, 
+  chain = chains
+  ) 
+
+
+dds_all <- diffTop(
+  design = ~ pna,
+  ps,
+  theta_aligned,
+  subsetSample = sample_names(psE_BARBI)
+)
+res_all <- results(dds_all)
+res_all
+```
+
+
+## Set-up data for LDA
+
+We set-up data for LDA from phyloseq object, the number of topics, hyper parameters for topic proportion in each sample and ASVs proportion in each topic.
+
+We set the hyper-parameters $\alpha$ and $\gamma$ less than one to generate mixtures that are different from each other. We choose 0.8 for $\alpha$ across all samples so that we avoid generating unrealistic topics. 
+
+We identified 11 topics for this data 
+
+```{r set-up, eval=FALSE}
+K <- 11
+stan.data <- setUpData(
+  ps = psE_BARBI
+  K = K,
+  alpha = 0.8,
+  gamma = 0.8
+)
+```
+
+## Posterior sampling 
+
+We need to estimate $\theta$ and $B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.$ 
+
+We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples. 
+
+
+Here we specify the LDA model written in lda.stan. We use `stan` function from `rstan` package. We can do this in high-performance computing. 
+
+```{r posterior-sampling, eval=FALSE}
+iter <- 2000
+chains <- 4
+
+stan.fit <- LDAtopicmodel(
+  stan_data = stan.data, 
+  iter = iter, 
+  chains = chains, 
+  sample_file = NULL,
+  diagnostic_file = NULL,
+  cores = 4,
+  control = list(adapt_delta = 0.9),
+  save_dso = TRUE,
+  algorithm = "NUTS"
+  )
 ```
 
 ## Alignment
@@ -117,19 +181,20 @@ We create a Topic $*$ Chain matrix.
 
 ```{r alignment, eval=FALSE}
 theta <- samples$theta 
-# dim(theta)
+
 aligned <- alignmentMatrix(
   theta, 
   ps, 
   K, 
   iter = iter,
-  chain = 4,
+  chain = chains,
   SampleID_name = "unique_names"
   )
 
 ```
 
 ## Align topic proportion
+
 We align the topic proportion in each specimen across four chains.
 
 ```{r align-theta, eval=FALSE}
@@ -138,7 +203,7 @@ theta_aligned <- thetaAligned(
   K, 
   aligned, 
   iter = iter, 
-  chain = 4
+  chain = chains
   )
 ```
  
@@ -147,7 +212,7 @@ theta_aligned <- thetaAligned(
 Plot the topic proportion in specimens and we can save it for puplication purposes. We can draw an informative summary of bacterial communities in each phenotype.
 
 ```{r plot-topic-prop, eval=FALSE}
-p <- plotTopicProportion(
+plotTopicProportion(
   ps,
   theta_aligned,
   K,
@@ -157,8 +222,6 @@ p <- plotTopicProportion(
   SampleIDVarInphyloseq = "unique_names",
   design = ~ pna
 )
-
-ggsave(paste0("topic_dis_all_",K, ".png")), p, width = 30, height = 16)
 ```
 
 ## Align ASV proportion
@@ -174,7 +237,7 @@ beta_aligned <- betaAligned(
   K, 
   aligned, 
   iter = iter, 
-  chain = 4
+  chain = chains
   ) 
 ```
 
@@ -183,11 +246,11 @@ beta_aligned <- betaAligned(
 We plot the ASVs distribution in each topic.
 
 ```{r ASV-prop, eval=FALSE}
-p <- plotASVCircular(
+plotASVCircular(
   ps,
   K,
-  iter = 2000,
-  chain = 4,
+  iter = iter,
+  chain = chains,
   beta_aligned,
   varnames = c("iterations", "topic", "rsv_ix"),
   value_name = "beta_h",
@@ -195,59 +258,37 @@ p <- plotASVCircular(
   thresholdASVprop = 0.008
   )
 
-ggsave(paste0("circular_plot_plant_all_K_", K, ".png"), p, width = 28, height = 22)
 ```
 
 ## Model assessement
 
 ```{r model-ass, eval=FALSE}
-p_hist <- modelAssessment(
+modelAssessment(
   ps,
   stan.fit,
   iter,
   statistic = "max",
   ASVsIndexToPlot = c(1, 3, 10:14, 19:26, 36, 51:53, 148)
 )
-ggsave(
-  paste0(
-    "model_assesment_hist_all_obs_sim_K_", 
-    K, 
-    ".png"
-    ), 
-  p_hist, 
-  width = 12, 
-  height = 6
-  )
 ```
 
 
 ## Diagnostics - ESS
+
 ```{r diagnostics-ess, eval=FALSE}
 p <- diagnosticsPlot(
   theta_aligned = theta_aligned,
   beta_aligned = beta_aligned
 )
 p_ess_bulk <- p[[[1]]]
+p_ess_bulk
 
-ggsave(
-  paste0("ess_bulk_plant_all_K_", K, ".png"), 
-  p_ess_bulk, 
-  width = 9, 
-  height = 6
-  )
 ```
 
 ## Diagnostics - $\hat{R}$
 ```{r diagnostics-rhat, eval=FALSE}
-
 p_rhat <- p[[2]]
-
-ggsave(
-  paste0("Rhat_plant_all_K_", K, ".png"), 
-  p_rhat, 
-  width = 9, 
-  height = 6
-  )
+p_rhat
 ```
 
 ## Differential topic analysis
@@ -261,9 +302,9 @@ dds_all <- diffTop(
   theta_aligned,
   subsetSample = sample_names(psE_BARBI)
 )
-res_all <- results(dds_all)
-res_all
-writeResTable(res_all, fileN = paste0("dds_all_K_", K,".tex"))
+results(dds_all)
+
+
 ```
 
 
@@ -276,10 +317,9 @@ dds_all_paired <- diffTop(
   theta_aligned,
   subsetSample = paired_specimens
 )
-res_paired <- results(dds_all_paired)
-res_paired
+results(dds_all_paired)
 
-writeResTable(res_paired, fileN = paste0("dds_all_paired_K_", K,".tex"))
+
 ```
 
 ### Test on paired non-Aster specimens
@@ -291,10 +331,11 @@ dds_all_non_aster_paired <- diffTop(
   theta_aligned,
   subsetSample = paired_non_aster
 )
-res_paired_non_aster <- results(dds_all_non_aster_paired)
-res_paired
 
-writeResTable(res_paired_non_aster, fileN = paste0("dds_all_paired_nonaster_", K,".tex"))
+results(dds_all_non_aster_paired)
+
+
+
 ```
 
 
@@ -307,8 +348,7 @@ dds_all_aster_paired <- diffTop(
   theta_aligned,
   subsetSample = paired_aster
 )
-res_paired_aster <- results(dds_all_aster_paired)
-res_paired_aster
 
-writeResTable(res_paired_aster, fileN = paste0("dds_all_paired_aster_K_", K,".rds"))
+results(dds_all_aster_paired)
+
 ```
