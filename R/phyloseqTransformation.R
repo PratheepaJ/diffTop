@@ -3,15 +3,33 @@
 #' @param cc Double. a constant used in the Anscombe (1948) transformation if dispersion is <= 2
 #' @inheritParams alignmentMatrix
 #' @return phyloseq object. otu table has transformed values of counts.
+#' @importFrom DESeq2 estimateSizeFactors estimateDispersions sizeFactors dispersions
+#' @importFrom phyloseq phyloseq phyloseq_to_deseq2
+#' @importFrom SummarizedExperiment assay
 #' @export
 #'
-phyloseqTransformation <- function(ps,
-                                   cc = .4){
-  dds <- phyloseq_to_deseq2(ps, design = ~ 1)
-  dds <-  estimateSizeFactors(dds, type = "poscounts")
-  dds <- estimateDispersions(dds, fitType = "local")
-  abund <- assay(dds)
-  abund_temp <- matrix(nrow = nrow(abund), ncol = ncol(abund))
+phyloseqTransformation <- function(
+  ps,
+  cc = .4
+  ){
+
+  dds <- phyloseq::phyloseq_to_deseq2(
+    ps,
+    design = ~ 1
+    )
+  dds <-  DESeq2::estimateSizeFactors(
+    dds,
+    type = "poscounts"
+    )
+  dds <- DESeq2::estimateDispersions(
+    dds,
+    fitType = "local"
+    )
+  abund <- SummarizedExperiment::assay(dds)
+  abund_temp <- matrix(
+    nrow = nrow(abund),
+    ncol = ncol(abund)
+    )
 
   # Column co-factor
 
@@ -57,10 +75,12 @@ phyloseqTransformation <- function(ps,
   colnames(abund_temp) <- colnames(abund)
 
 
-  ps <- phyloseq(otu_table(abund_temp, taxa_are_rows = TRUE),
-                 sample_data(ps),
-                 tax_table(ps),
-                 phy_tree(ps))
+  ps <- phyloseq::phyloseq(
+    otu_table(abund_temp, taxa_are_rows = TRUE),
+    sample_data(ps),
+    tax_table(ps),
+    phy_tree(ps)
+    )
 
   return(ps)
 

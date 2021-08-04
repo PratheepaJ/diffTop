@@ -8,7 +8,7 @@ alignmentMatrix(
   theta,
   ps,
   K,
-  iter = 2000,
+  iterUse = 1000,
   chain = 4,
   SampleID_name = "SampleID"
 )
@@ -20,7 +20,7 @@ alignmentMatrix(
 
 \item{K}{integer. number of topics.}
 
-\item{iter}{integer. number of iteration used in each chain.}
+\item{iterUse}{integer. number of iterations used in each chain after subtracting warm-up samples.}
 
 \item{chain}{integer. number of chains used in MCMC.}
 

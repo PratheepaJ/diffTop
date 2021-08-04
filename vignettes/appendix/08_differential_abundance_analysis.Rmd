@@ -215,9 +215,6 @@ powerstand<-poweranalysis(
   split0=FALSE,
   mu0=500,
   size=0.2)
-
-# usethis::use_data(powerswitch)
-# usethis::use_data(powerstand)
 ```
 
 ```{r}

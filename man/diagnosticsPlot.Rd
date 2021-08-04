@@ -4,12 +4,16 @@
 \alias{diagnosticsPlot}
 \title{Diagnostics plots - ESS and Rhat.}
 \usage{
-diagnosticsPlot(theta_aligned, beta_aligned)
+diagnosticsPlot(theta_aligned, beta_aligned, iterUse = 1000, chain = 4)
 }
 \arguments{
 \item{theta_aligned}{array. Three dimensional array returned by thetaAligned().}
 
 \item{beta_aligned}{array. Three dimensional array returned by betaAligned().}
+
+\item{iterUse}{integer. number of iterations used in each chain after subtracting warm-up samples.}
+
+\item{chain}{integer. number of chains used in MCMC.}
 }
 \value{
 list. ggplots of effective sample size and rhat plots.

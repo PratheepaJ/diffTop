@@ -89,14 +89,7 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/PratheepaJ/diffTop/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -112,9 +105,9 @@
       <h1 data-toc-skip>Section 8: DIFFERENTIAL ABUNDANCE ANALYSIS</h1>
                         <h4 class="author">Pratheepa Jeganathan and Susan Holmes</h4>
             
-            <h4 class="date">11 July, 2021</h4>
+            <h4 class="date">03 August, 2021</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/PratheepaJ/diffTop/blob/master/vignettes/appendix/08_differential_abundance_analysis.Rmd"><code>vignettes/appendix/08_differential_abundance_analysis.Rmd</code></a></small>
+      
       <div class="hidden name"><code>08_differential_abundance_analysis.Rmd</code></div>
 
     </div>
@@ -263,13 +256,13 @@
 ## Terms added sequentially (first to last)
 ## 
 ##           Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)
-## afact      1    0.3491 0.34908  1.0869 0.02214   0.33
-## Residuals 48   15.4167 0.32118         0.97786       
-## Total     49   15.7658                 1.00000</code></pre>
+## afact      1    0.4149 0.41491  1.2596 0.02557  0.142
+## Residuals 48   15.8105 0.32939         0.97443       
+## Total     49   16.2254                 1.00000</code></pre>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#To extract the pvalue:</span>
 <span class="va">ptest1</span><span class="op">$</span><span class="va">aov.tab</span><span class="op">$</span><span class="va">`Pr(&gt;F)`</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
-<pre><code>## [1] 0.33</code></pre>
+<pre><code>## [1] 0.142</code></pre>
 </div>
 <div id="power-computation-with-a-difference-in-non-switched-standard-and-switched-otus" class="section level3">
 <h3 class="hasAnchor">
@@ -334,10 +327,7 @@
   n<span class="op">=</span><span class="va">n0</span>, 
   split0<span class="op">=</span><span class="cn">FALSE</span>,
   mu0<span class="op">=</span><span class="fl">500</span>,
-  size<span class="op">=</span><span class="fl">0.2</span><span class="op">)</span>
-
-<span class="co"># usethis::use_data(powerswitch)</span>
-<span class="co"># usethis::use_data(powerstand)</span></code></pre></div>
+  size<span class="op">=</span><span class="fl">0.2</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"powerstand"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"powerswitch"</span><span class="op">)</span></code></pre></div>

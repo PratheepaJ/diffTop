@@ -2,13 +2,21 @@
 #'
 #' @param theta_aligned array. Three dimensional array returned by thetaAligned().
 #' @param beta_aligned array. Three dimensional array returned by betaAligned().
+#' @inheritParams alignmentMatrix
 #'
 #' @return list. ggplots of effective sample size and rhat plots.
+#' @importFrom rstan Rhat ess_bulk
+#' @importFrom ggplot2 theme_minimal theme geom_histogram ggplot aes element_text xlab
 #' @export
 #'
+#'
+
+
 diagnosticsPlot <- function(
   theta_aligned,
-  beta_aligned
+  beta_aligned,
+  iterUse = 1000,
+  chain = 4
 ){
   Rhat_theta <- matrix(
     nrow = dim(theta_aligned)[2],
@@ -25,12 +33,12 @@ diagnosticsPlot <- function(
     for(top in 1:dim(theta_aligned)[3]){
       sims_theta <- matrix(
         theta_aligned[ ,sam , top],
-        nrow = (iter/2),
-        ncol = 4,
+        nrow = (iterUse),
+        ncol = chain,
         byrow = FALSE
       )
-      Rhat_theta[sam, top] <- Rhat(sims_theta)
-      ESS_bulk_theta[sam, top] <- ess_bulk(sims_theta)
+      Rhat_theta[sam, top] <- rstan::Rhat(sims_theta)
+      ESS_bulk_theta[sam, top] <- rstan::ess_bulk(sims_theta)
     }
 
   }
@@ -53,11 +61,11 @@ diagnosticsPlot <- function(
     for(fea in 1:dim(beta_aligned)[3]){
       sims_beta <- matrix(
         beta_aligned[ , top, fea],
-        nrow = (iter/2),
-        ncol = 4,
+        nrow = (iterUse),
+        ncol = chain,
         byrow = FALSE)
-      Rhat_beta[top, fea] <- Rhat(sims_beta)
-      ESS_bulk_beta[top, fea] <- ess_bulk(sims_beta)
+      Rhat_beta[top, fea] <- rstan::Rhat(sims_beta)
+      ESS_bulk_beta[top, fea] <- rstan::ess_bulk(sims_beta)
 
     }
 
@@ -76,42 +84,42 @@ diagnosticsPlot <- function(
 
 
   # R hat ~ 1.05
-  p_rhat <- ggplot(
+  p_rhat <- ggplot2::ggplot(
     data.frame(Rhat = Rhat)
   ) +
-    geom_histogram(
+    ggplot2::geom_histogram(
       aes(x = Rhat),
       fill = "lavender",
       colour = "black",
       bins = 100
     ) +
-    theme(
+    ggplot2::theme(
       plot.title = element_text(hjust = 0.5)
     )  +
-    theme_minimal(base_size = 20) +
-    xlab("")
+    ggplot2::theme_minimal(base_size = 20) +
+    ggplot2::xlab("")
 
 
 
 
   # ESS bulk and ESS tail at least 100 per Markov Chain in order to be reliable and indicate that estimates of respective posterior quantiles are reliable
 
-  p_ess_bulk <- ggplot(
+  p_ess_bulk <- ggplot2::ggplot(
     data.frame(ESS_bulk = ESS_bulk)
   ) +
-    geom_histogram(
+    ggplot2::geom_histogram(
       aes(x = ESS_bulk),
       fill = "lavender",
       colour = "black",
       bins = 100
     ) +
-    theme(
+    ggplot2::theme(
       plot.title = element_text(hjust = 0.5)
     )   +
-    theme_minimal(
+    ggplot2::theme_minimal(
       base_size = 20
     ) +
-    xlab("")
+    ggplot2::xlab("")
 
   return(list(p_ess_bulk, p_rhat))
 }

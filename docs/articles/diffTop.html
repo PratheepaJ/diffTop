@@ -89,14 +89,7 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/PratheepaJ/diffTop/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -112,9 +105,9 @@
       <h1 data-toc-skip>Analzying molecular microbiome data with diffTop</h1>
                         <h4 class="author">Pratheepa Jeganathan and Susan Holmes</h4>
             
-            <h4 class="date">07/11/2021</h4>
+            <h4 class="date">08/03/2021</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/PratheepaJ/diffTop/blob/master/vignettes/diffTop.Rmd"><code>vignettes/diffTop.Rmd</code></a></small>
+      
       <div class="hidden name"><code>diffTop.Rmd</code></div>
 
     </div>
@@ -126,8 +119,7 @@
     </div>
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html">load_all</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co"># library(diffTop)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">diffTop</span><span class="op">)</span></code></pre></div>
 <div id="standard-workflow" class="section level1">
 <h1 class="hasAnchor">
 <a href="#standard-workflow" class="anchor"></a>Standard workflow</h1>
@@ -138,42 +130,25 @@
 <div id="quick-start" class="section level2">
 <h2 class="hasAnchor">
 <a href="#quick-start" class="anchor"></a>Quick start</h2>
-<p>The following code assume that</p>
-</div>
-<div id="set-up-data-for-lda" class="section level2">
-<h2 class="hasAnchor">
-<a href="#set-up-data-for-lda" class="anchor"></a>Set-up data for LDA</h2>
-<p>We set-up data for LDA from phyloseq object, the number of topics, hyper parameters for topic proportion in each sample and ASVs proportion in each topic.</p>
-<p>We set the hyper-parameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\gamma\)</span> less than one to generate mixtures that are different from each other. We choose 0.8 for <span class="math inline">\(\alpha\)</span> across all samples so that we avoid generating unrealistic topics.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">11</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>stan.data <span class="ot">&lt;-</span> <span class="fu">setUpData</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ps =</span> psE_BARBI</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">K =</span> K,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="fl">0.9</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">gamma =</span> <span class="fl">0.5</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-</div>
-<div id="posterior-sampling" class="section level2">
-<h2 class="hasAnchor">
-<a href="#posterior-sampling" class="anchor"></a>Posterior sampling</h2>
-<p>We need to estimate <span class="math inline">\(\theta\)</span> and <span class="math inline">\(B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.\)</span></p>
-<p>We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warmup samples.</p>
-<p>Here we want to save the posterior sampling results to</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fileN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
-  <span class="st">"JABES_Endo_all_K_"</span>,
-  <span class="va">K</span>,
-  <span class="st">"_ite_"</span>,
-  <span class="va">iter</span>,
-  <span class="st">".RData"</span>
-  <span class="op">)</span></code></pre></div>
-<p>Here we specify the LDA model written in lda.stan. We use <code>stan</code> function from <code>rstan</code> package. We save the results. We can do this in high-performance computing.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">stan.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/rstan/reference/stan.html">stan</a></span><span class="op">(</span>
-  file <span class="op">=</span> <span class="st">"./lda.stan"</span>, 
-  data <span class="op">=</span> <span class="va">stan.data</span>, 
+<p>Here we show the steps for the differential topic analysis. The following code assume that the <code>phyloseq</code> object is available. Please refer to <a href="https://www.bioconductor.org/packages/release/bioc/html/phyloseq.html"><code>phyloseq</code></a> for creating a <code>phyloseq</code> class object.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">11</span>
+<span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.8</span>
+<span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">0.8</span>
+<span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span>
+<span class="va">stan.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setUpData.html">setUpData</a></span><span class="op">(</span>
+  ps <span class="op">=</span> <span class="va">ps</span>,
+  K <span class="op">=</span> <span class="va">K</span>,
+  alpha <span class="op">=</span> <span class="va">alpha</span>,
+  gamma <span class="op">=</span> <span class="va">gamma</span>
+<span class="op">)</span>
+
+<span class="va">iter</span> <span class="op">&lt;-</span> <span class="fl">2000</span>
+<span class="va">chains</span> <span class="op">&lt;-</span> <span class="fl">4</span>
+<span class="va">stan.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LDAtopicmodel.html">LDAtopicmodel</a></span><span class="op">(</span>
+  stan_data <span class="op">=</span> <span class="va">stan.data</span>, 
   iter <span class="op">=</span> <span class="va">iter</span>, 
-  chains <span class="op">=</span> <span class="fl">4</span>, 
+  chains <span class="op">=</span> <span class="va">chains</span>, 
   sample_file <span class="op">=</span> <span class="cn">NULL</span>,
   diagnostic_file <span class="op">=</span> <span class="cn">NULL</span>,
   cores <span class="op">=</span> <span class="fl">4</span>,
@@ -181,67 +156,136 @@
   save_dso <span class="op">=</span> <span class="cn">TRUE</span>,
   algorithm <span class="op">=</span> <span class="st">"NUTS"</span>
   <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/save.html">save</a></span><span class="op">(</span><span class="va">stan.fit</span>, file <span class="op">=</span> <span class="va">fileN</span><span class="op">)</span></code></pre></div>
+
+<span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu">rstan</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html">extract</a></span><span class="op">(</span>
+  <span class="va">stan.fit</span>, 
+  permuted <span class="op">=</span> <span class="cn">TRUE</span>, 
+  inc_warmup <span class="op">=</span> <span class="cn">FALSE</span>, 
+  include <span class="op">=</span> <span class="cn">TRUE</span>
+  <span class="op">)</span>
+
+<span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">theta</span> 
+
+<span class="va">aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/alignmentMatrix.html">alignmentMatrix</a></span><span class="op">(</span>
+  <span class="va">theta</span>, 
+  <span class="va">ps</span>, 
+  <span class="va">K</span>, 
+  iter <span class="op">=</span> <span class="va">iter</span>,
+  chain <span class="op">=</span> <span class="va">chains</span>,
+  SampleID_name <span class="op">=</span> <span class="st">"unique_names"</span>
+  <span class="op">)</span>
+
+<span class="va">theta_aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/thetaAligned.html">thetaAligned</a></span><span class="op">(</span>
+  <span class="va">theta</span>, 
+  <span class="va">K</span>, 
+  <span class="va">aligned</span>, 
+  iter <span class="op">=</span> <span class="va">iter</span>, 
+  chain <span class="op">=</span> <span class="va">chains</span>
+  <span class="op">)</span>
+
+<span class="va">beta</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">beta</span> 
+
+<span class="va">beta_aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaAligned.html">betaAligned</a></span><span class="op">(</span>
+  <span class="va">beta</span>, 
+  <span class="va">K</span>, 
+  <span class="va">aligned</span>, 
+  iter <span class="op">=</span> <span class="va">iter</span>, 
+  chain <span class="op">=</span> <span class="va">chains</span>
+  <span class="op">)</span> 
+
+
+<span class="va">dds_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTopAnalysis.html">diffTopAnalysis</a></span><span class="op">(</span>
+  design <span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>,
+  <span class="va">ps</span>,
+  <span class="va">theta_aligned</span>,
+  subsetSample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_names-methods.html">sample_names</a></span><span class="op">(</span><span class="va">psE_BARBI</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all</span><span class="op">)</span>
+<span class="va">res_all</span></code></pre></div>
 </div>
-<div id="alignment" class="section level2">
+<div id="input-data" class="section level2">
 <h2 class="hasAnchor">
-<a href="#alignment" class="anchor"></a>Alignment</h2>
-<p>We estimated the parameters using the HMC-NUTS sampler with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warmup samples and discarded. Label switching across chains makes it difficult to directly compute log predictive density, split-<span class="math inline">\(\hat{R}\)</span>, effective sample size for model assessment, and evaluate convergence and mixing of chains.</p>
-<p>To address this issue, we fixed the order of topics in chain one and then found the permutation that best aligned the topics across all four chains. For each chain two to four, we identified the estimated topics pair with the highest correlation, then found the next highest pair among the remaining, and so forth.</p>
-<p>We extract posterior samples from the results.</p>
+<a href="#input-data" class="anchor"></a>Input data</h2>
+<p>We set-up data for latent Dirichlet allocation (LDA) based on a <code>phyloseq</code> object, the number of topics, hyperparameters for topic proportion in each sample and ASVs proportion in each topic.</p>
+<p>We set the hyperparameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\gamma\)</span> less than one to generate mixtures that are different from each other. We choose 0.8 for <span class="math inline">\(\alpha\)</span> across all samples so that we avoid generating unrealistic topics.</p>
+<!-- For the vignette, we will consider a subset of taxa and paired Asteraceae plants.  -->
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"psE_BARBI"</span><span class="op">)</span>
+<span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">psE_BARBI</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">11</span>
+<span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.8</span>
+<span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">0.8</span>
+<span class="va">stan.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setUpData.html">setUpData</a></span><span class="op">(</span>
+  ps <span class="op">=</span> <span class="va">ps</span>,
+  K <span class="op">=</span> <span class="va">K</span>,
+  alpha <span class="op">=</span> <span class="va">alpha</span>,
+  gamma <span class="op">=</span> <span class="va">gamma</span>
+<span class="op">)</span></code></pre></div>
+</div>
+<div id="posterior-sampling" class="section level2">
+<h2 class="hasAnchor">
+<a href="#posterior-sampling" class="anchor"></a>Posterior sampling</h2>
+<p>We need to estimate <span class="math inline">\(\theta\)</span> and <span class="math inline">\(B = \left[\beta_{1}, \cdots, \beta_{K} \right]^{T}.\)</span></p>
+<p>We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples.</p>
+<p><code>LDAtopicmodel</code> uses an LDA model written in lda.stan. The user doesn’t need to write the Stan model. We use <code>stan</code> function from <code>rstan</code> package. Please refer to <code><a href="https://mc-stan.org/rstan/reference/stan.html">?stan</a></code> to specify the inputs for the <code>stan</code> function. For the whole dataset, we can run the following chunk in high-performance computing and save the results.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">iter</span> <span class="op">&lt;-</span> <span class="fl">2000</span>
+<span class="va">chains</span> <span class="op">&lt;-</span> <span class="fl">4</span>
+
+<span class="va">stan.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LDAtopicmodel.html">LDAtopicmodel</a></span><span class="op">(</span>
+  stan_data <span class="op">=</span> <span class="va">stan.data</span>, 
+  iter <span class="op">=</span> <span class="va">iter</span>, 
+  chains <span class="op">=</span> <span class="va">chains</span>, 
+  sample_file <span class="op">=</span> <span class="cn">NULL</span>,
+  diagnostic_file <span class="op">=</span> <span class="cn">NULL</span>,
+  cores <span class="op">=</span> <span class="fl">4</span>,
+  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>adapt_delta <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span>,
+  save_dso <span class="op">=</span> <span class="cn">TRUE</span>,
+  algorithm <span class="op">=</span> <span class="st">"NUTS"</span>
+  <span class="op">)</span></code></pre></div>
+<p>We extract posterior samples from the results.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu">rstan</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html">extract</a></span><span class="op">(</span>
   <span class="va">stan.fit</span>, 
   permuted <span class="op">=</span> <span class="cn">TRUE</span>, 
   inc_warmup <span class="op">=</span> <span class="cn">FALSE</span>, 
   include <span class="op">=</span> <span class="cn">TRUE</span>
   <span class="op">)</span></code></pre></div>
+<div id="alignment" class="section level3">
+<h3 class="hasAnchor">
+<a href="#alignment" class="anchor"></a>Alignment</h3>
+<p>We estimated the parameters using the HMC-NUTS sampler with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples and discarded. Label switching across chains makes it difficult to directly compute log predictive density, split-<span class="math inline">\(\hat{R}\)</span>, effective sample size for model assessment, and evaluate convergence and mixing of chains.</p>
+<p>To address this issue, we fixed the order of topics in chain one and then found the permutation that best aligned the topics across all four chains. For each chain two to four, we identified the estimated topics pair with the highest correlation, then found the next highest pair among the remaining, and so forth.</p>
 <p>We create a Topic <span class="math inline">\(*\)</span> Chain matrix.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">theta</span> 
-<span class="co"># dim(theta)</span>
+
 <span class="va">aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/alignmentMatrix.html">alignmentMatrix</a></span><span class="op">(</span>
   <span class="va">theta</span>, 
   <span class="va">ps</span>, 
   <span class="va">K</span>, 
   iter <span class="op">=</span> <span class="va">iter</span>,
-  chain <span class="op">=</span> <span class="fl">4</span>,
+  chain <span class="op">=</span> <span class="va">chains</span>,
   SampleID_name <span class="op">=</span> <span class="st">"unique_names"</span>
   <span class="op">)</span></code></pre></div>
 </div>
-<div id="align-topic-proportion" class="section level2">
-<h2 class="hasAnchor">
-<a href="#align-topic-proportion" class="anchor"></a>Align topic proportion</h2>
+<div id="align-topic-proportion" class="section level3">
+<h3 class="hasAnchor">
+<a href="#align-topic-proportion" class="anchor"></a>Align topic proportion</h3>
 <p>We align the topic proportion in each specimen across four chains.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">theta_aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/thetaAligned.html">thetaAligned</a></span><span class="op">(</span>
   <span class="va">theta</span>, 
   <span class="va">K</span>, 
   <span class="va">aligned</span>, 
   iter <span class="op">=</span> <span class="va">iter</span>, 
-  chain <span class="op">=</span> <span class="fl">4</span>
+  chain <span class="op">=</span> <span class="va">chains</span>
   <span class="op">)</span></code></pre></div>
 </div>
-<div id="plot-topic-proportion" class="section level2">
-<h2 class="hasAnchor">
-<a href="#plot-topic-proportion" class="anchor"></a>Plot topic proportion</h2>
-<p>Plot the topic proportion in specimens and we can save it for puplication purposes. We can draw an informative summary of bacterial communities in each phenotype.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">plotTopicProportion</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  ps,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  theta_aligned,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  K,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names_theta_all =</span> <span class="fu">c</span>(<span class="st">"iteration"</span>, <span class="st">"Sample"</span>, <span class="st">"Topic"</span>, <span class="st">"topic.dis"</span>),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">chain =</span> <span class="dv">4</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">warmup =</span> iter<span class="sc">/</span><span class="dv">2</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">SampleIDVarInphyloseq =</span> <span class="st">"unique_names"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> <span class="sc">~</span> pna</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">paste0</span>(<span class="st">"topic_dis_all_"</span>,K, <span class="st">".png"</span>)), p, width <span class="ot">=</span> <span class="dv">30</span>, height <span class="ot">=</span> <span class="dv">16</span><span class="er">)</span></span></code></pre></div>
-</div>
-<div id="align-asv-proportion" class="section level2">
-<h2 class="hasAnchor">
-<a href="#align-asv-proportion" class="anchor"></a>Align ASV proportion</h2>
+<div id="align-asv-proportion" class="section level3">
+<h3 class="hasAnchor">
+<a href="#align-asv-proportion" class="anchor"></a>Align ASV proportion</h3>
 <p>We align the ASVs proportion in each topic across four chains.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># an array (iterations *topic * ASV)</span>
@@ -253,79 +297,83 @@
   <span class="va">K</span>, 
   <span class="va">aligned</span>, 
   iter <span class="op">=</span> <span class="va">iter</span>, 
-  chain <span class="op">=</span> <span class="fl">4</span>
+  chain <span class="op">=</span> <span class="va">chains</span>
   <span class="op">)</span> </code></pre></div>
 </div>
-<div id="plot-asvs-distribution" class="section level2">
+</div>
+<div id="visualization" class="section level2">
 <h2 class="hasAnchor">
-<a href="#plot-asvs-distribution" class="anchor"></a>Plot ASVs distribution</h2>
-<p>We plot the ASVs distribution in each topic.</p>
+<a href="#visualization" class="anchor"></a>Visualization</h2>
+<div id="plot-topic-proportion" class="section level3">
+<h3 class="hasAnchor">
+<a href="#plot-topic-proportion" class="anchor"></a>Plot topic proportion</h3>
+<p>Plot the topic proportion in specimens and we can save it for puplication purposes. We can draw an informative summary of bacterial communities in each phenotype.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotASVCircular.html">plotASVCircular</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotTopicProportion.html">plotTopicProportion</a></span><span class="op">(</span>
+  <span class="va">ps</span>,
+  <span class="va">theta_aligned</span>,
+  <span class="va">K</span>,
+  col_names_theta_all <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"iteration"</span>, <span class="st">"Sample"</span>, <span class="st">"Topic"</span>, <span class="st">"topic.dis"</span><span class="op">)</span>,
+  chain <span class="op">=</span> <span class="fl">4</span>,
+  iter <span class="op">=</span> <span class="va">iter</span>,
+  SampleIDVarInphyloseq <span class="op">=</span> <span class="st">"unique_names"</span>,
+  design <span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>
+<span class="op">)</span></code></pre></div>
+</div>
+<div id="plot-asvs-distribution" class="section level3">
+<h3 class="hasAnchor">
+<a href="#plot-asvs-distribution" class="anchor"></a>Plot ASVs distribution</h3>
+<p>We plot the ASVs distribution in each topic.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotASVCircular.html">plotASVCircular</a></span><span class="op">(</span>
   <span class="va">ps</span>,
   <span class="va">K</span>,
-  iter <span class="op">=</span> <span class="fl">2000</span>,
-  chain <span class="op">=</span> <span class="fl">4</span>,
+  iter <span class="op">=</span> <span class="va">iter</span>,
+  chain <span class="op">=</span> <span class="va">chains</span>,
   <span class="va">beta_aligned</span>,
   varnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"iterations"</span>, <span class="st">"topic"</span>, <span class="st">"rsv_ix"</span><span class="op">)</span>,
   value_name <span class="op">=</span> <span class="st">"beta_h"</span>,
   taxonomylevel <span class="op">=</span> <span class="st">"Class"</span>,
   thresholdASVprop <span class="op">=</span> <span class="fl">0.008</span>
-  <span class="op">)</span>
-
-<span class="fu">ggsave</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"circular_plot_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, <span class="va">p</span>, width <span class="op">=</span> <span class="fl">28</span>, height <span class="op">=</span> <span class="fl">22</span><span class="op">)</span></code></pre></div>
+  <span class="op">)</span></code></pre></div>
+</div>
 </div>
 <div id="model-assessement" class="section level2">
 <h2 class="hasAnchor">
 <a href="#model-assessement" class="anchor"></a>Model assessement</h2>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">p_hist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/modelAssessment.html">modelAssessment</a></span><span class="op">(</span>
+<p>We do goodness of fit test using the posterior estimates and observed data.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/modelAssessment.html">modelAssessment</a></span><span class="op">(</span>
   <span class="va">ps</span>,
   <span class="va">stan.fit</span>,
   <span class="va">iter</span>,
   statistic <span class="op">=</span> <span class="st">"max"</span>,
   ASVsIndexToPlot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">14</span>, <span class="fl">19</span><span class="op">:</span><span class="fl">26</span>, <span class="fl">36</span>, <span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu">ggsave</span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span>
-    <span class="st">"model_assesment_hist_all_obs_sim_K_"</span>, 
-    <span class="va">K</span>, 
-    <span class="st">".png"</span>
-    <span class="op">)</span>, 
-  <span class="va">p_hist</span>, 
-  width <span class="op">=</span> <span class="fl">12</span>, 
-  height <span class="op">=</span> <span class="fl">6</span>
-  <span class="op">)</span></code></pre></div>
+<span class="op">)</span></code></pre></div>
 </div>
-<div id="diagnostics---ess" class="section level2">
+<div id="diagnostics" class="section level2">
 <h2 class="hasAnchor">
-<a href="#diagnostics---ess" class="anchor"></a>Diagnostics - ESS</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">diagnosticsPlot</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">theta_aligned =</span> theta_aligned,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta_aligned =</span> beta_aligned</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>p_ess_bulk <span class="ot">&lt;-</span> p[[[<span class="dv">1</span>]]]</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"ess_bulk_plant_all_K_"</span>, K, <span class="st">".png"</span>), </span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  p_ess_bulk, </span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">9</span>, </span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">6</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<a href="#diagnostics" class="anchor"></a>Diagnostics</h2>
+<div id="effective-sample-size-ess" class="section level3">
+<h3 class="hasAnchor">
+<a href="#effective-sample-size-ess" class="anchor"></a>Effective sample size (ESS)</h3>
+<p>We compute effective sample size for each parameter.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">diagnosticsPlot</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">theta_aligned =</span> theta_aligned,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta_aligned =</span> beta_aligned</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>p_ess_bulk <span class="ot">&lt;-</span> p[[[<span class="dv">1</span>]]]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>p_ess_bulk</span></code></pre></div>
 </div>
-<div id="diagnostics---hatr" class="section level2">
-<h2 class="hasAnchor">
-<a href="#diagnostics---hatr" class="anchor"></a>Diagnostics - <span class="math inline">\(\hat{R}\)</span>
-</h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div id="hatr" class="section level3">
+<h3 class="hasAnchor">
+<a href="#hatr" class="anchor"></a><span class="math inline">\(\hat{R}\)</span>
+</h3>
+<p>We can check whether <span class="math inline">\(\hat{R}\)</span> is less than 1.02</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p_rhat</span> <span class="op">&lt;-</span> <span class="va">p</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>
-
-<span class="fu">ggsave</span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Rhat_plant_all_K_"</span>, <span class="va">K</span>, <span class="st">".png"</span><span class="op">)</span>, 
-  <span class="va">p_rhat</span>, 
-  width <span class="op">=</span> <span class="fl">9</span>, 
-  height <span class="op">=</span> <span class="fl">6</span>
-  <span class="op">)</span></code></pre></div>
+<span class="va">p_rhat</span></code></pre></div>
+</div>
 </div>
 <div id="differential-topic-analysis" class="section level2">
 <h2 class="hasAnchor">
@@ -333,61 +381,28 @@
 <div id="test-on-all-specimens" class="section level3">
 <h3 class="hasAnchor">
 <a href="#test-on-all-specimens" class="anchor"></a>Test on all specimens</h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dds_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTop.html">diffTop</a></span><span class="op">(</span>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dds_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTopAnalysis.html">diffTopAnalysis</a></span><span class="op">(</span>
   design <span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>,
   <span class="va">ps</span>,
   <span class="va">theta_aligned</span>,
-  subsetSample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_names-methods.html">sample_names</a></span><span class="op">(</span><span class="va">psE_BARBI</span><span class="op">)</span>
+  subsetSample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/sample_names-methods.html">sample_names</a></span><span class="op">(</span><span class="va">ps</span><span class="op">)</span>,
+  fitType <span class="op">=</span> <span class="st">"mean"</span>
 <span class="op">)</span>
-<span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all</span><span class="op">)</span>
-<span class="va">res_all</span>
-<span class="fu">writeResTable</span><span class="op">(</span><span class="va">res_all</span>, fileN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_K_"</span>, <span class="va">K</span>,<span class="st">".tex"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="test-on-paired-specimens" class="section level3">
+<div id="test-on-selected-specimens" class="section level3">
 <h3 class="hasAnchor">
-<a href="#test-on-paired-specimens" class="anchor"></a>Test on paired-specimens</h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dds_all_paired</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTop.html">diffTop</a></span><span class="op">(</span>
+<a href="#test-on-selected-specimens" class="anchor"></a>Test on selected specimens</h3>
+<p>Let’s test on the paired-specimens.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">dds_all_paired</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTopAnalysis.html">diffTopAnalysis</a></span><span class="op">(</span>
   design <span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>,
   <span class="va">ps</span>,
   <span class="va">theta_aligned</span>,
   subsetSample <span class="op">=</span> <span class="va">paired_specimens</span>
 <span class="op">)</span>
-<span class="va">res_paired</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired</span><span class="op">)</span>
-<span class="va">res_paired</span>
-
-<span class="fu">writeResTable</span><span class="op">(</span><span class="va">res_paired</span>, fileN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_K_"</span>, <span class="va">K</span>,<span class="st">".tex"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-</div>
-<div id="test-on-paired-non-aster-specimens" class="section level3">
-<h3 class="hasAnchor">
-<a href="#test-on-paired-non-aster-specimens" class="anchor"></a>Test on paired non-Aster specimens</h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dds_all_non_aster_paired</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTop.html">diffTop</a></span><span class="op">(</span>
-  design <span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>,
-  <span class="va">ps</span>,
-  <span class="va">theta_aligned</span>,
-  subsetSample <span class="op">=</span> <span class="va">paired_non_aster</span>
-<span class="op">)</span>
-<span class="va">res_paired_non_aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_non_aster_paired</span><span class="op">)</span>
-<span class="va">res_paired</span>
-
-<span class="fu">writeResTable</span><span class="op">(</span><span class="va">res_paired_non_aster</span>, fileN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_nonaster_"</span>, <span class="va">K</span>,<span class="st">".tex"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-</div>
-<div id="test-on-paired-aster-specimens" class="section level3">
-<h3 class="hasAnchor">
-<a href="#test-on-paired-aster-specimens" class="anchor"></a>Test on paired Aster specimens</h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dds_all_aster_paired</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/diffTop.html">diffTop</a></span><span class="op">(</span>
-  design <span class="op">=</span> <span class="op">~</span> <span class="va">pna</span>,
-  <span class="va">ps</span>,
-  <span class="va">theta_aligned</span>,
-  subsetSample <span class="op">=</span> <span class="va">paired_aster</span>
-<span class="op">)</span>
-<span class="va">res_paired_aster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_aster_paired</span><span class="op">)</span>
-<span class="va">res_paired_aster</span>
-
-<span class="fu">writeResTable</span><span class="op">(</span><span class="va">res_paired_aster</span>, fileN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"dds_all_paired_aster_K_"</span>, <span class="va">K</span>,<span class="st">".rds"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span><span class="op">(</span><span class="va">dds_all_paired</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 </div>

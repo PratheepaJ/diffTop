@@ -2,13 +2,12 @@
 % Please edit documentation in R/modelAssessment.R
 \name{modelAssessment}
 \alias{modelAssessment}
-\title{Model assessement for LDA}
+\title{Model assessment for LDA based on the maximum abundance for each taxon.}
 \usage{
 modelAssessment(
   ps,
   stan.fit,
-  iter,
-  statistic = "max",
+  iterUse = 1000,
   ASVsIndexToPlot = c(1, 3, 10:14, 19:26, 36, 51:53, 148)
 )
 }
@@ -17,15 +16,13 @@ modelAssessment(
 
 \item{stan.fit}{An instance of stanfit.}
 
-\item{iter}{integer. number of iteration used in each chain.}
-
-\item{statistic}{Function name. Use this statistic to assess the goodness of fit.}
+\item{iterUse}{integer. number of iterations used in each chain after subtracting warm-up samples.}
 
 \item{ASVsIndexToPlot}{An integer vector. Use to select ASVs to show the goodness of fit in histograms.}
 }
 \value{
-
+A ggplot2 object. Histogram of data generated from the posterior estimates and the observed data.
 }
 \description{
-Model assessement for LDA
+Model assessment for LDA based on the maximum abundance for each taxon.
 }

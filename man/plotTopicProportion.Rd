@@ -10,7 +10,7 @@ plotTopicProportion(
   K,
   col_names_theta_all = c("iteration", "Sample", "Topic", "topic.dis"),
   chain = 4,
-  warmup = iter/2,
+  iterUse = 1000,
   SampleIDVarInphyloseq = "unique_names",
   design = ~pna
 )
@@ -26,14 +26,14 @@ plotTopicProportion(
 
 \item{chain}{integer. number of chains used in MCMC.}
 
-\item{warmup}{Integer. Number of iterations in each chain used for warmup samples.}
+\item{iterUse}{integer. number of iterations used in each chain after subtracting warm-up samples.}
 
 \item{SampleIDVarInphyloseq}{Character. SampleID variable name in phyloseq object.}
 
 \item{design}{Factors of interests.}
 }
 \value{
-
+A ggplot2 object. Histrogram of median of topic proportion in each sample.
 }
 \description{
 Plot the topic distribution in all specimens.

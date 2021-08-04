@@ -3,9 +3,6 @@ title: "Section 9: LATENT DIRICHLET ALLOCATION"
 author: "Pratheepa Jeganathan"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: BiocStyle::html_document
-params:
-  K: 11
-  R: 2000
 resource_files:
   - topic_dis_all_11.png
   - circular_plot_plant_all_K_11.png
@@ -14,56 +11,48 @@ resource_files:
   - model_assesment_hist_all_obs_sim_K_11.png
 ---
 
-The input parameters to run this R Markdown are $K$ number of topics and R - number of interations for each Markov chain.
-
-We removed DNA contaminants using BARBI. Then, we choose ASVs that have at least 25 counts in at least two specimens.
-
-In microbiome data, bacteria that have similar functionalities can co-occure as latent communities. In this data set, we are interested infer on the latent communties when we use original and modified PNA clams. To infer about these latent communities, we use topic modeling.  
-
-For the topic modeling, we choose Aster-plants. These specimens were sequenced with original and modified pPNA types.
-
-We set the hyper-parameters $\alpha$ and $\gamma$ less than one to generate mixtures that are different from each other. We choose 0.8 for $\alpha$ across all samples so that we avoid generating unrealistic topics. 
-
-We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warmup samples. 
-
-We align the topics from four different chain and compute posterior log likelihood, $\hat{R}$ (split), effective sample size (ESS). 
-
-For the model with optimal topic, we do the predictive model check with simulated data, observed data, and a statistic $G\left(K_{ij} \right)$
-
-With the optimal topic, we visualize the topic distribution in each specimen and ASVs distribution in each topic.
-
-With the optimal topic, we do differential topic analysis
-
-```{r read_arg}
-K <- params$K
-K
-iter <- params$R
-iter
-```
-
-
-```{r include=FALSE}
-knitr::opts_chunk$set(
-  echo = TRUE, 
-  fig.width = 7, 
-  fig.height = 4, 
-  fig.align = 'center',
-  message = FALSE, 
-  warning = FALSE
-  )
-```
-
 ```{r}
 library(phyloseq)
 library(tidyverse)
-library(genefilter) #KOverA
+library(genefilter) 
 library(Rcpp)
 library(rstan)
-library(randomcoloR)# distinctColorPalette(n)
+library(randomcoloR)
 library(DESeq2)
-
-devtools::load_all()
+library(diffTop)
 ```
+
+In this data set, we are interested infer on the topics (bacterial communities) when we use original and modified PNA clams (two different experimental conditions). To infer about these topics, we use latent Dirichlet allocation.  
+
+## Input data
+
+We set-up data for latent Dirichlet allocation (LDA) based on a `phyloseq` object `(psE_BARBI)`, the number of topics (K=11), hyperparameters for topic proportion in each sample $\alpha = 0.8$ and ASVs proportion in each topic $gamma = 0.8$.
+
+
+In `psE_BARBI`, we removed DNA contaminants using BARBI. Then, we choose ASVs that have at least 25 counts in at least two specimens. 
+
+
+We set the hyper-parameters $\alpha$ and $\gamma$ less than one to generate mixtures that are different from each other. We choose 0.8 for $\alpha$ across all samples so that we avoid generating unrealistic topics. 
+
+
+We estimate the parameters using HMC NUTS with four chains and 2000 iterations. Out of these 2000 iterations, 1000 iterations were used as warm-up samples. 
+
+
+```{r inputdata}
+K <- 11
+alpha <- 0.8
+gamma <- 0.8
+stan.data <- setUpData(
+  ps = ps,
+  K = K,
+  alpha = alpha,
+  gamma = gamma
+)
+```
+
+
+
+
 
 
 ```{r}

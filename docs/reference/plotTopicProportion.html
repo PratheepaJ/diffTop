@@ -131,12 +131,7 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/PratheepaJ/diffTop/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -151,7 +146,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot the topic distribution in all specimens.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/PratheepaJ/diffTop/blob/master/R/plotTopicProportion.R'><code>R/plotTopicProportion.R</code></a></small>
+    
     <div class="hidden name"><code>plotTopicProportion.Rd</code></div>
     </div>
 
@@ -165,7 +160,7 @@
   <span class='va'>K</span>,
   col_names_theta_all <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"iteration"</span>, <span class='st'>"Sample"</span>, <span class='st'>"Topic"</span>, <span class='st'>"topic.dis"</span><span class='op'>)</span>,
   chain <span class='op'>=</span> <span class='fl'>4</span>,
-  warmup <span class='op'>=</span> <span class='va'>iter</span><span class='op'>/</span><span class='fl'>2</span>,
+  iterUse <span class='op'>=</span> <span class='fl'>1000</span>,
   SampleIDVarInphyloseq <span class='op'>=</span> <span class='st'>"unique_names"</span>,
   design <span class='op'>=</span> <span class='op'>~</span><span class='va'>pna</span>
 <span class='op'>)</span></pre>
@@ -194,8 +189,8 @@
       <td><p>integer. number of chains used in MCMC.</p></td>
     </tr>
     <tr>
-      <th>warmup</th>
-      <td><p>Integer. Number of iterations in each chain used for warmup samples.</p></td>
+      <th>iterUse</th>
+      <td><p>integer. number of iterations used in each chain after subtracting warm-up samples.</p></td>
     </tr>
     <tr>
       <th>SampleIDVarInphyloseq</th>
@@ -209,9 +204,7 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    
-
-
+    <p>A ggplot2 object. Histrogram of median of topic proportion in each sample.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -7,8 +7,6 @@
 plotASVCircular(
   ps,
   K,
-  iter = 2000,
-  chain = 4,
   beta_aligned,
   varnames = c("iterations", "topic", "rsv_ix"),
   value_name = "beta_h",
@@ -21,10 +19,6 @@ plotASVCircular(
 
 \item{K}{integer. number of topics.}
 
-\item{iter}{integer. number of iteration used in each chain.}
-
-\item{chain}{integer. number of chains used in MCMC.}
-
 \item{beta_aligned}{List. returned object of betaAligned().}
 
 \item{varnames}{Character vector. Use to name column of long formatted data frame of ASVs distribution. An example is c("iterations", "topic", "rsv_ix")}
@@ -36,7 +30,7 @@ plotASVCircular(
 \item{thresholdASVprop}{Numberic. Use to select ASVs for circular plot.}
 }
 \value{
-
+A ggplot2 object. A circular plot annotated with phylogenetic tree.
 }
 \description{
 Plot the ASVs distribution in each topic.

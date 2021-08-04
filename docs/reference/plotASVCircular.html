@@ -131,12 +131,7 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/PratheepaJ/diffTop/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -151,7 +146,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot the ASVs distribution in each topic.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/PratheepaJ/diffTop/blob/master/R/plotASVCircular.R'><code>R/plotASVCircular.R</code></a></small>
+    
     <div class="hidden name"><code>plotASVCircular.Rd</code></div>
     </div>
 
@@ -162,8 +157,6 @@
     <pre class="usage"><span class='fu'>plotASVCircular</span><span class='op'>(</span>
   <span class='va'>ps</span>,
   <span class='va'>K</span>,
-  iter <span class='op'>=</span> <span class='fl'>2000</span>,
-  chain <span class='op'>=</span> <span class='fl'>4</span>,
   <span class='va'>beta_aligned</span>,
   varnames <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"iterations"</span>, <span class='st'>"topic"</span>, <span class='st'>"rsv_ix"</span><span class='op'>)</span>,
   value_name <span class='op'>=</span> <span class='st'>"beta_h"</span>,
@@ -181,14 +174,6 @@
     <tr>
       <th>K</th>
       <td><p>integer. number of topics.</p></td>
-    </tr>
-    <tr>
-      <th>iter</th>
-      <td><p>integer. number of iteration used in each chain.</p></td>
-    </tr>
-    <tr>
-      <th>chain</th>
-      <td><p>integer. number of chains used in MCMC.</p></td>
     </tr>
     <tr>
       <th>beta_aligned</th>
@@ -214,9 +199,7 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    
-
-
+    <p>A ggplot2 object. A circular plot annotated with phylogenetic tree.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

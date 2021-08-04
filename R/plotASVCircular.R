@@ -6,41 +6,50 @@
 #' @param taxonomylevel Character. Use to label ASVs.
 #' @param thresholdASVprop Numberic. Use to select ASVs for circular plot.
 #' @inheritParams alignmentMatrix
-#' @return
+#' @return A ggplot2 object. A circular plot annotated with phylogenetic tree.
+#' @importFrom reshape2 melt
+#' @import phyloseq
+#' @importFrom dplyr left_join mutate arrange summarise group_by
+#' @importFrom tibble as_tibble
+#' @importFrom stringr str_remove
+#' @importFrom ggtree ggtree gheatmap
+#' @importFrom randomcoloR distinctColorPalette
+#' @importFrom grDevices rainbow
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggnewscale new_scale_fill
+#' @importFrom stats median
+#' @importFrom tidyr spread
 #' @export
+#'
 #'
 
 plotASVCircular <- function(
   ps,
   K,
-  iter = 2000,
-  chain = 4,
   beta_aligned,
   varnames = c("iterations", "topic", "rsv_ix"),
   value_name = "beta_h",
   taxonomylevel = "Class",
   thresholdASVprop = 0.008
 ){
-  # array to data frame
+
+  topic <- rsv_ix <- beta_h <- rsv <- NULL
+  Phylum <- Class <- Order <- Family <- Genus <- NULL
+  beta_median <- median <- NULL
+
+
   beta_hat <- beta_aligned %>%
     reshape2::melt(
-      varnames = c("iterations",
-                   "topic",
-                   "rsv_ix"),
-      value.name = "beta_h") %>%
+      varnames = varnames,
+      value.name = value_name) %>%
     as_tibble()
 
   beta_hat$rsv <- rownames(
     tax_table(ps)
   )[beta_hat$rsv_ix]
 
-  # join taxa_table with beta_hat
 
-  ## If we use a taxonomy level with NA,
-  ## we can replace the taxonomy level with
-  ## one level before this level
-  #taxa$Class[which(is.na(taxa$Class))] = taxa$Phylum[which(is.na(taxa$Class))]
-  taxa <- tax_table(ps) %>%
+  taxa <- phyloseq::tax_table(ps) %>%
     as.data.frame() %>%
     as_tibble()
 
@@ -49,23 +58,21 @@ plotASVCircular <- function(
   )
 
   beta_hat <- beta_hat %>%
-    left_join(
+    dplyr::left_join(
       taxa,
       by = "rsv"
     ) %>%
-    mutate(
+    dplyr::mutate(
       topic = paste("Topic", topic)
     )
 
-  # Filtering ASVs for visualization:
-  ## We can filter by ASVs proportion in all topics.
 
   beta_hat$Class <- factor(beta_hat$Class)
   beta_hat$rsv <- factor(beta_hat$rsv)
   beta_hat$rsv_ix <- factor(beta_hat$rsv_ix)
   beta_hat$topic <- factor(beta_hat$topic)
 
-  # We plot the median of posterior sample and keep all taxonomy for each ASV.
+
   beta_summary <- beta_hat %>%
     dplyr::group_by(
       rsv_ix,
@@ -81,9 +88,7 @@ plotASVCircular <- function(
       Genus = Genus[1]
     )
 
-  usethis::use_data(beta_summary)
 
-  #######
   beta_subset <- beta_summary
 
   beta_subset$rsv_ix <- rep(
@@ -95,18 +100,18 @@ plotASVCircular <- function(
 
 
   beta_subset <- beta_subset %>%
-    arrange(
+    dplyr::arrange(
       rsv_ix,
       topic
     )
 
   beta_subset <- beta_subset %>%
-    mutate(
+    dplyr::mutate(
       Class = factor(
         Class,
         levels = unique(beta_subset$Class)
       ),
-      Topic = str_remove(topic, "Topic ")
+      Topic = stringr::str_remove(topic, "Topic ")
     )
 
 
@@ -172,7 +177,7 @@ plotASVCircular <- function(
     beta_subset_wide[, 3:dim(beta_subset_wide)[2]],
     1,
     function(x){
-      sum(x >= 0.008) >= 1
+      sum(x >= thresholdASVprop) >= 1
     }
   )
 
@@ -191,7 +196,7 @@ plotASVCircular <- function(
     )
   )
 
-  circ <- ggtree(
+  circ <- ggtree::ggtree(
     tree,
     layout = "circular"
   )
@@ -200,7 +205,7 @@ plotASVCircular <- function(
 
   beta_subset_wide <- beta_subset_wide[ , c("rsv", "Class", paste0("Topic ", seq(1,K)))]
 
-  color <- distinctColorPalette(
+  color <- randomcoloR::distinctColorPalette(
     length(
       unique(
         beta_subset_wide$Class
@@ -208,9 +213,9 @@ plotASVCircular <- function(
     )
   )
 
-  color_topic <- rainbow(K)
+  color_topic <- grDevices::rainbow(K)
 
-  ## in circular plot, ASVs will be labeled by Class
+
   df <- data.frame(
     Class = beta_subset_wide$Class
   )
@@ -223,7 +228,7 @@ plotASVCircular <- function(
   rownames(df2) <- tree$tip.label
 
 
-  ## append Class to phylogenetic tree
+
   p <- gheatmap(
     p = circ,
     data = df,
@@ -232,7 +237,7 @@ plotASVCircular <- function(
     colnames_angle = 95,
     colnames_offset_y = .5,
     font.size = 5) +
-    scale_fill_manual(
+    ggplot2::scale_fill_manual(
       values = color,
       name = "Class"
     )
@@ -241,7 +246,7 @@ plotASVCircular <- function(
   for(i in 1:K){
     if(i == 1){
       p <- p +
-        new_scale_fill()# to make once fill scale
+        ggnewscale::new_scale_fill()
     }
     df2_i <- dplyr::select(
       beta_subset_wide, (i+2)

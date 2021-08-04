@@ -131,12 +131,7 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/PratheepaJ/diffTop/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -151,7 +146,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>aligned topics across chains</h1>
-    <small class="dont-index">Source: <a href='https://github.com/PratheepaJ/diffTop/blob/master/R/alignmentMatrix.R'><code>R/alignmentMatrix.R</code></a></small>
+    
     <div class="hidden name"><code>alignmentMatrix.Rd</code></div>
     </div>
 
@@ -163,7 +158,7 @@
   <span class='va'>theta</span>,
   <span class='va'>ps</span>,
   <span class='va'>K</span>,
-  iter <span class='op'>=</span> <span class='fl'>2000</span>,
+  iterUse <span class='op'>=</span> <span class='fl'>1000</span>,
   chain <span class='op'>=</span> <span class='fl'>4</span>,
   SampleID_name <span class='op'>=</span> <span class='st'>"SampleID"</span>
 <span class='op'>)</span></pre>
@@ -184,8 +179,8 @@
       <td><p>integer. number of topics.</p></td>
     </tr>
     <tr>
-      <th>iter</th>
-      <td><p>integer. number of iteration used in each chain.</p></td>
+      <th>iterUse</th>
+      <td><p>integer. number of iterations used in each chain after subtracting warm-up samples.</p></td>
     </tr>
     <tr>
       <th>chain</th>

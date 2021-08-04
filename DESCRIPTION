@@ -1,20 +1,52 @@
 Package: diffTop
-Date: 02-16-2021
-Title: Differential topic analysis using latent Dirichlet allocation.
+Date: 08-01-2021
+Title: Differential topic analysis using latent Dirichlet allocation
 Version: 0.99.0
 Authors@R: c(
     person("Pratheepa", "Jeganathan", email="jpratheepa31@gmail.com", role = c("aut","cre")),
     person("Susan", "Holmes", role = c("aut","ctb")))
-Author: Pratheepa Jeganathan <jpratheepa31@gmail.com>
 Maintainer: Pratheepa Jeganathan <jpratheepa31@gmail.com>
 Description: Compute the median Bayesian posterior of topic proportions in each sample, multiply the proportions by the library size and round to an integer, and use this as the abundance of the topics in each sample to test differentially abundant topics.
 License: LGPL (>= 3)
 Encoding: UTF-8
-Suggests: 
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr, rmarkdown
+LazyData: true
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-URL: https://github.com/PratheepaJ/diffTop
+Biarch: true
 Depends: 
-
+    R (>= 3.4.0)
+Imports: 
+    phyloseq,
+    methods,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.1.1),
+    reshape2,
+    dplyr,
+    magrittr,
+    DESeq2,
+    abind,
+    ggplot2,
+    ggtree,
+    rainbow,
+    randomcoloR,
+    stringr,
+    tibble,
+    xtable,
+    ggnewscale,
+    SummarizedExperiment,
+    tidyr,
+    devtools
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr

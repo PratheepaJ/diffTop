@@ -1,26 +1,30 @@
-#' Model assessement for LDA
+#' Model assessment for LDA based on the maximum abundance for each taxon.
 #'
 #' @param stan.fit An instance of stanfit.
-#' @param statistic Function name. Use this statistic to assess the goodness of fit.
 #' @param ASVsIndexToPlot An integer vector. Use to select ASVs to show the goodness of fit in histograms.
 #' @inheritParams alignmentMatrix
-#' @return
+#' @return A ggplot2 object. Histogram of data generated from the posterior estimates and the observed data.
+#' @importFrom rstan stan
+#' @importFrom ggplot2 facet_wrap geom_vline theme_update aes
+#' @import phyloseq
+#' @importFrom reshape2 melt
 #' @export
 #'
 modelAssessment <- function(
   ps,
   stan.fit,
-  iter,
-  statistic = "max",
+  iterUse = 1000,
   ASVsIndexToPlot = c(1, 3, 10:14, 19:26, 36, 51:53, 148)
 ){
+
+  value <- Var2 <- NULL
   samples <- rstan::extract(
     stan.fit,
     permuted = TRUE,
     inc_warmup = FALSE,
     include = TRUE)# samples is a list
 
-  x <- get_taxa(ps) %>%
+  x <- phyloseq::get_taxa(ps) %>%
     t()
 
   dimnames(x) <- NULL
@@ -36,7 +40,7 @@ modelAssessment <- function(
   # draws from posterior predictive distribution
   x_sim <- samples$x_sim # iteration * samples * ASVs
   # Choose only the first chain
-  x_sim <- x_sim[1:(iter/2), ,] # For each iteration, simulated data is x_sim[i, ,]
+  x_sim <- x_sim[1:(iterUse), ,] # For each iteration, simulated data is x_sim[i, ,]
   sim_ite <- dim(x_sim)[1]
 
   #Find maximum of each asv for each replication
@@ -75,7 +79,7 @@ modelAssessment <- function(
   max_all <- max_all %>% t()
   ## choose some of asvs for Posterior predictive check (these indexes are considered to avoid if ASV's Class is missing)
   max_all <- max_all[, ASVsIndexToPlot]
-  max_all_long <- melt(max_all)
+  max_all_long <- reshape2::melt(max_all)
 
   # observed stat data frame
   x_max_asv <- data.frame(
@@ -95,10 +99,10 @@ modelAssessment <- function(
   x_max_asv <- x_max_asv[ASVsIndexToPlot,]
 
 
-  p_hist <- ggplot(
+  p_hist <- ggplot2::ggplot(
     data = max_all_long
   ) +
-    geom_histogram(
+    ggplot2::geom_histogram(
       aes(
         x = value,
         group = Var2
@@ -107,13 +111,13 @@ modelAssessment <- function(
       fill = "blue",
       bins = 50) +
     xlab("maximum")+
-    facet_wrap(~Var2, nrow = 4) +
-    geom_vline(
+    ggplot2::facet_wrap(~Var2, nrow = 4) +
+    ggplot2::geom_vline(
       data = x_max_asv,
       aes(xintercept = value),
       color = "purple"
     ) +
-    theme_update(
+    ggplot2::theme_update(
       text = element_text(size = 8)
     )
   return(p_hist)

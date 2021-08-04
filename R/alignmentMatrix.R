@@ -3,34 +3,46 @@
 #' @param theta array. three dimensional array (iterations * samples * topic).
 #' @param ps phyloseq object.
 #' @param K integer. number of topics.
-#' @param iter integer. number of iteration used in each chain.
+#' @param iterUse integer. number of iterations used in each chain after subtracting warm-up samples.
 #' @param chain integer. number of chains used in MCMC.
 #' @param SampleID_name character. variable name that contains sample IDs.
 #'
 #' @return matrix. A matrix of topic assignment for each chain.
+#' @importFrom magrittr %>%
+#' @importFrom dplyr left_join filter select
+#' @import phyloseq
+#' @importFrom reshape2 melt
+#' @importFrom stats cor
 #' @export
 #'
 alignmentMatrix <- function(theta,
                             ps,
                             K,
-                            iter = 2000,
+                            iterUse = 1000,
                             chain = 4,
                             SampleID_name = "SampleID"){
+  Chain <- Topic <- topic.dis <- NULL
   # theta is a 3 dimensional array (iterations * samples * topic)
-  dimnames(theta)[[2]] <- sample_names(ps) %>% as.character()
+  dimnames(theta)[[2]] <- phyloseq::sample_names(ps) %>%
+    as.character()
   dimnames(theta)[[3]] <- c(paste0("Topic_", seq(1,K)))
 
   # array to a dataframe
-  theta_all = melt(theta)
+  theta_all = reshape2::melt(theta)
   colnames(theta_all) = c("iteration", "Sample", "Topic", "topic.dis")
-  theta_all$Chain = paste0("Chain ", rep(seq(1, chain), each = (iter/2)))
+  theta_all$Chain = paste0("Chain ", rep(seq(1, chain), each = (iterUse)))
   theta_all$Sample = factor(theta_all$Sample)
   theta_all$Topic = factor(theta_all$Topic)
 
   # join the phyloseq sample data to theta_all
-  sam = sample_data(ps) %>% data.frame()
+  sam = sample_data(ps) %>%
+    data.frame()
   theta_all$Sample = as.character(theta_all$Sample)
-  theta_all = left_join(theta_all, sam, by =c("Sample"= SampleID_name))
+  theta_all = dplyr::left_join(
+    theta_all,
+    sam,
+    by =c("Sample"= SampleID_name)
+    )
   theta_all$Chain = factor(theta_all$Chain)
 
 

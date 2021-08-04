@@ -4,7 +4,7 @@
 \alias{betaAligned}
 \title{Align ASVs proportions in topics across chain.}
 \usage{
-betaAligned(beta, K, aligned, iter = 2000, chain = 4)
+betaAligned(beta, K, aligned, iterUse = 1000, chain = 4)
 }
 \arguments{
 \item{beta}{array. three dimensional array (iterations * topic * ASVs).}
@@ -13,7 +13,7 @@ betaAligned(beta, K, aligned, iter = 2000, chain = 4)
 
 \item{aligned}{matrix. A matrix of topic assignment for each chain. output of alignmentMatrix().}
 
-\item{iter}{integer. number of iteration used in each chain.}
+\item{iterUse}{integer. number of iterations used in each chain after subtracting warm-up samples.}
 
 \item{chain}{integer. number of chains used in MCMC.}
 }

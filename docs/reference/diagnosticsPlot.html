@@ -131,12 +131,7 @@
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/PratheepaJ/diffTop/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -151,7 +146,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Diagnostics plots - ESS and Rhat.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/PratheepaJ/diffTop/blob/master/R/diagnosticsPlot.R'><code>R/diagnosticsPlot.R</code></a></small>
+    
     <div class="hidden name"><code>diagnosticsPlot.Rd</code></div>
     </div>
 
@@ -159,7 +154,7 @@
     <p>Diagnostics plots - ESS and Rhat.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>diagnosticsPlot</span><span class='op'>(</span><span class='va'>theta_aligned</span>, <span class='va'>beta_aligned</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>diagnosticsPlot</span><span class='op'>(</span><span class='va'>theta_aligned</span>, <span class='va'>beta_aligned</span>, iterUse <span class='op'>=</span> <span class='fl'>1000</span>, chain <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -171,6 +166,14 @@
     <tr>
       <th>beta_aligned</th>
       <td><p>array. Three dimensional array returned by betaAligned().</p></td>
+    </tr>
+    <tr>
+      <th>iterUse</th>
+      <td><p>integer. number of iterations used in each chain after subtracting warm-up samples.</p></td>
+    </tr>
+    <tr>
+      <th>chain</th>
+      <td><p>integer. number of chains used in MCMC.</p></td>
     </tr>
     </table>
 
