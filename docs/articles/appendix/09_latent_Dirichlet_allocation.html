@@ -194,7 +194,7 @@
 <div id="input-data-for-lda" class="section level2">
 <h2 class="hasAnchor">
 <a href="#input-data-for-lda" class="anchor"></a>Input data for LDA</h2>
-<p>Based on the ordination, we choose the number of topics as K=11. We set the hyperparameters for topic proportion in each sample as <span class="math inline">\(\alpha = 0.8\)</span> and ASVs proportion in each topic as <span class="math inline">\(gamma = 0.8\)</span>.</p>
+<p>Based on the ordination, we choose the number of topics as K=11. We set the hyperparameters <span class="math inline">\(\alpha = 0.8\)</span> and <span class="math inline">\(\gamma = 0.8\)</span>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">11</span>
 <span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.8</span>
@@ -258,7 +258,7 @@
   <span class="va">theta</span>, 
   <span class="va">ps</span>, 
   <span class="va">K</span>, 
-  iter <span class="op">=</span> <span class="va">iter</span>,
+  iterUse <span class="op">=</span> <span class="va">iter</span><span class="op">/</span><span class="fl">2</span>,
   chain <span class="op">=</span> <span class="va">chains</span>,
   SampleID_name <span class="op">=</span> <span class="st">"unique_names"</span>
   <span class="op">)</span></code></pre></div>
@@ -272,7 +272,7 @@
   <span class="va">theta</span>, 
   <span class="va">K</span>, 
   <span class="va">aligned</span>, 
-  iter <span class="op">=</span> <span class="va">iter</span>, 
+  iterUse <span class="op">=</span> <span class="va">iter</span><span class="op">/</span><span class="fl">2</span>, 
   chain <span class="op">=</span> <span class="va">chains</span>
   <span class="op">)</span></code></pre></div>
 </div>
@@ -281,15 +281,14 @@
 <a href="#align-asv-proportion" class="anchor"></a>Align ASV proportion</h3>
 <p>We align the ASVs proportion in each topic across four chains.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># an array (iterations *topic * ASV)</span>
-<span class="va">beta</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">beta</span> 
+<code class="sourceCode R"><span class="va">beta</span> <span class="op">&lt;-</span> <span class="va">samples</span><span class="op">$</span><span class="va">beta</span> 
 
-<span class="co"># an array (iterations *topic * ASV)</span>
+
 <span class="va">beta_aligned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/betaAligned.html">betaAligned</a></span><span class="op">(</span>
   <span class="va">beta</span>, 
   <span class="va">K</span>, 
   <span class="va">aligned</span>, 
-  iter <span class="op">=</span> <span class="va">iter</span>, 
+  iterUse <span class="op">=</span> <span class="va">iter</span><span class="op">/</span><span class="fl">2</span>, 
   chain <span class="op">=</span> <span class="va">chains</span>
   <span class="op">)</span> </code></pre></div>
 </div>
@@ -307,7 +306,7 @@
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  K,</span>
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names_theta_all =</span> <span class="fu">c</span>(<span class="st">"iteration"</span>, <span class="st">"Sample"</span>, <span class="st">"Topic"</span>, <span class="st">"topic.dis"</span>),</span>
 <span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">chain =</span> <span class="dv">4</span>,</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> iter,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">iterUse =</span> iter<span class="sc">/</span><span class="dv">2</span>,</span>
 <span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">SampleIDVarInphyloseq =</span> <span class="st">"unique_names"</span>,</span>
 <span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> <span class="sc">~</span> pna</span>
 <span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -327,7 +326,7 @@ Figure 6: Topic distribution in specimens from Sonchus Arvensis plant. The color
 <code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/plotASVCircular.html">plotASVCircular</a></span><span class="op">(</span>
   <span class="va">ps</span>,
   <span class="va">K</span>,
-  iter <span class="op">=</span> <span class="va">iter</span>,
+  iterUse <span class="op">=</span> <span class="va">iter</span><span class="op">/</span><span class="fl">2</span>,
   chain <span class="op">=</span> <span class="va">chains</span>,
   <span class="va">beta_aligned</span>,
   varnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"iterations"</span>, <span class="st">"topic"</span>, <span class="st">"rsv_ix"</span><span class="op">)</span>,
@@ -352,7 +351,7 @@ Figure 7: ASV distribution over topics in all specimens
 <code class="sourceCode R"><span class="va">p_hist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/modelAssessment.html">modelAssessment</a></span><span class="op">(</span>
   <span class="va">ps</span>,
   <span class="va">stan.fit</span>,
-  <span class="va">iter</span>,
+  iterUse <span class="op">=</span> <span class="va">iter</span><span class="op">/</span><span class="fl">2</span>,
   statistic <span class="op">=</span> <span class="st">"max"</span>,
   ASVsIndexToPlot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">14</span>, <span class="fl">19</span><span class="op">:</span><span class="fl">26</span>, <span class="fl">36</span>, <span class="fl">51</span><span class="op">:</span><span class="fl">53</span>, <span class="fl">148</span><span class="op">)</span>
 <span class="op">)</span>
@@ -382,16 +381,18 @@ Supplementary Figure 13: Predictive model check with simulated data, observed da
 <p>We compute effective sample size for each parameter.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">diagnosticsPlot</span>(</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">theta_aligned =</span> theta_aligned,</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta_aligned =</span> beta_aligned</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>p_ess_bulk <span class="ot">&lt;-</span> p[[[<span class="dv">1</span>]]]</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"ess_bulk_plant_all_K_"</span>, K, <span class="st">".png"</span>), </span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  p_ess_bulk, </span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">9</span>, </span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">6</span></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta_aligned =</span> beta_aligned,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">iterUse =</span> iter<span class="sc">/</span><span class="dv">2</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chain =</span> <span class="dv">4</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>p_ess_bulk <span class="ot">&lt;-</span> p[[[<span class="dv">1</span>]]]</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"ess_bulk_plant_all_K_"</span>, K, <span class="st">".png"</span>), </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  p_ess_bulk, </span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">9</span>, </span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">6</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="ess_bulk_plant_all_K_11.png" alt="Supplementary Figure 14: Effective sample size (ESS) with eleven topics." width="100%"><p class="caption">
 Supplementary Figure 14: Effective sample size (ESS) with eleven topics.

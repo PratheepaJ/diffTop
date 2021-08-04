@@ -81,7 +81,7 @@ aligned <- alignmentMatrix(
   theta, 
   ps, 
   K, 
-  iter = iter,
+  iterUse = iter/2,
   chain = chains,
   SampleID_name = "unique_names"
   )
@@ -90,7 +90,7 @@ theta_aligned <- thetaAligned(
   theta, 
   K, 
   aligned, 
-  iter = iter, 
+  iterUse = iter/2, 
   chain = chains
   )
 
@@ -100,7 +100,7 @@ beta_aligned <- betaAligned(
   beta, 
   K, 
   aligned, 
-  iter = iter, 
+  iterUse = iter/2, 
   chain = chains
   ) 
 
@@ -194,7 +194,7 @@ aligned <- alignmentMatrix(
   theta, 
   ps, 
   K, 
-  iter = iter,
+  iterUse = iter/2,
   chain = chains,
   SampleID_name = "unique_names"
   )
@@ -210,7 +210,7 @@ theta_aligned <- thetaAligned(
   theta, 
   K, 
   aligned, 
-  iter = iter, 
+  iterUse = iter/2, 
   chain = chains
   )
 ```
@@ -229,7 +229,7 @@ beta_aligned <- betaAligned(
   beta, 
   K, 
   aligned, 
-  iter = iter, 
+  iterUse = iter/2, 
   chain = chains
   ) 
 ```
@@ -247,7 +247,7 @@ plotTopicProportion(
   K,
   col_names_theta_all = c("iteration", "Sample", "Topic", "topic.dis"),
   chain = 4,
-  iter = iter,
+  iterUse = iter/2,
   SampleIDVarInphyloseq = "unique_names",
   design = ~ pna
 )
@@ -261,7 +261,7 @@ We plot the ASVs distribution in each topic.
 plotASVCircular(
   ps,
   K,
-  iter = iter,
+  iterUse = iter/2,
   chain = chains,
   beta_aligned,
   varnames = c("iterations", "topic", "rsv_ix"),
@@ -280,7 +280,7 @@ We do goodness of fit test using the posterior estimates and observed data.
 modelAssessment(
   ps,
   stan.fit,
-  iter,
+  iterUse = iter/2,
   statistic = "max",
   ASVsIndexToPlot = c(1, 3, 10:14, 19:26, 36, 51:53, 148)
 )
@@ -297,6 +297,8 @@ We compute effective sample size for each parameter.
 p <- diagnosticsPlot(
   theta_aligned = theta_aligned,
   beta_aligned = beta_aligned
+  iterUse = iter/2,
+  chain = chains
 )
 p_ess_bulk <- p[[[1]]]
 p_ess_bulk
